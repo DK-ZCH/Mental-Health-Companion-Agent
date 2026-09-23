@@ -1,9 +1,9 @@
 package com.entity.view;
 
 import com.entity.TongzhiEntity;
-import com.baomidou.mybatisplus.annotations.TableName;
-import org.apache.commons.beanutils.BeanUtils;
-import java.lang.reflect.InvocationTargetException;
+import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.beans.BeanUtils;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
@@ -30,12 +30,7 @@ public class TongzhiView extends TongzhiEntity implements Serializable {
 	}
 
 	public TongzhiView(TongzhiEntity tongzhiEntity) {
-		try {
-			BeanUtils.copyProperties(this, tongzhiEntity);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BeanUtils.copyProperties(tongzhiEntity, this);
 	}
 
 

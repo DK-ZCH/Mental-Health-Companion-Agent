@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import org.springframework.beans.BeanUtils;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.ContextLoader;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
@@ -94,7 +94,7 @@ public class JiankangzhishiController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        JiankangzhishiEntity jiankangzhishi = jiankangzhishiService.selectById(id);
+        JiankangzhishiEntity jiankangzhishi = jiankangzhishiService.getById(id);
         if(jiankangzhishi !=null){
             //entity转view
             JiankangzhishiView view = new JiankangzhishiView();
@@ -120,17 +120,17 @@ public class JiankangzhishiController {
         if(false)
             return R.error(511,"永远不会进入");
 
-        Wrapper<JiankangzhishiEntity> queryWrapper = new EntityWrapper<JiankangzhishiEntity>()
+        QueryWrapper<JiankangzhishiEntity> queryWrapper = new QueryWrapper<JiankangzhishiEntity>()
             .eq("title", jiankangzhishi.getTitle())
             .eq("category", jiankangzhishi.getCategory())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.selectOne(queryWrapper);
+        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
         if(jiankangzhishiEntity==null){
             jiankangzhishi.setPublishedAt(new Date());
             jiankangzhishi.setCreatedAt(new Date());
-            jiankangzhishiService.insert(jiankangzhishi);
+            jiankangzhishiService.save(jiankangzhishi);
             return R.ok();
         }else {
             return R.error(511,"表中有相同数据");
@@ -148,15 +148,14 @@ public class JiankangzhishiController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        Wrapper<JiankangzhishiEntity> queryWrapper = new EntityWrapper<JiankangzhishiEntity>()
-            .notIn("id",jiankangzhishi.getId())
-            .andNew()
+        QueryWrapper<JiankangzhishiEntity> queryWrapper = new QueryWrapper<JiankangzhishiEntity>()
+            .notIn("id",jiankangzhishi.getId()).and(w -> w
             .eq("title", jiankangzhishi.getTitle())
             .eq("category", jiankangzhishi.getCategory())
-            ;
+            );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.selectOne(queryWrapper);
+        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
         if("".equals(jiankangzhishi.getCoverUrl()) || "null".equals(jiankangzhishi.getCoverUrl())){
                 jiankangzhishi.setCoverUrl(null);
         }
@@ -174,7 +173,7 @@ public class JiankangzhishiController {
     @RequestMapping("/delete")
     public R delete(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        jiankangzhishiService.deleteBatchIds(Arrays.asList(ids));
+        jiankangzhishiService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
 
@@ -222,7 +221,7 @@ public class JiankangzhishiController {
                         }
 
                         //查询是否重复
-                        jiankangzhishiService.insertBatch(jiankangzhishiList);
+                        jiankangzhishiService.saveBatch(jiankangzhishiList);
                         return R.ok();
                     }
                 }
@@ -264,7 +263,7 @@ public class JiankangzhishiController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        JiankangzhishiEntity jiankangzhishi = jiankangzhishiService.selectById(id);
+        JiankangzhishiEntity jiankangzhishi = jiankangzhishiService.getById(id);
             if(jiankangzhishi !=null){
 
 
@@ -287,16 +286,16 @@ public class JiankangzhishiController {
     @RequestMapping("/add")
     public R add(@RequestBody JiankangzhishiEntity jiankangzhishi, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,jiankangzhishi:{}",this.getClass().getName(),jiankangzhishi.toString());
-        Wrapper<JiankangzhishiEntity> queryWrapper = new EntityWrapper<JiankangzhishiEntity>()
+        QueryWrapper<JiankangzhishiEntity> queryWrapper = new QueryWrapper<JiankangzhishiEntity>()
             .eq("title", jiankangzhishi.getTitle())
             .eq("category", jiankangzhishi.getCategory())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.selectOne(queryWrapper);
+        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
         if(jiankangzhishiEntity==null){
             jiankangzhishi.setPublishedAt(new Date());
             jiankangzhishi.setCreatedAt(new Date());
-        jiankangzhishiService.insert(jiankangzhishi);
+        jiankangzhishiService.save(jiankangzhishi);
             return R.ok();
         }else {
             return R.error(511,"表中有相同数据");

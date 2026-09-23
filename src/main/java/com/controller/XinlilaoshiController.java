@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import org.springframework.beans.BeanUtils;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.ContextLoader;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
@@ -92,7 +92,7 @@ public class XinlilaoshiController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(id);
+        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(id);
         if(xinlilaoshi !=null){
             //entity转view
             XinlilaoshiView view = new XinlilaoshiView();
@@ -118,18 +118,18 @@ public class XinlilaoshiController {
         if(false)
             return R.error(511,"永远不会进入");
 
-        Wrapper<XinlilaoshiEntity> queryWrapper = new EntityWrapper<XinlilaoshiEntity>()
+        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
             .eq("phone", xinlilaoshi.getPhone())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
+        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity==null){
             xinlilaoshi.setCreatedAt(new Date());
             xinlilaoshi.setPassword("123456");
-            xinlilaoshiService.insert(xinlilaoshi);
+            xinlilaoshiService.save(xinlilaoshi);
             return R.ok();
         }else {
             return R.error(511,"账户或者心理老师手机号已经被使用");
@@ -147,16 +147,15 @@ public class XinlilaoshiController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        Wrapper<XinlilaoshiEntity> queryWrapper = new EntityWrapper<XinlilaoshiEntity>()
-            .notIn("id",xinlilaoshi.getId())
-            .andNew()
+        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
+            .notIn("id",xinlilaoshi.getId()).and(w -> w
             .eq("username", xinlilaoshi.getUsername())
             .or()
             .eq("phone", xinlilaoshi.getPhone())
-            ;
+            );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
+        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if("".equals(xinlilaoshi.getAvatarUrl()) || "null".equals(xinlilaoshi.getAvatarUrl())){
                 xinlilaoshi.setAvatarUrl(null);
         }
@@ -174,7 +173,7 @@ public class XinlilaoshiController {
     @RequestMapping("/delete")
     public R delete(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        xinlilaoshiService.deleteBatchIds(Arrays.asList(ids));
+        xinlilaoshiService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
 
@@ -246,7 +245,7 @@ public class XinlilaoshiController {
 
                         //查询是否重复
                          //账户
-                        List<XinlilaoshiEntity> xinlilaoshiEntities_username = xinlilaoshiService.selectList(new EntityWrapper<XinlilaoshiEntity>().in("username", seachFields.get("username")));
+                        List<XinlilaoshiEntity> xinlilaoshiEntities_username = xinlilaoshiService.list(new QueryWrapper<XinlilaoshiEntity>().in("username", seachFields.get("username")));
                         if(xinlilaoshiEntities_username.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
                             for(XinlilaoshiEntity s:xinlilaoshiEntities_username){
@@ -255,7 +254,7 @@ public class XinlilaoshiController {
                             return R.error(511,"数据库的该表中的 [账户] 字段已经存在 存在数据为:"+repeatFields.toString());
                         }
                          //心理老师手机号
-                        List<XinlilaoshiEntity> xinlilaoshiEntities_xinlilaoshiPhone = xinlilaoshiService.selectList(new EntityWrapper<XinlilaoshiEntity>().in("phone", seachFields.get("phone")));
+                        List<XinlilaoshiEntity> xinlilaoshiEntities_xinlilaoshiPhone = xinlilaoshiService.list(new QueryWrapper<XinlilaoshiEntity>().in("phone", seachFields.get("phone")));
                         if(xinlilaoshiEntities_xinlilaoshiPhone.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
                             for(XinlilaoshiEntity s:xinlilaoshiEntities_xinlilaoshiPhone){
@@ -263,7 +262,7 @@ public class XinlilaoshiController {
                             }
                             return R.error(511,"数据库的该表中的 [心理老师手机号] 字段已经存在 存在数据为:"+repeatFields.toString());
                         }
-                        xinlilaoshiService.insertBatch(xinlilaoshiList);
+                        xinlilaoshiService.saveBatch(xinlilaoshiList);
                         return R.ok();
                     }
                 }
@@ -281,7 +280,7 @@ public class XinlilaoshiController {
     @IgnoreAuth
     @RequestMapping(value = "/login")
     public R login(String username, String password, String captcha, HttpServletRequest request) {
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectOne(new EntityWrapper<XinlilaoshiEntity>().eq("username", username));
+        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<XinlilaoshiEntity>().eq("username", username));
         if(xinlilaoshi==null || !xinlilaoshi.getPassword().equals(password))
             return R.error("账号或密码不正确");
         //  // 获取监听器中的字典表
@@ -306,16 +305,16 @@ public class XinlilaoshiController {
     @PostMapping(value = "/register")
     public R register(@RequestBody XinlilaoshiEntity xinlilaoshi){
 //    	ValidatorUtils.validateEntity(user);
-        Wrapper<XinlilaoshiEntity> queryWrapper = new EntityWrapper<XinlilaoshiEntity>()
+        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
             .eq("phone", xinlilaoshi.getPhone())
             ;
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
+        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity != null)
             return R.error("账户或者心理老师手机号已经被使用");
         xinlilaoshi.setCreatedAt(new Date());
-        xinlilaoshiService.insert(xinlilaoshi);
+        xinlilaoshiService.save(xinlilaoshi);
         return R.ok();
     }
 
@@ -338,7 +337,7 @@ public class XinlilaoshiController {
     @IgnoreAuth
     @RequestMapping(value = "/resetPass")
     public R resetPass(String username, HttpServletRequest request) {
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectOne(new EntityWrapper<XinlilaoshiEntity>().eq("username", username));
+        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<XinlilaoshiEntity>().eq("username", username));
         if(xinlilaoshi!=null){
             xinlilaoshi.setPassword("123456");
             boolean b = xinlilaoshiService.updateById(xinlilaoshi);
@@ -358,7 +357,7 @@ public class XinlilaoshiController {
     @RequestMapping("/session")
     public R getCurrXinlilaoshi(HttpServletRequest request){
         Integer id = (Integer)request.getSession().getAttribute("userId");
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(id);
+        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(id);
         if(xinlilaoshi !=null){
             //entity转view
             XinlilaoshiView view = new XinlilaoshiView();
@@ -412,7 +411,7 @@ public class XinlilaoshiController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(id);
+        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(id);
             if(xinlilaoshi !=null){
 
 
@@ -435,17 +434,17 @@ public class XinlilaoshiController {
     @RequestMapping("/add")
     public R add(@RequestBody XinlilaoshiEntity xinlilaoshi, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
-        Wrapper<XinlilaoshiEntity> queryWrapper = new EntityWrapper<XinlilaoshiEntity>()
+        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
             .eq("phone", xinlilaoshi.getPhone())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
+        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity==null){
             xinlilaoshi.setCreatedAt(new Date());
         xinlilaoshi.setPassword("123456");
-        xinlilaoshiService.insert(xinlilaoshi);
+        xinlilaoshiService.save(xinlilaoshi);
             return R.ok();
         }else {
             return R.error(511,"账户或者心理老师手机号已经被使用");

@@ -1,9 +1,9 @@
 package com.entity.view;
 
 import com.entity.ExamrewrongquestionEntity;
-import com.baomidou.mybatisplus.annotations.TableName;
-import org.apache.commons.beanutils.BeanUtils;
-import java.lang.reflect.InvocationTargetException;
+import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.beans.BeanUtils;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
@@ -108,12 +108,7 @@ public class ExamrewrongquestionView extends ExamrewrongquestionEntity implement
 	}
 
 	public ExamrewrongquestionView(ExamrewrongquestionEntity examrewrongquestionEntity) {
-		try {
-			BeanUtils.copyProperties(this, examrewrongquestionEntity);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BeanUtils.copyProperties(examrewrongquestionEntity, this);
 	}
 
 

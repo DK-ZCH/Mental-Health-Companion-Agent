@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.annotation.IgnoreAuth;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.ConfigEntity;
 import com.entity.EIException;
 import com.service.ConfigService;
@@ -63,7 +63,7 @@ public class FileController{
 		File dest = new File(upload.getAbsolutePath()+"/"+fileName);
 		file.transferTo(dest);
 		if(StringUtils.isNotBlank(type) && type.equals("1")) {
-			ConfigEntity configEntity = configService.selectOne(new EntityWrapper<ConfigEntity>().eq("config_key", "faceFile"));
+			ConfigEntity configEntity = configService.getOne(new QueryWrapper<ConfigEntity>().eq("config_key", "faceFile"));
 			if(configEntity==null) {
 				configEntity = new ConfigEntity();
 				configEntity.setConfigKey("faceFile");
@@ -71,7 +71,7 @@ public class FileController{
 			} else {
 				configEntity.setConfigValue(fileName);
 			}
-			configService.insertOrUpdate(configEntity);
+			configService.saveOrUpdate(configEntity);
 		}
 		return R.ok().put("file", fileName);
 	}

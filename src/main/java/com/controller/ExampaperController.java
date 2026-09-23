@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import org.springframework.beans.BeanUtils;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.ContextLoader;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
@@ -95,7 +95,7 @@ public class ExampaperController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExampaperEntity exampaper = exampaperService.selectById(id);
+        ExampaperEntity exampaper = exampaperService.getById(id);
         if(exampaper !=null){
             //entity转view
             ExampaperView view = new ExampaperView();
@@ -121,7 +121,7 @@ public class ExampaperController {
         if(false)
             return R.error(511,"永远不会进入");
 
-        Wrapper<ExampaperEntity> queryWrapper = new EntityWrapper<ExampaperEntity>()
+        QueryWrapper<ExampaperEntity> queryWrapper = new QueryWrapper<ExampaperEntity>()
             .eq("name", exampaper.getName())
             .eq("duration_minutes", exampaper.getDurationMinutes())
             .eq("total_score", exampaper.getTotalScore())
@@ -130,11 +130,11 @@ public class ExampaperController {
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExampaperEntity exampaperEntity = exampaperService.selectOne(queryWrapper);
+        ExampaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
         if(exampaperEntity==null){
             exampaper.setIsDeleted(1);
             exampaper.setCreatedAt(new Date());
-            exampaperService.insert(exampaper);
+            exampaperService.save(exampaper);
             return R.ok();
         }else {
             return R.error(511,"表中有相同数据");
@@ -152,18 +152,17 @@ public class ExampaperController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        Wrapper<ExampaperEntity> queryWrapper = new EntityWrapper<ExampaperEntity>()
-            .notIn("id",exampaper.getId())
-            .andNew()
+        QueryWrapper<ExampaperEntity> queryWrapper = new QueryWrapper<ExampaperEntity>()
+            .notIn("id",exampaper.getId()).and(w -> w
             .eq("name", exampaper.getName())
             .eq("duration_minutes", exampaper.getDurationMinutes())
             .eq("total_score", exampaper.getTotalScore())
             .eq("status", exampaper.getStatus())
             .eq("is_deleted", exampaper.getIsDeleted())
-            ;
+            );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExampaperEntity exampaperEntity = exampaperService.selectOne(queryWrapper);
+        ExampaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
         if(exampaperEntity==null){
             exampaperService.updateById(exampaper);//根据id更新
             return R.ok();
@@ -235,7 +234,7 @@ public class ExampaperController {
                         }
 
                         //查询是否重复
-                        exampaperService.insertBatch(exampaperList);
+                        exampaperService.saveBatch(exampaperList);
                         return R.ok();
                     }
                 }
@@ -277,7 +276,7 @@ public class ExampaperController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExampaperEntity exampaper = exampaperService.selectById(id);
+        ExampaperEntity exampaper = exampaperService.getById(id);
             if(exampaper !=null){
 
 
@@ -300,7 +299,7 @@ public class ExampaperController {
     @RequestMapping("/add")
     public R add(@RequestBody ExampaperEntity exampaper, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,exampaper:{}",this.getClass().getName(),exampaper.toString());
-        Wrapper<ExampaperEntity> queryWrapper = new EntityWrapper<ExampaperEntity>()
+        QueryWrapper<ExampaperEntity> queryWrapper = new QueryWrapper<ExampaperEntity>()
             .eq("name", exampaper.getName())
             .eq("duration_minutes", exampaper.getDurationMinutes())
             .eq("total_score", exampaper.getTotalScore())
@@ -308,11 +307,11 @@ public class ExampaperController {
             .eq("is_deleted", exampaper.getIsDeleted())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExampaperEntity exampaperEntity = exampaperService.selectOne(queryWrapper);
+        ExampaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
         if(exampaperEntity==null){
             exampaper.setIsDeleted(1);
             exampaper.setCreatedAt(new Date());
-        exampaperService.insert(exampaper);
+        exampaperService.save(exampaper);
             return R.ok();
         }else {
             return R.error(511,"表中有相同数据");

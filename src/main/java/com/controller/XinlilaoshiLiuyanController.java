@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import org.springframework.beans.BeanUtils;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.ContextLoader;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
@@ -94,20 +94,20 @@ public class XinlilaoshiLiuyanController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiLiuyanEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.selectById(id);
+        XinlilaoshiLiuyanEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.getById(id);
         if(xinlilaoshiLiuyan !=null){
             //entity转view
             XinlilaoshiLiuyanView view = new XinlilaoshiLiuyanView();
             BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
-                YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiLiuyan.getStudentId());
+                YonghuEntity yonghu = yonghuService.getById(xinlilaoshiLiuyan.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createdAt", "sentAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiLiuyan.getCounselorId());
+                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiLiuyan.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createdAt", "sentAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setCounselorId(xinlilaoshi.getId());
@@ -138,7 +138,7 @@ public class XinlilaoshiLiuyanController {
 
         xinlilaoshiLiuyan.setSentAt(new Date());
         xinlilaoshiLiuyan.setCreatedAt(new Date());
-        xinlilaoshiLiuyanService.insert(xinlilaoshiLiuyan);
+        xinlilaoshiLiuyanService.save(xinlilaoshiLiuyan);
         return R.ok();
     }
 
@@ -157,12 +157,12 @@ public class XinlilaoshiLiuyanController {
 //        else if("学生".equals(role))
 //            xinlilaoshiLiuyan.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         //根据字段查询是否有相同数据
-        Wrapper<XinlilaoshiLiuyanEntity> queryWrapper = new EntityWrapper<XinlilaoshiLiuyanEntity>()
+        QueryWrapper<XinlilaoshiLiuyanEntity> queryWrapper = new QueryWrapper<XinlilaoshiLiuyanEntity>()
             .eq("id",0)
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiLiuyanEntity xinlilaoshiLiuyanEntity = xinlilaoshiLiuyanService.selectOne(queryWrapper);
+        XinlilaoshiLiuyanEntity xinlilaoshiLiuyanEntity = xinlilaoshiLiuyanService.getOne(queryWrapper);
         xinlilaoshiLiuyan.setRepliedAt(new Date());
         if(xinlilaoshiLiuyanEntity==null){
             xinlilaoshiLiuyanService.updateById(xinlilaoshiLiuyan);//根据id更新
@@ -178,7 +178,7 @@ public class XinlilaoshiLiuyanController {
     @RequestMapping("/delete")
     public R delete(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        xinlilaoshiLiuyanService.deleteBatchIds(Arrays.asList(ids));
+        xinlilaoshiLiuyanService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
 
@@ -227,7 +227,7 @@ public class XinlilaoshiLiuyanController {
                         }
 
                         //查询是否重复
-                        xinlilaoshiLiuyanService.insertBatch(xinlilaoshiLiuyanList);
+                        xinlilaoshiLiuyanService.saveBatch(xinlilaoshiLiuyanList);
                         return R.ok();
                     }
                 }
@@ -269,7 +269,7 @@ public class XinlilaoshiLiuyanController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiLiuyanEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.selectById(id);
+        XinlilaoshiLiuyanEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.getById(id);
             if(xinlilaoshiLiuyan !=null){
 
 
@@ -278,13 +278,13 @@ public class XinlilaoshiLiuyanController {
                 BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
-                    YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiLiuyan.getStudentId());
+                    YonghuEntity yonghu = yonghuService.getById(xinlilaoshiLiuyan.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiLiuyan.getCounselorId());
+                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiLiuyan.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setCounselorId(xinlilaoshi.getId());
@@ -306,7 +306,7 @@ public class XinlilaoshiLiuyanController {
         logger.debug("add方法:,,Controller:{},,xinlilaoshiLiuyan:{}",this.getClass().getName(),xinlilaoshiLiuyan.toString());
         xinlilaoshiLiuyan.setSentAt(new Date());
         xinlilaoshiLiuyan.setCreatedAt(new Date());
-        xinlilaoshiLiuyanService.insert(xinlilaoshiLiuyan);
+        xinlilaoshiLiuyanService.save(xinlilaoshiLiuyan);
         return R.ok();
         }
 

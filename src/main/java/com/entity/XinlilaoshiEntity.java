@@ -1,13 +1,13 @@
 package com.entity;
 
-import com.baomidou.mybatisplus.annotations.TableId;
-import com.baomidou.mybatisplus.annotations.TableName;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.lang.reflect.InvocationTargetException;
+
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,10 +15,10 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.apache.commons.beanutils.BeanUtils;
-import com.baomidou.mybatisplus.annotations.TableField;
-import com.baomidou.mybatisplus.enums.FieldFill;
-import com.baomidou.mybatisplus.enums.IdType;
+import org.springframework.beans.BeanUtils;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 
 /**
  * 心理老师
@@ -36,12 +36,7 @@ public class XinlilaoshiEntity<T> implements Serializable {
 	}
 
 	public XinlilaoshiEntity(T t) {
-		try {
-			BeanUtils.copyProperties(this, t);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BeanUtils.copyProperties(t, this);
 	}
 
 

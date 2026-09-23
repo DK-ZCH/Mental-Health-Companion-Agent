@@ -6,6 +6,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,7 +41,7 @@ public class PoiUtil {
             List<String> rowlist = new ArrayList<>();//行数据
             for (int j = 0; j < row.getLastCellNum(); j++) {
                 HSSFCell cell = row.getCell(j);
-                cell.setCellType(Cell.CELL_TYPE_STRING);
+                cell.setCellType(CellType.STRING);
                 String value = cell.getStringCellValue();
                 rowlist.add(value);//行中数据添加到行中
             }

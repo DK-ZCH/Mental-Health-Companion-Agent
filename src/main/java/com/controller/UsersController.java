@@ -5,7 +5,7 @@ package com.controller;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.annotation.IgnoreAuth;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.UsersEntity;
 import com.service.TokenService;
 import com.utils.MPUtil;
@@ -44,7 +44,7 @@ public class UsersController {
 	@IgnoreAuth
 	@PostMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
-		UsersEntity user = usersService.selectOne(new EntityWrapper<UsersEntity>().eq("username", username));
+		UsersEntity user = usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", username));
 		if(user==null || !user.getPassword().equals(password)) {
 			return R.error("账号或密码不正确");
 		}
@@ -63,10 +63,10 @@ public class UsersController {
 	@PostMapping(value = "/register")
 	public R register(@RequestBody UsersEntity user){
 //    	ValidatorUtils.validateEntity(user);
-    	if(usersService.selectOne(new EntityWrapper<UsersEntity>().eq("username", user.getUsername())) !=null) {
+    	if(usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", user.getUsername())) !=null) {
     		return R.error("学生已存在");
     	}
-        usersService.insert(user);
+        usersService.save(user);
         return R.ok();
     }
 
@@ -85,7 +85,7 @@ public class UsersController {
     @IgnoreAuth
 	@RequestMapping(value = "/resetPass")
     public R resetPass(String username, HttpServletRequest request){
-    	UsersEntity user = usersService.selectOne(new EntityWrapper<UsersEntity>().eq("username", username));
+    	UsersEntity user = usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", username));
     	if(user==null) {
     		return R.error("账号不存在");
     	}
@@ -99,7 +99,7 @@ public class UsersController {
      */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params,UsersEntity user){
-        EntityWrapper<UsersEntity> ew = new EntityWrapper<UsersEntity>();
+        QueryWrapper<UsersEntity> ew = new QueryWrapper<UsersEntity>();
     	PageUtils page = usersService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.allLike(ew, user), params), params));
         return R.ok().put("data", page);
     }
@@ -109,7 +109,7 @@ public class UsersController {
      */
     @RequestMapping("/list")
     public R list( UsersEntity user){
-       	EntityWrapper<UsersEntity> ew = new EntityWrapper<UsersEntity>();
+       	QueryWrapper<UsersEntity> ew = new QueryWrapper<UsersEntity>();
       	ew.allEq(MPUtil.allEQMapPre( user, "user")); 
         return R.ok().put("data", usersService.selectListView(ew));
     }
@@ -119,7 +119,7 @@ public class UsersController {
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") String id){
-        UsersEntity user = usersService.selectById(id);
+        UsersEntity user = usersService.getById(id);
         return R.ok().put("data", user);
     }
     
@@ -129,7 +129,7 @@ public class UsersController {
     @RequestMapping("/session")
     public R getCurrUser(HttpServletRequest request){
     	Integer id = (Integer)request.getSession().getAttribute("userId");
-        UsersEntity user = usersService.selectById(id);
+        UsersEntity user = usersService.getById(id);
         return R.ok().put("data", user);
     }
 
@@ -139,11 +139,11 @@ public class UsersController {
     @PostMapping("/save")
     public R save(@RequestBody UsersEntity user){
 //    	ValidatorUtils.validateEntity(user);
-    	if(usersService.selectOne(new EntityWrapper<UsersEntity>().eq("username", user.getUsername())) !=null) {
+    	if(usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", user.getUsername())) !=null) {
     		return R.error("学生已存在");
     	}
     	user.setPassword("123456");
-        usersService.insert(user);
+        usersService.save(user);
         return R.ok();
     }
 
@@ -162,7 +162,7 @@ public class UsersController {
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] ids){
-        usersService.deleteBatchIds(Arrays.asList(ids));
+        usersService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
 }

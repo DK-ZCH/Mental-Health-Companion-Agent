@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import org.springframework.beans.BeanUtils;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.ContextLoader;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
@@ -86,7 +86,7 @@ public class DictionaryController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        DictionaryEntity dictionary = dictionaryService.selectById(id);
+        DictionaryEntity dictionary = dictionaryService.getById(id);
         if(dictionary !=null){
             //entity转view
             DictionaryView view = new DictionaryView();
@@ -112,7 +112,7 @@ public class DictionaryController {
         if(false)
             return R.error(511,"永远不会进入");
 
-        Wrapper<DictionaryEntity> queryWrapper = new EntityWrapper<DictionaryEntity>()
+        QueryWrapper<DictionaryEntity> queryWrapper = new QueryWrapper<DictionaryEntity>()
             .eq("dict_code", dictionary.getDictCode())
             .eq("item_name", dictionary.getItemName())
             ;
@@ -121,12 +121,12 @@ public class DictionaryController {
         }
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        DictionaryEntity dictionaryEntity = dictionaryService.selectOne(queryWrapper);
+        DictionaryEntity dictionaryEntity = dictionaryService.getOne(queryWrapper);
         if(dictionaryEntity==null){
             dictionary.setCreatedAt(new Date());
-            dictionaryService.insert(dictionary);
+            dictionaryService.save(dictionary);
             //字典表新增数据,把数据再重新查出,放入监听器中
-            List<DictionaryEntity> dictionaryEntities = dictionaryService.selectList(new EntityWrapper<DictionaryEntity>());
+            List<DictionaryEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<DictionaryEntity>());
             ServletContext servletContext = request.getServletContext();
             Map<String, Map<Integer,String>> map = new HashMap<>();
             for(DictionaryEntity d :dictionaryEntities){
@@ -155,7 +155,7 @@ public class DictionaryController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        Wrapper<DictionaryEntity> queryWrapper = new EntityWrapper<DictionaryEntity>()
+        QueryWrapper<DictionaryEntity> queryWrapper = new QueryWrapper<DictionaryEntity>()
             .notIn("id",dictionary.getId())
             .eq("dict_code", dictionary.getDictCode())
             .eq("item_name", dictionary.getItemName())
@@ -165,11 +165,11 @@ public class DictionaryController {
             queryWrapper.eq("parent_id",dictionary.getParentId());
         }
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        DictionaryEntity dictionaryEntity = dictionaryService.selectOne(queryWrapper);
+        DictionaryEntity dictionaryEntity = dictionaryService.getOne(queryWrapper);
         if(dictionaryEntity==null){
             dictionaryService.updateById(dictionary);//根据id更新
             //如果字典表修改数据的话,把数据再重新查出,放入监听器中
-            List<DictionaryEntity> dictionaryEntities = dictionaryService.selectList(new EntityWrapper<DictionaryEntity>());
+            List<DictionaryEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<DictionaryEntity>());
             ServletContext servletContext = request.getServletContext();
             Map<String, Map<Integer,String>> map = new HashMap<>();
             for(DictionaryEntity d :dictionaryEntities){
@@ -193,7 +193,7 @@ public class DictionaryController {
     @RequestMapping("/delete")
     public R delete(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        dictionaryService.deleteBatchIds(Arrays.asList(ids));
+        dictionaryService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
 
@@ -205,11 +205,11 @@ public class DictionaryController {
         logger.debug("maxItemCode:,,Controller:{},,dictionary:{}",this.getClass().getName(),dictionary.toString());
         List<String> descs = new ArrayList<>();
         descs.add("item_code");
-        Wrapper<DictionaryEntity> queryWrapper = new EntityWrapper<DictionaryEntity>()
+        QueryWrapper<DictionaryEntity> queryWrapper = new QueryWrapper<DictionaryEntity>()
                 .eq("dict_code", dictionary.getDictCode())
-                .orderDesc(descs);
+                .orderByDesc(descs);
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        List<DictionaryEntity> dictionaryEntityList = dictionaryService.selectList(queryWrapper);
+        List<DictionaryEntity> dictionaryEntityList = dictionaryService.list(queryWrapper);
         if(dictionaryEntityList != null ){
             return R.ok().put("maxItemCode",dictionaryEntityList.get(0).getItemCode()+1);
         }else{
@@ -261,7 +261,7 @@ public class DictionaryController {
                         }
 
                         //查询是否重复
-                        dictionaryService.insertBatch(dictionaryList);
+                        dictionaryService.saveBatch(dictionaryList);
                         return R.ok();
                     }
                 }

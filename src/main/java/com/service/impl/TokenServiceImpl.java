@@ -9,10 +9,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
-import com.baomidou.mybatisplus.plugins.Page;
-import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dao.TokenDao;
 import com.entity.TokenEntity;
 import com.entity.TokenEntity;
@@ -31,21 +31,21 @@ public class TokenServiceImpl extends ServiceImpl<TokenDao, TokenEntity> impleme
 
 	@Override
 	public PageUtils queryPage(Map<String, Object> params) {
-		Page<TokenEntity> page = this.selectPage(
+		Page<TokenEntity> page = this.page(
                 new Query<TokenEntity>(params).getPage(),
-                new EntityWrapper<TokenEntity>()
+                new QueryWrapper<TokenEntity>()
         );
         return new PageUtils(page);
 	}
 
 	@Override
-	public List<TokenEntity> selectListView(Wrapper<TokenEntity> wrapper) {
+	public List<TokenEntity> selectListView(QueryWrapper<TokenEntity> wrapper) {
 		return baseMapper.selectListView(wrapper);
 	}
 
 	@Override
 	public PageUtils queryPage(Map<String, Object> params,
-			Wrapper<TokenEntity> wrapper) {
+			QueryWrapper<TokenEntity> wrapper) {
 		 Page<TokenEntity> page =new Query<TokenEntity>(params).getPage();
 	        page.setRecords(baseMapper.selectListView(page,wrapper));
 	    	PageUtils pageUtil = new PageUtils(page);
@@ -54,7 +54,7 @@ public class TokenServiceImpl extends ServiceImpl<TokenDao, TokenEntity> impleme
 
 	@Override
 	public String generateToken(Integer userId,String username, String tableName, String role) {
-		TokenEntity tokenEntity = this.selectOne(new EntityWrapper<TokenEntity>().eq("user_id", userId).eq("role", role));
+		TokenEntity tokenEntity = this.getOne(new QueryWrapper<TokenEntity>().eq("user_id", userId).eq("role", role));
 		String token = CommonUtil.getRandomString(32);
 		Calendar cal = Calendar.getInstance();   
     	cal.setTime(new Date());   
@@ -64,14 +64,14 @@ public class TokenServiceImpl extends ServiceImpl<TokenDao, TokenEntity> impleme
 			tokenEntity.setExpiredAt(cal.getTime());
 			this.updateById(tokenEntity);
 		} else {
-			this.insert(new TokenEntity(userId,username, tableName, role, token, cal.getTime()));
+			this.save(new TokenEntity(userId,username, tableName, role, token, cal.getTime()));
 		}
 		return token;
 	}
 
 	@Override
 	public TokenEntity getTokenEntity(String token) {
-		TokenEntity tokenEntity = this.selectOne(new EntityWrapper<TokenEntity>().eq("token", token));
+		TokenEntity tokenEntity = this.getOne(new QueryWrapper<TokenEntity>().eq("token", token));
 		if(tokenEntity == null || tokenEntity.getExpiredAt().getTime()<new Date().getTime()) {
 			return null;
 		}

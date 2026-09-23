@@ -1,10 +1,10 @@
 package com.service;
 
-import com.baomidou.mybatisplus.service.IService;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.utils.PageUtils;
 import com.entity.XinlilaoshiLiuyanEntity;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 心理老师留言 服务类

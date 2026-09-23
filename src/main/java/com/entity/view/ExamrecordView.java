@@ -1,9 +1,9 @@
 package com.entity.view;
 
 import com.entity.ExamrecordEntity;
-import com.baomidou.mybatisplus.annotations.TableName;
-import org.apache.commons.beanutils.BeanUtils;
-import java.lang.reflect.InvocationTargetException;
+import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.beans.BeanUtils;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
@@ -74,12 +74,7 @@ public class ExamrecordView extends ExamrecordEntity implements Serializable {
 	}
 
 	public ExamrecordView(ExamrecordEntity examrecordEntity) {
-		try {
-			BeanUtils.copyProperties(this, examrecordEntity);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BeanUtils.copyProperties(examrecordEntity, this);
 	}
 
 

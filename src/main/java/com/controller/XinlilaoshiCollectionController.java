@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import com.alibaba.fastjson.JSONObject;
 import java.util.*;
 import org.springframework.beans.BeanUtils;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.ContextLoader;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
@@ -94,20 +94,20 @@ public class XinlilaoshiCollectionController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiCollectionEntity xinlilaoshiCollection = xinlilaoshiCollectionService.selectById(id);
+        XinlilaoshiCollectionEntity xinlilaoshiCollection = xinlilaoshiCollectionService.getById(id);
         if(xinlilaoshiCollection !=null){
             //entity转view
             XinlilaoshiCollectionView view = new XinlilaoshiCollectionView();
             BeanUtils.copyProperties( xinlilaoshiCollection , view );//把实体数据重构到view中
 
                 //级联表
-                YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiCollection.getStudentId());
+                YonghuEntity yonghu = yonghuService.getById(xinlilaoshiCollection.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createdAt", "favoritedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiCollection.getCounselorId());
+                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiCollection.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createdAt", "favoritedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setCounselorId(xinlilaoshi.getId());
@@ -136,18 +136,18 @@ public class XinlilaoshiCollectionController {
         else if("学生".equals(role))
             xinlilaoshiCollection.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
 
-        Wrapper<XinlilaoshiCollectionEntity> queryWrapper = new EntityWrapper<XinlilaoshiCollectionEntity>()
+        QueryWrapper<XinlilaoshiCollectionEntity> queryWrapper = new QueryWrapper<XinlilaoshiCollectionEntity>()
             .eq("counselor_id", xinlilaoshiCollection.getCounselorId())
             .eq("student_id", xinlilaoshiCollection.getStudentId())
             .eq("favorite_type", xinlilaoshiCollection.getFavoriteType())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiCollectionEntity xinlilaoshiCollectionEntity = xinlilaoshiCollectionService.selectOne(queryWrapper);
+        XinlilaoshiCollectionEntity xinlilaoshiCollectionEntity = xinlilaoshiCollectionService.getOne(queryWrapper);
         if(xinlilaoshiCollectionEntity==null){
             xinlilaoshiCollection.setFavoritedAt(new Date());
             xinlilaoshiCollection.setCreatedAt(new Date());
-            xinlilaoshiCollectionService.insert(xinlilaoshiCollection);
+            xinlilaoshiCollectionService.save(xinlilaoshiCollection);
             return R.ok();
         }else {
             return R.error(511,"表中有相同数据");
@@ -169,16 +169,15 @@ public class XinlilaoshiCollectionController {
 //        else if("学生".equals(role))
 //            xinlilaoshiCollection.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         //根据字段查询是否有相同数据
-        Wrapper<XinlilaoshiCollectionEntity> queryWrapper = new EntityWrapper<XinlilaoshiCollectionEntity>()
-            .notIn("id",xinlilaoshiCollection.getId())
-            .andNew()
+        QueryWrapper<XinlilaoshiCollectionEntity> queryWrapper = new QueryWrapper<XinlilaoshiCollectionEntity>()
+            .notIn("id",xinlilaoshiCollection.getId()).and(w -> w
             .eq("counselor_id", xinlilaoshiCollection.getCounselorId())
             .eq("student_id", xinlilaoshiCollection.getStudentId())
             .eq("favorite_type", xinlilaoshiCollection.getFavoriteType())
-            ;
+            );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiCollectionEntity xinlilaoshiCollectionEntity = xinlilaoshiCollectionService.selectOne(queryWrapper);
+        XinlilaoshiCollectionEntity xinlilaoshiCollectionEntity = xinlilaoshiCollectionService.getOne(queryWrapper);
         if(xinlilaoshiCollectionEntity==null){
             xinlilaoshiCollectionService.updateById(xinlilaoshiCollection);//根据id更新
             return R.ok();
@@ -193,7 +192,7 @@ public class XinlilaoshiCollectionController {
     @RequestMapping("/delete")
     public R delete(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        xinlilaoshiCollectionService.deleteBatchIds(Arrays.asList(ids));
+        xinlilaoshiCollectionService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
 
@@ -240,7 +239,7 @@ public class XinlilaoshiCollectionController {
                         }
 
                         //查询是否重复
-                        xinlilaoshiCollectionService.insertBatch(xinlilaoshiCollectionList);
+                        xinlilaoshiCollectionService.saveBatch(xinlilaoshiCollectionList);
                         return R.ok();
                     }
                 }
@@ -282,7 +281,7 @@ public class XinlilaoshiCollectionController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiCollectionEntity xinlilaoshiCollection = xinlilaoshiCollectionService.selectById(id);
+        XinlilaoshiCollectionEntity xinlilaoshiCollection = xinlilaoshiCollectionService.getById(id);
             if(xinlilaoshiCollection !=null){
 
 
@@ -291,13 +290,13 @@ public class XinlilaoshiCollectionController {
                 BeanUtils.copyProperties( xinlilaoshiCollection , view );//把实体数据重构到view中
 
                 //级联表
-                    YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiCollection.getStudentId());
+                    YonghuEntity yonghu = yonghuService.getById(xinlilaoshiCollection.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiCollection.getCounselorId());
+                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiCollection.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setCounselorId(xinlilaoshi.getId());
@@ -317,17 +316,17 @@ public class XinlilaoshiCollectionController {
     @RequestMapping("/add")
     public R add(@RequestBody XinlilaoshiCollectionEntity xinlilaoshiCollection, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,xinlilaoshiCollection:{}",this.getClass().getName(),xinlilaoshiCollection.toString());
-        Wrapper<XinlilaoshiCollectionEntity> queryWrapper = new EntityWrapper<XinlilaoshiCollectionEntity>()
+        QueryWrapper<XinlilaoshiCollectionEntity> queryWrapper = new QueryWrapper<XinlilaoshiCollectionEntity>()
             .eq("counselor_id", xinlilaoshiCollection.getCounselorId())
             .eq("student_id", xinlilaoshiCollection.getStudentId())
             .eq("favorite_type", xinlilaoshiCollection.getFavoriteType())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiCollectionEntity xinlilaoshiCollectionEntity = xinlilaoshiCollectionService.selectOne(queryWrapper);
+        XinlilaoshiCollectionEntity xinlilaoshiCollectionEntity = xinlilaoshiCollectionService.getOne(queryWrapper);
         if(xinlilaoshiCollectionEntity==null){
             xinlilaoshiCollection.setFavoritedAt(new Date());
             xinlilaoshiCollection.setCreatedAt(new Date());
-        xinlilaoshiCollectionService.insert(xinlilaoshiCollection);
+        xinlilaoshiCollectionService.save(xinlilaoshiCollection);
             return R.ok();
         }else {
             return R.error(511,"您已经收藏过了");
