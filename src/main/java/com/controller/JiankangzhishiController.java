@@ -71,9 +71,9 @@ public class JiankangzhishiController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -121,15 +121,15 @@ public class JiankangzhishiController {
             return R.error(511,"永远不会进入");
 
         Wrapper<JiankangzhishiEntity> queryWrapper = new EntityWrapper<JiankangzhishiEntity>()
-            .eq("jiankangzhishi_name", jiankangzhishi.getJiankangzhishiName())
-            .eq("jiankangzhishi_types", jiankangzhishi.getJiankangzhishiTypes())
+            .eq("title", jiankangzhishi.getTitle())
+            .eq("category", jiankangzhishi.getCategory())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.selectOne(queryWrapper);
         if(jiankangzhishiEntity==null){
-            jiankangzhishi.setInsertTime(new Date());
-            jiankangzhishi.setCreateTime(new Date());
+            jiankangzhishi.setPublishedAt(new Date());
+            jiankangzhishi.setCreatedAt(new Date());
             jiankangzhishiService.insert(jiankangzhishi);
             return R.ok();
         }else {
@@ -151,14 +151,14 @@ public class JiankangzhishiController {
         Wrapper<JiankangzhishiEntity> queryWrapper = new EntityWrapper<JiankangzhishiEntity>()
             .notIn("id",jiankangzhishi.getId())
             .andNew()
-            .eq("jiankangzhishi_name", jiankangzhishi.getJiankangzhishiName())
-            .eq("jiankangzhishi_types", jiankangzhishi.getJiankangzhishiTypes())
+            .eq("title", jiankangzhishi.getTitle())
+            .eq("category", jiankangzhishi.getCategory())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.selectOne(queryWrapper);
-        if("".equals(jiankangzhishi.getJiankangzhishiPhoto()) || "null".equals(jiankangzhishi.getJiankangzhishiPhoto())){
-                jiankangzhishi.setJiankangzhishiPhoto(null);
+        if("".equals(jiankangzhishi.getCoverUrl()) || "null".equals(jiankangzhishi.getCoverUrl())){
+                jiankangzhishi.setCoverUrl(null);
         }
         if(jiankangzhishiEntity==null){
             jiankangzhishiService.updateById(jiankangzhishi);//根据id更新
@@ -185,7 +185,7 @@ public class JiankangzhishiController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<JiankangzhishiEntity> jiankangzhishiList = new ArrayList<>();//上传的东西
@@ -209,12 +209,12 @@ public class JiankangzhishiController {
                         for(List<String> data:dataList){
                             //循环
                             JiankangzhishiEntity jiankangzhishiEntity = new JiankangzhishiEntity();
-//                            jiankangzhishiEntity.setJiankangzhishiName(data.get(0));                    //健康知识名称 要改的
-//                            jiankangzhishiEntity.setJiankangzhishiPhoto("");//详情和图片
-//                            jiankangzhishiEntity.setJiankangzhishiTypes(Integer.valueOf(data.get(0)));   //健康知识类型 要改的
-//                            jiankangzhishiEntity.setInsertTime(date);//时间
-//                            jiankangzhishiEntity.setJiankangzhishiContent("");//详情和图片
-//                            jiankangzhishiEntity.setCreateTime(date);//时间
+//                            jiankangzhishiEntity.setTitle(data.get(0));                    //健康知识名称 要改的
+//                            jiankangzhishiEntity.setCoverUrl("");//详情和图片
+//                            jiankangzhishiEntity.setCategory(Integer.valueOf(data.get(0)));   //健康知识类型 要改的
+//                            jiankangzhishiEntity.setPublishedAt(date);//时间
+//                            jiankangzhishiEntity.setContent("");//详情和图片
+//                            jiankangzhishiEntity.setCreatedAt(date);//时间
                             jiankangzhishiList.add(jiankangzhishiEntity);
 
 
@@ -288,14 +288,14 @@ public class JiankangzhishiController {
     public R add(@RequestBody JiankangzhishiEntity jiankangzhishi, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,jiankangzhishi:{}",this.getClass().getName(),jiankangzhishi.toString());
         Wrapper<JiankangzhishiEntity> queryWrapper = new EntityWrapper<JiankangzhishiEntity>()
-            .eq("jiankangzhishi_name", jiankangzhishi.getJiankangzhishiName())
-            .eq("jiankangzhishi_types", jiankangzhishi.getJiankangzhishiTypes())
+            .eq("title", jiankangzhishi.getTitle())
+            .eq("category", jiankangzhishi.getCategory())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.selectOne(queryWrapper);
         if(jiankangzhishiEntity==null){
-            jiankangzhishi.setInsertTime(new Date());
-            jiankangzhishi.setCreateTime(new Date());
+            jiankangzhishi.setPublishedAt(new Date());
+            jiankangzhishi.setCreatedAt(new Date());
         jiankangzhishiService.insert(jiankangzhishi);
             return R.ok();
         }else {

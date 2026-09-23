@@ -30,49 +30,49 @@ public class ExamquestionModel implements Serializable {
     /**
      * 所属试卷id（外键）
      */
-    private Integer exampaperId;
+    private Integer paperId;
 
 
     /**
      * 试题名称
      */
-    private String examquestionName;
+    private String content;
 
 
     /**
      * 选项，json字符串
      */
-    private String examquestionOptions;
+    private String options;
 
 
     /**
      * 分值
      */
-    private Integer examquestionScore;
+    private Integer score;
 
 
     /**
      * 正确答案
      */
-    private String examquestionAnswer;
+    private String answer;
 
 
     /**
      * 答案解析
      */
-    private String examquestionAnalysis;
+    private String analysis;
 
 
     /**
      * 试题类型
      */
-    private Integer examquestionTypes;
+    private Integer questionType;
 
 
     /**
      * 试题排序，值越大排越前面
      */
-    private Integer examquestionSequence;
+    private Integer sortOrder;
 
 
     /**
@@ -80,7 +80,7 @@ public class ExamquestionModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -100,128 +100,128 @@ public class ExamquestionModel implements Serializable {
     /**
 	 * 获取：所属试卷id（外键）
 	 */
-    public Integer getExampaperId() {
-        return exampaperId;
+    public Integer getPaperId() {
+        return paperId;
     }
 
 
     /**
 	 * 设置：所属试卷id（外键）
 	 */
-    public void setExampaperId(Integer exampaperId) {
-        this.exampaperId = exampaperId;
+    public void setPaperId(Integer paperId) {
+        this.paperId = paperId;
     }
     /**
 	 * 获取：试题名称
 	 */
-    public String getExamquestionName() {
-        return examquestionName;
+    public String getContent() {
+        return content;
     }
 
 
     /**
 	 * 设置：试题名称
 	 */
-    public void setExamquestionName(String examquestionName) {
-        this.examquestionName = examquestionName;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 获取：选项，json字符串
 	 */
-    public String getExamquestionOptions() {
-        return examquestionOptions;
+    public String getOptions() {
+        return options;
     }
 
 
     /**
 	 * 设置：选项，json字符串
 	 */
-    public void setExamquestionOptions(String examquestionOptions) {
-        this.examquestionOptions = examquestionOptions;
+    public void setOptions(String options) {
+        this.options = options;
     }
     /**
 	 * 获取：分值
 	 */
-    public Integer getExamquestionScore() {
-        return examquestionScore;
+    public Integer getScore() {
+        return score;
     }
 
 
     /**
 	 * 设置：分值
 	 */
-    public void setExamquestionScore(Integer examquestionScore) {
-        this.examquestionScore = examquestionScore;
+    public void setScore(Integer score) {
+        this.score = score;
     }
     /**
 	 * 获取：正确答案
 	 */
-    public String getExamquestionAnswer() {
-        return examquestionAnswer;
+    public String getAnswer() {
+        return answer;
     }
 
 
     /**
 	 * 设置：正确答案
 	 */
-    public void setExamquestionAnswer(String examquestionAnswer) {
-        this.examquestionAnswer = examquestionAnswer;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
     /**
 	 * 获取：答案解析
 	 */
-    public String getExamquestionAnalysis() {
-        return examquestionAnalysis;
+    public String getAnalysis() {
+        return analysis;
     }
 
 
     /**
 	 * 设置：答案解析
 	 */
-    public void setExamquestionAnalysis(String examquestionAnalysis) {
-        this.examquestionAnalysis = examquestionAnalysis;
+    public void setAnalysis(String analysis) {
+        this.analysis = analysis;
     }
     /**
 	 * 获取：试题类型
 	 */
-    public Integer getExamquestionTypes() {
-        return examquestionTypes;
+    public Integer getQuestionType() {
+        return questionType;
     }
 
 
     /**
 	 * 设置：试题类型
 	 */
-    public void setExamquestionTypes(Integer examquestionTypes) {
-        this.examquestionTypes = examquestionTypes;
+    public void setQuestionType(Integer questionType) {
+        this.questionType = questionType;
     }
     /**
 	 * 获取：试题排序，值越大排越前面
 	 */
-    public Integer getExamquestionSequence() {
-        return examquestionSequence;
+    public Integer getSortOrder() {
+        return sortOrder;
     }
 
 
     /**
 	 * 设置：试题排序，值越大排越前面
 	 */
-    public void setExamquestionSequence(Integer examquestionSequence) {
-        this.examquestionSequence = examquestionSequence;
+    public void setSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
     }
     /**
 	 * 获取：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

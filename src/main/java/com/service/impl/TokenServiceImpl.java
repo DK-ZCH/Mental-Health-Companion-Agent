@@ -53,18 +53,18 @@ public class TokenServiceImpl extends ServiceImpl<TokenDao, TokenEntity> impleme
 	}
 
 	@Override
-	public String generateToken(Integer userid,String username, String tableName, String role) {
-		TokenEntity tokenEntity = this.selectOne(new EntityWrapper<TokenEntity>().eq("userid", userid).eq("role", role));
+	public String generateToken(Integer userId,String username, String tableName, String role) {
+		TokenEntity tokenEntity = this.selectOne(new EntityWrapper<TokenEntity>().eq("user_id", userId).eq("role", role));
 		String token = CommonUtil.getRandomString(32);
 		Calendar cal = Calendar.getInstance();   
     	cal.setTime(new Date());   
     	cal.add(Calendar.HOUR_OF_DAY, 1);
 		if(tokenEntity!=null) {
 			tokenEntity.setToken(token);
-			tokenEntity.setExpiratedtime(cal.getTime());
+			tokenEntity.setExpiredAt(cal.getTime());
 			this.updateById(tokenEntity);
 		} else {
-			this.insert(new TokenEntity(userid,username, tableName, role, token, cal.getTime()));
+			this.insert(new TokenEntity(userId,username, tableName, role, token, cal.getTime()));
 		}
 		return token;
 	}
@@ -72,7 +72,7 @@ public class TokenServiceImpl extends ServiceImpl<TokenDao, TokenEntity> impleme
 	@Override
 	public TokenEntity getTokenEntity(String token) {
 		TokenEntity tokenEntity = this.selectOne(new EntityWrapper<TokenEntity>().eq("token", token));
-		if(tokenEntity == null || tokenEntity.getExpiratedtime().getTime()<new Date().getTime()) {
+		if(tokenEntity == null || tokenEntity.getExpiredAt().getTime()<new Date().getTime()) {
 			return null;
 		}
 		return tokenEntity;

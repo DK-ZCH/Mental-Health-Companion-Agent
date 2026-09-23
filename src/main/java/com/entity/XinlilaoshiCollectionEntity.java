@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("xinlilaoshi_collection")
+@TableName("counselor_favorite")
 public class XinlilaoshiCollectionEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,25 +57,25 @@ public class XinlilaoshiCollectionEntity<T> implements Serializable {
     /**
      * 心理老师
      */
-    @TableField(value = "xinlilaoshi_id")
+    @TableField(value = "counselor_id")
 
-    private Integer xinlilaoshiId;
+    private Integer counselorId;
 
 
     /**
      * 学生
      */
-    @TableField(value = "yonghu_id")
+    @TableField(value = "student_id")
 
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 类型
      */
-    @TableField(value = "xinlilaoshi_collection_types")
+    @TableField(value = "favorite_type")
 
-    private Integer xinlilaoshiCollectionTypes;
+    private Integer favoriteType;
 
 
     /**
@@ -83,9 +83,9 @@ public class XinlilaoshiCollectionEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "insert_time",fill = FieldFill.INSERT)
+    @TableField(value = "favorited_at",fill = FieldFill.INSERT)
 
-    private Date insertTime;
+    private Date favoritedAt;
 
 
     /**
@@ -93,9 +93,9 @@ public class XinlilaoshiCollectionEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -114,78 +114,78 @@ public class XinlilaoshiCollectionEntity<T> implements Serializable {
     /**
 	 * 设置：心理老师
 	 */
-    public Integer getXinlilaoshiId() {
-        return xinlilaoshiId;
+    public Integer getCounselorId() {
+        return counselorId;
     }
     /**
 	 * 获取：心理老师
 	 */
 
-    public void setXinlilaoshiId(Integer xinlilaoshiId) {
-        this.xinlilaoshiId = xinlilaoshiId;
+    public void setCounselorId(Integer counselorId) {
+        this.counselorId = counselorId;
     }
     /**
 	 * 设置：学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
     /**
 	 * 获取：学生
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：类型
 	 */
-    public Integer getXinlilaoshiCollectionTypes() {
-        return xinlilaoshiCollectionTypes;
+    public Integer getFavoriteType() {
+        return favoriteType;
     }
     /**
 	 * 获取：类型
 	 */
 
-    public void setXinlilaoshiCollectionTypes(Integer xinlilaoshiCollectionTypes) {
-        this.xinlilaoshiCollectionTypes = xinlilaoshiCollectionTypes;
+    public void setFavoriteType(Integer favoriteType) {
+        this.favoriteType = favoriteType;
     }
     /**
 	 * 设置：收藏时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getFavoritedAt() {
+        return favoritedAt;
     }
     /**
 	 * 获取：收藏时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setFavoritedAt(Date favoritedAt) {
+        this.favoritedAt = favoritedAt;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "XinlilaoshiCollection{" +
             "id=" + id +
-            ", xinlilaoshiId=" + xinlilaoshiId +
-            ", yonghuId=" + yonghuId +
-            ", xinlilaoshiCollectionTypes=" + xinlilaoshiCollectionTypes +
-            ", insertTime=" + insertTime +
-            ", createTime=" + createTime +
+            ", counselorId=" + counselorId +
+            ", studentId=" + studentId +
+            ", favoriteType=" + favoriteType +
+            ", favoritedAt=" + favoritedAt +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

@@ -7,13 +7,13 @@
         a.id as id
         ,a.username as username
         ,a.password as password
-        ,a.yonghu_name as yonghuName
-        ,a.yonghu_phone as yonghuPhone
-        ,a.yonghu_id_number as yonghuIdNumber
-        ,a.yonghu_photo as yonghuPhoto
-        ,a.sex_types as sexTypes
-        ,a.yonghu_email as yonghuEmail
-        ,a.create_time as createTime
+        ,a.name as name
+        ,a.phone as phone
+        ,a.id_card_no as idCardNo
+        ,a.avatar_url as avatarUrl
+        ,a.gender as gender
+        ,a.email as email
+        ,a.created_at as createdAt
     </sql>
     <select id="selectListView" parameterType="map" resultType="com.entity.view.YonghuView" >
         SELECT
@@ -21,7 +21,7 @@
 
 --         级联表的字段
 
-        FROM yonghu  a
+        FROM student  a
 
         <where>
             <if test="params.ids != null">
@@ -36,20 +36,20 @@
             <if test=" params.password != '' and params.password != null and params.password != 'null' ">
                 and a.password like CONCAT('%',#{params.password},'%')
             </if>
-            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
-                and a.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            <if test=" params.name != '' and params.name != null and params.name != 'null' ">
+                and a.name like CONCAT('%',#{params.name},'%')
             </if>
-            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
-                and a.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            <if test=" params.phone != '' and params.phone != null and params.phone != 'null' ">
+                and a.phone like CONCAT('%',#{params.phone},'%')
             </if>
-            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
-                and a.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            <if test=" params.idCardNo != '' and params.idCardNo != null and params.idCardNo != 'null' ">
+                and a.id_card_no like CONCAT('%',#{params.idCardNo},'%')
             </if>
-            <if test="params.sexTypes != null and params.sexTypes != ''">
-                and a.sex_types = #{params.sexTypes}
+            <if test="params.gender != null and params.gender != ''">
+                and a.gender = #{params.gender}
             </if>
-            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
-                and a.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            <if test=" params.email != '' and params.email != null and params.email != 'null' ">
+                and a.email like CONCAT('%',#{params.email},'%')
             </if>
 
         </where>

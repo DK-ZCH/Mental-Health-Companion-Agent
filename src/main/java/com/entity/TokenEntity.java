@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.enums.IdType;
 /** 
  * token表
  */
-@TableName("token")
+@TableName("auth_token")
 public class TokenEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -20,7 +20,7 @@ public class TokenEntity implements Serializable {
 	/**
 	 * 学生id
 	 */
-	private Integer userid;
+	private Integer userId;
 	
 	/**
 	 * 学生名
@@ -30,7 +30,7 @@ public class TokenEntity implements Serializable {
 	/**
 	 * 表名
 	 */
-	private String tablename;
+	private String userType;
 	
 	/**
 	 * 角色
@@ -45,12 +45,12 @@ public class TokenEntity implements Serializable {
 	/**
 	 * 过期时间
 	 */
-	private Date expiratedtime;
+	private Date expiredAt;
 	
 	/**
 	 * 新增时间
 	 */
-	private Date addtime;
+	private Date createdAt;
 
 	public Integer getId() {
 		return id;
@@ -60,12 +60,12 @@ public class TokenEntity implements Serializable {
 		this.id = id;
 	}
 
-	public Integer getUserid() {
-		return userid;
+	public Integer getUserId() {
+		return userId;
 	}
 
-	public void setUserid(Integer userid) {
-		this.userid = userid;
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 
 	public String getRole() {
@@ -80,32 +80,32 @@ public class TokenEntity implements Serializable {
 		return token;
 	}
 
-	public String getTablename() {
-		return tablename;
+	public String getUserType() {
+		return userType;
 	}
 
-	public void setTablename(String tablename) {
-		this.tablename = tablename;
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 
 	public void setToken(String token) {
 		this.token = token;
 	}
 
-	public Date getExpiratedtime() {
-		return expiratedtime;
+	public Date getExpiredAt() {
+		return expiredAt;
 	}
 
-	public void setExpiratedtime(Date expiratedtime) {
-		this.expiratedtime = expiratedtime;
+	public void setExpiredAt(Date expiredAt) {
+		this.expiredAt = expiredAt;
 	}
 
-	public Date getAddtime() {
-		return addtime;
+	public Date getCreatedAt() {
+		return createdAt;
 	}
 
-	public void setAddtime(Date addtime) {
-		this.addtime = addtime;
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	public String getUsername() {
@@ -116,14 +116,14 @@ public class TokenEntity implements Serializable {
 		this.username = username;
 	}
 
-	public TokenEntity(Integer userid, String username, String tablename,String role, String token, Date expiratedtime) {
+	public TokenEntity(Integer userId, String username, String userType,String role, String token, Date expiredAt) {
 		super();
-		this.userid = userid;
+		this.userId = userId;
 		this.username = username;
-		this.tablename = tablename;
+		this.userType = userType;
 		this.role = role;
 		this.token = token;
-		this.expiratedtime = expiratedtime;
+		this.expiredAt = expiredAt;
 	}
 	
 	public TokenEntity() {

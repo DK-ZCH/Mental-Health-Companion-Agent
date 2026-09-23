@@ -69,9 +69,9 @@ public class XinlilaoshiController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -121,13 +121,13 @@ public class XinlilaoshiController {
         Wrapper<XinlilaoshiEntity> queryWrapper = new EntityWrapper<XinlilaoshiEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
-            .eq("xinlilaoshi_phone", xinlilaoshi.getXinlilaoshiPhone())
+            .eq("phone", xinlilaoshi.getPhone())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
         if(xinlilaoshiEntity==null){
-            xinlilaoshi.setCreateTime(new Date());
+            xinlilaoshi.setCreatedAt(new Date());
             xinlilaoshi.setPassword("123456");
             xinlilaoshiService.insert(xinlilaoshi);
             return R.ok();
@@ -152,13 +152,13 @@ public class XinlilaoshiController {
             .andNew()
             .eq("username", xinlilaoshi.getUsername())
             .or()
-            .eq("xinlilaoshi_phone", xinlilaoshi.getXinlilaoshiPhone())
+            .eq("phone", xinlilaoshi.getPhone())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
-        if("".equals(xinlilaoshi.getXinlilaoshiPhoto()) || "null".equals(xinlilaoshi.getXinlilaoshiPhoto())){
-                xinlilaoshi.setXinlilaoshiPhoto(null);
+        if("".equals(xinlilaoshi.getAvatarUrl()) || "null".equals(xinlilaoshi.getAvatarUrl())){
+                xinlilaoshi.setAvatarUrl(null);
         }
         if(xinlilaoshiEntity==null){
             xinlilaoshiService.updateById(xinlilaoshi);//根据id更新
@@ -185,7 +185,7 @@ public class XinlilaoshiController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<XinlilaoshiEntity> xinlilaoshiList = new ArrayList<>();//上传的东西
@@ -211,15 +211,15 @@ public class XinlilaoshiController {
                             XinlilaoshiEntity xinlilaoshiEntity = new XinlilaoshiEntity();
 //                            xinlilaoshiEntity.setUsername(data.get(0));                    //账户 要改的
 //                            //xinlilaoshiEntity.setPassword("123456");//密码
-//                            xinlilaoshiEntity.setXinlilaoshiName(data.get(0));                    //心理老师姓名 要改的
-//                            xinlilaoshiEntity.setXinlilaoshiPhone(data.get(0));                    //心理老师手机号 要改的
-//                            xinlilaoshiEntity.setXinlilaoshiPhoto("");//详情和图片
-//                            xinlilaoshiEntity.setSexTypes(Integer.valueOf(data.get(0)));   //性别 要改的
-//                            xinlilaoshiEntity.setXinlilaoshiEmail(data.get(0));                    //电子邮箱 要改的
-//                            xinlilaoshiEntity.setXinlilaoshiShanchang(data.get(0));                    //擅长 要改的
-//                            xinlilaoshiEntity.setXinlilaoshiLvli(data.get(0));                    //履历 要改的
-//                            xinlilaoshiEntity.setXinlilaoshiContent("");//详情和图片
-//                            xinlilaoshiEntity.setCreateTime(date);//时间
+//                            xinlilaoshiEntity.setName(data.get(0));                    //心理老师姓名 要改的
+//                            xinlilaoshiEntity.setPhone(data.get(0));                    //心理老师手机号 要改的
+//                            xinlilaoshiEntity.setAvatarUrl("");//详情和图片
+//                            xinlilaoshiEntity.setGender(Integer.valueOf(data.get(0)));   //性别 要改的
+//                            xinlilaoshiEntity.setEmail(data.get(0));                    //电子邮箱 要改的
+//                            xinlilaoshiEntity.setExpertise(data.get(0));                    //擅长 要改的
+//                            xinlilaoshiEntity.setResume(data.get(0));                    //履历 要改的
+//                            xinlilaoshiEntity.setIntroduction("");//详情和图片
+//                            xinlilaoshiEntity.setCreatedAt(date);//时间
                             xinlilaoshiList.add(xinlilaoshiEntity);
 
 
@@ -234,13 +234,13 @@ public class XinlilaoshiController {
                                     seachFields.put("username",username);
                                 }
                                 //心理老师手机号
-                                if(seachFields.containsKey("xinlilaoshiPhone")){
-                                    List<String> xinlilaoshiPhone = seachFields.get("xinlilaoshiPhone");
-                                    xinlilaoshiPhone.add(data.get(0));//要改的
+                                if(seachFields.containsKey("phone")){
+                                    List<String> phone = seachFields.get("phone");
+                                    phone.add(data.get(0));//要改的
                                 }else{
-                                    List<String> xinlilaoshiPhone = new ArrayList<>();
-                                    xinlilaoshiPhone.add(data.get(0));//要改的
-                                    seachFields.put("xinlilaoshiPhone",xinlilaoshiPhone);
+                                    List<String> phone = new ArrayList<>();
+                                    phone.add(data.get(0));//要改的
+                                    seachFields.put("phone",phone);
                                 }
                         }
 
@@ -255,11 +255,11 @@ public class XinlilaoshiController {
                             return R.error(511,"数据库的该表中的 [账户] 字段已经存在 存在数据为:"+repeatFields.toString());
                         }
                          //心理老师手机号
-                        List<XinlilaoshiEntity> xinlilaoshiEntities_xinlilaoshiPhone = xinlilaoshiService.selectList(new EntityWrapper<XinlilaoshiEntity>().in("xinlilaoshi_phone", seachFields.get("xinlilaoshiPhone")));
+                        List<XinlilaoshiEntity> xinlilaoshiEntities_xinlilaoshiPhone = xinlilaoshiService.selectList(new EntityWrapper<XinlilaoshiEntity>().in("phone", seachFields.get("phone")));
                         if(xinlilaoshiEntities_xinlilaoshiPhone.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
                             for(XinlilaoshiEntity s:xinlilaoshiEntities_xinlilaoshiPhone){
-                                repeatFields.add(s.getXinlilaoshiPhone());
+                                repeatFields.add(s.getPhone());
                             }
                             return R.error(511,"数据库的该表中的 [心理老师手机号] 字段已经存在 存在数据为:"+repeatFields.toString());
                         }
@@ -289,12 +289,12 @@ public class XinlilaoshiController {
         // Map<String, Map<Integer, String>> dictionaryMap= (Map<String, Map<Integer, String>>) servletContext.getAttribute("dictionaryMap");
         // Map<Integer, String> role_types = dictionaryMap.get("role_types");
         // role_types.get(.getRoleTypes());
-        String token = tokenService.generateToken(xinlilaoshi.getId(),username, "xinlilaoshi", "心理老师");
+        String token = tokenService.generateToken(xinlilaoshi.getId(),username, "counselor", "心理老师");
         R r = R.ok();
         r.put("token", token);
         r.put("role","心理老师");
-        r.put("username",xinlilaoshi.getXinlilaoshiName());
-        r.put("tableName","xinlilaoshi");
+        r.put("username",xinlilaoshi.getName());
+        r.put("tableName","counselor");
         r.put("userId",xinlilaoshi.getId());
         return r;
     }
@@ -309,12 +309,12 @@ public class XinlilaoshiController {
         Wrapper<XinlilaoshiEntity> queryWrapper = new EntityWrapper<XinlilaoshiEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
-            .eq("xinlilaoshi_phone", xinlilaoshi.getXinlilaoshiPhone())
+            .eq("phone", xinlilaoshi.getPhone())
             ;
         XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
         if(xinlilaoshiEntity != null)
             return R.error("账户或者心理老师手机号已经被使用");
-        xinlilaoshi.setCreateTime(new Date());
+        xinlilaoshi.setCreatedAt(new Date());
         xinlilaoshiService.insert(xinlilaoshi);
         return R.ok();
     }
@@ -438,12 +438,12 @@ public class XinlilaoshiController {
         Wrapper<XinlilaoshiEntity> queryWrapper = new EntityWrapper<XinlilaoshiEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
-            .eq("xinlilaoshi_phone", xinlilaoshi.getXinlilaoshiPhone())
+            .eq("phone", xinlilaoshi.getPhone())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectOne(queryWrapper);
         if(xinlilaoshiEntity==null){
-            xinlilaoshi.setCreateTime(new Date());
+            xinlilaoshi.setCreatedAt(new Date());
         xinlilaoshi.setPassword("123456");
         xinlilaoshiService.insert(xinlilaoshi);
             return R.ok();

@@ -48,7 +48,7 @@ public class UsersController {
 		if(user==null || !user.getPassword().equals(password)) {
 			return R.error("账号或密码不正确");
 		}
-		String token = tokenService.generateToken(user.getId(),username, "users", user.getRole());
+		String token = tokenService.generateToken(user.getId(),username, "admin_user", user.getRole());
 		R r = R.ok();
 		r.put("token", token);
 		r.put("role",user.getRole());

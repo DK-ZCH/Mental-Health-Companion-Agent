@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("examrewrongquestion")
+@TableName("assessment_wrong_question")
 public class ExamrewrongquestionEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,33 +57,33 @@ public class ExamrewrongquestionEntity<T> implements Serializable {
     /**
      * 学生id
      */
-    @TableField(value = "yonghu_id")
+    @TableField(value = "student_id")
 
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 试卷（外键）
      */
-    @TableField(value = "exampaper_id")
+    @TableField(value = "paper_id")
 
-    private Integer exampaperId;
+    private Integer paperId;
 
 
     /**
      * 试题id（外键）
      */
-    @TableField(value = "examquestion_id")
+    @TableField(value = "question_id")
 
-    private Integer examquestionId;
+    private Integer questionId;
 
 
     /**
      * 考生作答
      */
-    @TableField(value = "examredetails_myanswer")
+    @TableField(value = "student_answer")
 
-    private String examredetailsMyanswer;
+    private String studentAnswer;
 
 
     /**
@@ -91,9 +91,9 @@ public class ExamrewrongquestionEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "insert_time",fill = FieldFill.INSERT)
+    @TableField(value = "answered_at",fill = FieldFill.INSERT)
 
-    private Date insertTime;
+    private Date answeredAt;
 
 
     /**
@@ -101,9 +101,9 @@ public class ExamrewrongquestionEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -122,92 +122,92 @@ public class ExamrewrongquestionEntity<T> implements Serializable {
     /**
 	 * 设置：学生id
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
     /**
 	 * 获取：学生id
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：试卷（外键）
 	 */
-    public Integer getExampaperId() {
-        return exampaperId;
+    public Integer getPaperId() {
+        return paperId;
     }
     /**
 	 * 获取：试卷（外键）
 	 */
 
-    public void setExampaperId(Integer exampaperId) {
-        this.exampaperId = exampaperId;
+    public void setPaperId(Integer paperId) {
+        this.paperId = paperId;
     }
     /**
 	 * 设置：试题id（外键）
 	 */
-    public Integer getExamquestionId() {
-        return examquestionId;
+    public Integer getQuestionId() {
+        return questionId;
     }
     /**
 	 * 获取：试题id（外键）
 	 */
 
-    public void setExamquestionId(Integer examquestionId) {
-        this.examquestionId = examquestionId;
+    public void setQuestionId(Integer questionId) {
+        this.questionId = questionId;
     }
     /**
 	 * 设置：考生作答
 	 */
-    public String getExamredetailsMyanswer() {
-        return examredetailsMyanswer;
+    public String getStudentAnswer() {
+        return studentAnswer;
     }
     /**
 	 * 获取：考生作答
 	 */
 
-    public void setExamredetailsMyanswer(String examredetailsMyanswer) {
-        this.examredetailsMyanswer = examredetailsMyanswer;
+    public void setStudentAnswer(String studentAnswer) {
+        this.studentAnswer = studentAnswer;
     }
     /**
 	 * 设置：记录时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getAnsweredAt() {
+        return answeredAt;
     }
     /**
 	 * 获取：记录时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setAnsweredAt(Date answeredAt) {
+        this.answeredAt = answeredAt;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Examrewrongquestion{" +
             "id=" + id +
-            ", yonghuId=" + yonghuId +
-            ", exampaperId=" + exampaperId +
-            ", examquestionId=" + examquestionId +
-            ", examredetailsMyanswer=" + examredetailsMyanswer +
-            ", insertTime=" + insertTime +
-            ", createTime=" + createTime +
+            ", studentId=" + studentId +
+            ", paperId=" + paperId +
+            ", questionId=" + questionId +
+            ", studentAnswer=" + studentAnswer +
+            ", answeredAt=" + answeredAt +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

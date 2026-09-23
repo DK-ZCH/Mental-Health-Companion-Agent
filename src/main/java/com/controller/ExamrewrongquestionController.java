@@ -75,9 +75,9 @@ public class ExamrewrongquestionController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -105,22 +105,22 @@ public class ExamrewrongquestionController {
             BeanUtils.copyProperties( examrewrongquestion , view );//把实体数据重构到view中
 
                 //级联表
-                ExampaperEntity exampaper = exampaperService.selectById(examrewrongquestion.getExampaperId());
+                ExampaperEntity exampaper = exampaperService.selectById(examrewrongquestion.getPaperId());
                 if(exampaper != null){
-                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExampaperId(exampaper.getId());
+                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createdAt", "answeredAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setPaperId(exampaper.getId());
                 }
                 //级联表
-                ExamquestionEntity examquestion = examquestionService.selectById(examrewrongquestion.getExamquestionId());
+                ExamquestionEntity examquestion = examquestionService.selectById(examrewrongquestion.getQuestionId());
                 if(examquestion != null){
-                    BeanUtils.copyProperties( examquestion , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExamquestionId(examquestion.getId());
+                    BeanUtils.copyProperties( examquestion , view ,new String[]{ "id", "createdAt", "answeredAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setQuestionId(examquestion.getId());
                 }
                 //级联表
-                YonghuEntity yonghu = yonghuService.selectById(examrewrongquestion.getYonghuId());
+                YonghuEntity yonghu = yonghuService.selectById(examrewrongquestion.getStudentId());
                 if(yonghu != null){
-                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createdAt", "answeredAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setStudentId(yonghu.getId());
                 }
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(view, request);
@@ -142,20 +142,20 @@ public class ExamrewrongquestionController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("学生".equals(role))
-            examrewrongquestion.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            examrewrongquestion.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
 
         Wrapper<ExamrewrongquestionEntity> queryWrapper = new EntityWrapper<ExamrewrongquestionEntity>()
-            .eq("yonghu_id", examrewrongquestion.getYonghuId())
-            .eq("exampaper_id", examrewrongquestion.getExampaperId())
-            .eq("examquestion_id", examrewrongquestion.getExamquestionId())
-            .eq("examredetails_myanswer", examrewrongquestion.getExamredetailsMyanswer())
+            .eq("student_id", examrewrongquestion.getStudentId())
+            .eq("paper_id", examrewrongquestion.getPaperId())
+            .eq("question_id", examrewrongquestion.getQuestionId())
+            .eq("student_answer", examrewrongquestion.getStudentAnswer())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamrewrongquestionEntity examrewrongquestionEntity = examrewrongquestionService.selectOne(queryWrapper);
         if(examrewrongquestionEntity==null){
-            examrewrongquestion.setInsertTime(new Date());
-            examrewrongquestion.setCreateTime(new Date());
+            examrewrongquestion.setAnsweredAt(new Date());
+            examrewrongquestion.setCreatedAt(new Date());
             examrewrongquestionService.insert(examrewrongquestion);
             return R.ok();
         }else {
@@ -174,15 +174,15 @@ public class ExamrewrongquestionController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
 //        else if("学生".equals(role))
-//            examrewrongquestion.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+//            examrewrongquestion.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         //根据字段查询是否有相同数据
         Wrapper<ExamrewrongquestionEntity> queryWrapper = new EntityWrapper<ExamrewrongquestionEntity>()
             .notIn("id",examrewrongquestion.getId())
             .andNew()
-            .eq("yonghu_id", examrewrongquestion.getYonghuId())
-            .eq("exampaper_id", examrewrongquestion.getExampaperId())
-            .eq("examquestion_id", examrewrongquestion.getExamquestionId())
-            .eq("examredetails_myanswer", examrewrongquestion.getExamredetailsMyanswer())
+            .eq("student_id", examrewrongquestion.getStudentId())
+            .eq("paper_id", examrewrongquestion.getPaperId())
+            .eq("question_id", examrewrongquestion.getQuestionId())
+            .eq("student_answer", examrewrongquestion.getStudentAnswer())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
@@ -212,7 +212,7 @@ public class ExamrewrongquestionController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<ExamrewrongquestionEntity> examrewrongquestionList = new ArrayList<>();//上传的东西
@@ -236,12 +236,12 @@ public class ExamrewrongquestionController {
                         for(List<String> data:dataList){
                             //循环
                             ExamrewrongquestionEntity examrewrongquestionEntity = new ExamrewrongquestionEntity();
-//                            examrewrongquestionEntity.setYonghuId(Integer.valueOf(data.get(0)));   //学生id 要改的
-//                            examrewrongquestionEntity.setExampaperId(Integer.valueOf(data.get(0)));   //试卷（外键） 要改的
-//                            examrewrongquestionEntity.setExamquestionId(Integer.valueOf(data.get(0)));   //试题id（外键） 要改的
-//                            examrewrongquestionEntity.setExamredetailsMyanswer(data.get(0));                    //考生作答 要改的
-//                            examrewrongquestionEntity.setInsertTime(date);//时间
-//                            examrewrongquestionEntity.setCreateTime(date);//时间
+//                            examrewrongquestionEntity.setStudentId(Integer.valueOf(data.get(0)));   //学生id 要改的
+//                            examrewrongquestionEntity.setPaperId(Integer.valueOf(data.get(0)));   //试卷（外键） 要改的
+//                            examrewrongquestionEntity.setQuestionId(Integer.valueOf(data.get(0)));   //试题id（外键） 要改的
+//                            examrewrongquestionEntity.setStudentAnswer(data.get(0));                    //考生作答 要改的
+//                            examrewrongquestionEntity.setAnsweredAt(date);//时间
+//                            examrewrongquestionEntity.setCreatedAt(date);//时间
                             examrewrongquestionList.add(examrewrongquestionEntity);
 
 
@@ -300,22 +300,22 @@ public class ExamrewrongquestionController {
                 BeanUtils.copyProperties( examrewrongquestion , view );//把实体数据重构到view中
 
                 //级联表
-                    ExampaperEntity exampaper = exampaperService.selectById(examrewrongquestion.getExampaperId());
+                    ExampaperEntity exampaper = exampaperService.selectById(examrewrongquestion.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExampaperId(exampaper.getId());
+                    view.setPaperId(exampaper.getId());
                 }
                 //级联表
-                    ExamquestionEntity examquestion = examquestionService.selectById(examrewrongquestion.getExamquestionId());
+                    ExamquestionEntity examquestion = examquestionService.selectById(examrewrongquestion.getQuestionId());
                 if(examquestion != null){
                     BeanUtils.copyProperties( examquestion , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExamquestionId(examquestion.getId());
+                    view.setQuestionId(examquestion.getId());
                 }
                 //级联表
-                    YonghuEntity yonghu = yonghuService.selectById(examrewrongquestion.getYonghuId());
+                    YonghuEntity yonghu = yonghuService.selectById(examrewrongquestion.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    view.setStudentId(yonghu.getId());
                 }
                 //修改对应字典表字段
                 dictionaryService.dictionaryConvert(view, request);
@@ -333,16 +333,16 @@ public class ExamrewrongquestionController {
     public R add(@RequestBody ExamrewrongquestionEntity examrewrongquestion, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,examrewrongquestion:{}",this.getClass().getName(),examrewrongquestion.toString());
         Wrapper<ExamrewrongquestionEntity> queryWrapper = new EntityWrapper<ExamrewrongquestionEntity>()
-            .eq("yonghu_id", examrewrongquestion.getYonghuId())
-            .eq("exampaper_id", examrewrongquestion.getExampaperId())
-            .eq("examquestion_id", examrewrongquestion.getExamquestionId())
-            .eq("examredetails_myanswer", examrewrongquestion.getExamredetailsMyanswer())
+            .eq("student_id", examrewrongquestion.getStudentId())
+            .eq("paper_id", examrewrongquestion.getPaperId())
+            .eq("question_id", examrewrongquestion.getQuestionId())
+            .eq("student_answer", examrewrongquestion.getStudentAnswer())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamrewrongquestionEntity examrewrongquestionEntity = examrewrongquestionService.selectOne(queryWrapper);
         if(examrewrongquestionEntity==null){
-            examrewrongquestion.setInsertTime(new Date());
-            examrewrongquestion.setCreateTime(new Date());
+            examrewrongquestion.setAnsweredAt(new Date());
+            examrewrongquestion.setCreatedAt(new Date());
         examrewrongquestionService.insert(examrewrongquestion);
             return R.ok();
         }else {

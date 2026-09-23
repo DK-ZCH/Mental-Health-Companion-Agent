@@ -71,9 +71,9 @@ public class XinlilaoshiOrderController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -101,16 +101,16 @@ public class XinlilaoshiOrderController {
             BeanUtils.copyProperties( xinlilaoshiOrder , view );//把实体数据重构到view中
 
                 //级联表
-                YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiOrder.getYonghuId());
+                YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiOrder.getStudentId());
                 if(yonghu != null){
-                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createdAt", "appliedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiOrder.getXinlilaoshiId());
+                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiOrder.getCounselorId());
                 if(xinlilaoshi != null){
-                    BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setXinlilaoshiId(xinlilaoshi.getId());
+                    BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createdAt", "appliedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setCounselorId(xinlilaoshi.getId());
                 }
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(view, request);
@@ -132,12 +132,12 @@ public class XinlilaoshiOrderController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("心理老师".equals(role))
-            xinlilaoshiOrder.setXinlilaoshiId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiOrder.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         else if("学生".equals(role))
-            xinlilaoshiOrder.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiOrder.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
 
-        xinlilaoshiOrder.setInsertTime(new Date());
-        xinlilaoshiOrder.setCreateTime(new Date());
+        xinlilaoshiOrder.setAppliedAt(new Date());
+        xinlilaoshiOrder.setCreatedAt(new Date());
         xinlilaoshiOrderService.insert(xinlilaoshiOrder);
         return R.ok();
     }
@@ -153,9 +153,9 @@ public class XinlilaoshiOrderController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
 //        else if("心理老师".equals(role))
-//            xinlilaoshiOrder.setXinlilaoshiId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+//            xinlilaoshiOrder.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
 //        else if("学生".equals(role))
-//            xinlilaoshiOrder.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+//            xinlilaoshiOrder.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         //根据字段查询是否有相同数据
         Wrapper<XinlilaoshiOrderEntity> queryWrapper = new EntityWrapper<XinlilaoshiOrderEntity>()
             .eq("id",0)
@@ -188,7 +188,7 @@ public class XinlilaoshiOrderController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<XinlilaoshiOrderEntity> xinlilaoshiOrderList = new ArrayList<>();//上传的东西
@@ -212,37 +212,37 @@ public class XinlilaoshiOrderController {
                         for(List<String> data:dataList){
                             //循环
                             XinlilaoshiOrderEntity xinlilaoshiOrderEntity = new XinlilaoshiOrderEntity();
-//                            xinlilaoshiOrderEntity.setXinlilaoshiOrderUuidNumber(data.get(0));                    //预约流水号 要改的
-//                            xinlilaoshiOrderEntity.setXinlilaoshiId(Integer.valueOf(data.get(0)));   //心理老师 要改的
-//                            xinlilaoshiOrderEntity.setYonghuId(Integer.valueOf(data.get(0)));   //学生 要改的
-//                            xinlilaoshiOrderEntity.setYuyueTime(sdf.parse(data.get(0)));          //预约日期 要改的
-//                            xinlilaoshiOrderEntity.setShijianduanTypes(Integer.valueOf(data.get(0)));   //预约时间段 要改的
-//                            xinlilaoshiOrderEntity.setXinlilaoshiOrderYesnoTypes(Integer.valueOf(data.get(0)));   //预约状态 要改的
-//                            xinlilaoshiOrderEntity.setXinlilaoshiOrderYesnoText(data.get(0));                    //审核意见 要改的
-//                            xinlilaoshiOrderEntity.setInsertTime(date);//时间
-//                            xinlilaoshiOrderEntity.setCreateTime(date);//时间
+//                            xinlilaoshiOrderEntity.setAppointmentNo(data.get(0));                    //预约流水号 要改的
+//                            xinlilaoshiOrderEntity.setCounselorId(Integer.valueOf(data.get(0)));   //心理老师 要改的
+//                            xinlilaoshiOrderEntity.setStudentId(Integer.valueOf(data.get(0)));   //学生 要改的
+//                            xinlilaoshiOrderEntity.setAppointmentDate(sdf.parse(data.get(0)));          //预约日期 要改的
+//                            xinlilaoshiOrderEntity.setTimeSlot(Integer.valueOf(data.get(0)));   //预约时间段 要改的
+//                            xinlilaoshiOrderEntity.setStatus(Integer.valueOf(data.get(0)));   //预约状态 要改的
+//                            xinlilaoshiOrderEntity.setReviewComment(data.get(0));                    //审核意见 要改的
+//                            xinlilaoshiOrderEntity.setAppliedAt(date);//时间
+//                            xinlilaoshiOrderEntity.setCreatedAt(date);//时间
                             xinlilaoshiOrderList.add(xinlilaoshiOrderEntity);
 
 
                             //把要查询是否重复的字段放入map中
                                 //预约流水号
-                                if(seachFields.containsKey("xinlilaoshiOrderUuidNumber")){
-                                    List<String> xinlilaoshiOrderUuidNumber = seachFields.get("xinlilaoshiOrderUuidNumber");
-                                    xinlilaoshiOrderUuidNumber.add(data.get(0));//要改的
+                                if(seachFields.containsKey("appointmentNo")){
+                                    List<String> appointmentNo = seachFields.get("appointmentNo");
+                                    appointmentNo.add(data.get(0));//要改的
                                 }else{
-                                    List<String> xinlilaoshiOrderUuidNumber = new ArrayList<>();
-                                    xinlilaoshiOrderUuidNumber.add(data.get(0));//要改的
-                                    seachFields.put("xinlilaoshiOrderUuidNumber",xinlilaoshiOrderUuidNumber);
+                                    List<String> appointmentNo = new ArrayList<>();
+                                    appointmentNo.add(data.get(0));//要改的
+                                    seachFields.put("appointmentNo",appointmentNo);
                                 }
                         }
 
                         //查询是否重复
                          //预约流水号
-                        List<XinlilaoshiOrderEntity> xinlilaoshiOrderEntities_xinlilaoshiOrderUuidNumber = xinlilaoshiOrderService.selectList(new EntityWrapper<XinlilaoshiOrderEntity>().in("xinlilaoshi_order_uuid_number", seachFields.get("xinlilaoshiOrderUuidNumber")));
+                        List<XinlilaoshiOrderEntity> xinlilaoshiOrderEntities_xinlilaoshiOrderUuidNumber = xinlilaoshiOrderService.selectList(new EntityWrapper<XinlilaoshiOrderEntity>().in("appointment_no", seachFields.get("appointmentNo")));
                         if(xinlilaoshiOrderEntities_xinlilaoshiOrderUuidNumber.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
                             for(XinlilaoshiOrderEntity s:xinlilaoshiOrderEntities_xinlilaoshiOrderUuidNumber){
-                                repeatFields.add(s.getXinlilaoshiOrderUuidNumber());
+                                repeatFields.add(s.getAppointmentNo());
                             }
                             return R.error(511,"数据库的该表中的 [预约流水号] 字段已经存在 存在数据为:"+repeatFields.toString());
                         }
@@ -297,16 +297,16 @@ public class XinlilaoshiOrderController {
                 BeanUtils.copyProperties( xinlilaoshiOrder , view );//把实体数据重构到view中
 
                 //级联表
-                    YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiOrder.getYonghuId());
+                    YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiOrder.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiOrder.getXinlilaoshiId());
+                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiOrder.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setXinlilaoshiId(xinlilaoshi.getId());
+                    view.setCounselorId(xinlilaoshi.getId());
                 }
                 //修改对应字典表字段
                 dictionaryService.dictionaryConvert(view, request);
@@ -323,7 +323,7 @@ public class XinlilaoshiOrderController {
     @RequestMapping("/add")
     public R add(@RequestBody XinlilaoshiOrderEntity xinlilaoshiOrder, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,xinlilaoshiOrder:{}",this.getClass().getName(),xinlilaoshiOrder.toString());
-            XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectById(xinlilaoshiOrder.getXinlilaoshiId());
+            XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.selectById(xinlilaoshiOrder.getCounselorId());
             if(xinlilaoshiEntity == null){
                 return R.error(511,"查不到该心理老师");
             }
@@ -335,10 +335,10 @@ public class XinlilaoshiOrderController {
             //计算所获得积分
             Double buyJifen =0.0;
             Integer userId = (Integer) request.getSession().getAttribute("userId");
-            xinlilaoshiOrder.setYonghuId(userId); //设置订单支付人id
-            xinlilaoshiOrder.setXinlilaoshiOrderUuidNumber(String.valueOf(new Date().getTime()));
-            xinlilaoshiOrder.setInsertTime(new Date());
-            xinlilaoshiOrder.setCreateTime(new Date());
+            xinlilaoshiOrder.setStudentId(userId); //设置订单支付人id
+            xinlilaoshiOrder.setAppointmentNo(String.valueOf(new Date().getTime()));
+            xinlilaoshiOrder.setAppliedAt(new Date());
+            xinlilaoshiOrder.setCreatedAt(new Date());
                 xinlilaoshiOrderService.insert(xinlilaoshiOrder);//新增订单
             return R.ok();
     }

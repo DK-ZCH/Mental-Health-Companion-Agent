@@ -30,31 +30,31 @@ public class ExamredetailsModel implements Serializable {
     /**
      * 试卷编号
      */
-    private String examredetailsUuidNumber;
+    private String recordNo;
 
 
     /**
      * 学生id
      */
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 试题id（外键）
      */
-    private Integer examquestionId;
+    private Integer questionId;
 
 
     /**
      * 考生答案
      */
-    private String examredetailsMyanswer;
+    private String studentAnswer;
 
 
     /**
      * 试题得分
      */
-    private Integer examredetailsMyscore;
+    private Integer score;
 
 
     /**
@@ -62,7 +62,7 @@ public class ExamredetailsModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -82,86 +82,86 @@ public class ExamredetailsModel implements Serializable {
     /**
 	 * 获取：试卷编号
 	 */
-    public String getExamredetailsUuidNumber() {
-        return examredetailsUuidNumber;
+    public String getRecordNo() {
+        return recordNo;
     }
 
 
     /**
 	 * 设置：试卷编号
 	 */
-    public void setExamredetailsUuidNumber(String examredetailsUuidNumber) {
-        this.examredetailsUuidNumber = examredetailsUuidNumber;
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
     }
     /**
 	 * 获取：学生id
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
     /**
 	 * 设置：学生id
 	 */
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 获取：试题id（外键）
 	 */
-    public Integer getExamquestionId() {
-        return examquestionId;
+    public Integer getQuestionId() {
+        return questionId;
     }
 
 
     /**
 	 * 设置：试题id（外键）
 	 */
-    public void setExamquestionId(Integer examquestionId) {
-        this.examquestionId = examquestionId;
+    public void setQuestionId(Integer questionId) {
+        this.questionId = questionId;
     }
     /**
 	 * 获取：考生答案
 	 */
-    public String getExamredetailsMyanswer() {
-        return examredetailsMyanswer;
+    public String getStudentAnswer() {
+        return studentAnswer;
     }
 
 
     /**
 	 * 设置：考生答案
 	 */
-    public void setExamredetailsMyanswer(String examredetailsMyanswer) {
-        this.examredetailsMyanswer = examredetailsMyanswer;
+    public void setStudentAnswer(String studentAnswer) {
+        this.studentAnswer = studentAnswer;
     }
     /**
 	 * 获取：试题得分
 	 */
-    public Integer getExamredetailsMyscore() {
-        return examredetailsMyscore;
+    public Integer getScore() {
+        return score;
     }
 
 
     /**
 	 * 设置：试题得分
 	 */
-    public void setExamredetailsMyscore(Integer examredetailsMyscore) {
-        this.examredetailsMyscore = examredetailsMyscore;
+    public void setScore(Integer score) {
+        this.score = score;
     }
     /**
 	 * 获取：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

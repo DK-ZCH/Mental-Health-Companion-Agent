@@ -6,7 +6,7 @@
     <select id="selectListView"
 		resultType="com.entity.TokenEntity" >
 
-		SELECT  t.* FROM token  t 	        
+		SELECT  t.* FROM auth_token  t 	        
         <where> 1=1 ${ew.sqlSegment}</where>
 	</select>
 	

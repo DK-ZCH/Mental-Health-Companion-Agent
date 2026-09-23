@@ -18,11 +18,11 @@
 	<!--多表联查统计图标-->
 	<select id="chartBoth" resultType="map" parameterType="map">
 		select
-		b.index_name as mc,
+		b.item_name as mc,
 		count(*) as total
 		from ${table1} a left join ${table2} b
-		on a.${column1} = b.code_index
-		where b.dic_code = #{column1}
+		on a.${column1} = b.item_code
+		where b.dict_code = #{column1}
 		group by ${column1}
 	</select>
 	
@@ -78,11 +78,11 @@
 	<select id="newSelectGroupSum" resultType="map">
 
 		select
-			d.index_name as name,
+			d.item_name as name,
 			a.${groupColumn} as groupColumn, -- 这一列页面无用,用于排查问题
 			sum(a.${sumColumn}) as value
 		from ${tableName} a
-		LEFT JOIN dictionary d ON a.${groupColumn}=d.code_index where d.dic_code= #{groupColumn}
+		LEFT JOIN sys_dict_item d ON a.${groupColumn}=d.item_code where d.dict_code= #{groupColumn}
 		GROUP BY a.${groupColumn}
 	</select>
 
@@ -106,11 +106,11 @@
 	<select id="newSelectGroupCount" resultType="map">
 
 		select
-			d.index_name as name,
+			d.item_name as name,
 			a.${groupColumn} as groupColumn, -- 这一列页面无用,用于排查问题
 			count(*) as value
 		from ${tableName} a
-		LEFT JOIN dictionary d ON a.${groupColumn}=d.code_index where d.dic_code= #{groupColumn}
+		LEFT JOIN sys_dict_item d ON a.${groupColumn}=d.item_code where d.dict_code= #{groupColumn}
 		GROUP BY a.${groupColumn}
 	</select>
 
@@ -223,12 +223,12 @@
 		</if>
 		<if test="thisTable != null and thisTable.types != null">
 			<foreach item="item" index="index" collection="thisTable.types" open="" separator="," close=",">
-				${item}.index_name as thisTypes${index}
+				${item}.item_name as thisTypes${index}
 			</foreach>
 		</if>
 		<if test="joinTable != null and joinTable.types != null">
 			<foreach item="item" index="index" collection="joinTable.types" open="" separator="," close=",">
-				${item}.index_name as joinTypes${index}
+				${item}.item_name as joinTypes${index}
 			</foreach>
 		</if>
 		sum(thisTableName.${thisTable.sumColum}) as value
@@ -241,26 +241,26 @@
 			<when test="(thisTable != null and thisTable.types != null) || (joinTable != null and joinTable.types != null)" >
 				<if test="thisTable != null and thisTable.types != null">
 					<foreach item="item" index="index" collection="thisTable.types" open="" separator="," close="">
-						LEFT JOIN dictionary ${item} ON thisTableName.${item}=${item}.code_index
-							WHERE ${item}.dic_code= #{item}
+						LEFT JOIN sys_dict_item ${item} ON thisTableName.${item}=${item}.item_code
+							WHERE ${item}.dict_code= #{item}
 						<if test="(riqi != null and riqi != '') and (dateFormat != null and dateFormat != '')">
-							AND date_format(thisTableName.insert_time, #{dateFormat}) = #{riqi}
+							AND date_format(thisTableName.created_at, #{dateFormat}) = #{riqi}
 						</if>
 					</foreach>
 				</if>
 				<if test="joinTable != null and joinTable.types != null">
 					<foreach item="item" index="index" collection="joinTable.types" open="" separator="," close="">
-						LEFT JOIN dictionary ${item} ON joinTableName.${item}=${item}.code_index
-							WHERE ${item}.dic_code= #{item}
+						LEFT JOIN sys_dict_item ${item} ON joinTableName.${item}=${item}.item_code
+							WHERE ${item}.dict_code= #{item}
 						<if test="(riqi != null and riqi != '') and (dateFormat != null and dateFormat != '')">
-							AND date_format(thisTableName.insert_time, #{dateFormat}) = #{riqi}
+							AND date_format(thisTableName.created_at, #{dateFormat}) = #{riqi}
 						</if>
 					</foreach>
 				</if>
 			</when>
 			<otherwise>
 				<if test="(riqi != null and riqi != '') and (dateFormat != null and dateFormat != '')">
-					WHERE date_format(thisTableName.insert_time, #{dateFormat}) = #{riqi}
+					WHERE date_format(thisTableName.created_at, #{dateFormat}) = #{riqi}
 				</if>
 			</otherwise>
 		</choose>
@@ -358,12 +358,12 @@
 		</if>
 		<if test="thisTable != null and thisTable.types != null">
 			<foreach item="item" index="index" collection="thisTable.types" open="" separator="," close=",">
-				${item}.index_name as thisTypes${index}
+				${item}.item_name as thisTypes${index}
 			</foreach>
 		</if>
 		<if test="joinTable != null and joinTable.types != null">
 			<foreach item="item" index="index" collection="joinTable.types" open="" separator="," close=",">
-				${item}.index_name as joinTypes${index}
+				${item}.item_name as joinTypes${index}
 			</foreach>
 		</if>
 		count(*) as value
@@ -376,26 +376,26 @@
 			<when test="(thisTable != null and thisTable.types != null) || (joinTable != null and joinTable.types != null)" >
 				<if test="thisTable != null and thisTable.types != null">
 					<foreach item="item" index="index" collection="thisTable.types" open="" separator="," close="">
-						LEFT JOIN dictionary ${item} ON thisTableName.${item}=${item}.code_index
-						WHERE ${item}.dic_code= #{item}
+						LEFT JOIN sys_dict_item ${item} ON thisTableName.${item}=${item}.item_code
+						WHERE ${item}.dict_code= #{item}
 						<if test="(riqi != null and riqi != '') and (dateFormat != null and dateFormat != '')">
-							AND date_format(thisTableName.insert_time, #{dateFormat}) = #{riqi}
+							AND date_format(thisTableName.created_at, #{dateFormat}) = #{riqi}
 						</if>
 					</foreach>
 				</if>
 				<if test="joinTable != null and joinTable.types != null">
 					<foreach item="item" index="index" collection="joinTable.types" open="" separator="," close="">
-						LEFT JOIN dictionary ${item} ON joinTableName.${item}=${item}.code_index
-						WHERE ${item}.dic_code= #{item}
+						LEFT JOIN sys_dict_item ${item} ON joinTableName.${item}=${item}.item_code
+						WHERE ${item}.dict_code= #{item}
 						<if test="(riqi != null and riqi != '') and (dateFormat != null and dateFormat != '')">
-							AND date_format(thisTableName.insert_time, #{dateFormat}) = #{riqi}
+							AND date_format(thisTableName.created_at, #{dateFormat}) = #{riqi}
 						</if>
 					</foreach>
 				</if>
 			</when>
 			<otherwise>
 				<if test="(riqi != null and riqi != '') and (dateFormat != null and dateFormat != '')">
-					WHERE date_format(thisTableName.insert_time, #{dateFormat}) = #{riqi}
+					WHERE date_format(thisTableName.created_at, #{dateFormat}) = #{riqi}
 				</if>
 			</otherwise>
 		</choose>

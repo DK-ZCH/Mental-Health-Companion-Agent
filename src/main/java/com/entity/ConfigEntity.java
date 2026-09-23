@@ -9,9 +9,9 @@ import com.baomidou.mybatisplus.enums.IdType;
 /**
 * @author yangliyuan
 * @version 创建时间：2020年2月7日 下午8:36:05
-* 类说明 : 
+* 类说明 : 系统配置
 */
-@TableName("config")
+@TableName("sys_config")
 public class ConfigEntity implements Serializable{
 private static final long serialVersionUID = 1L;
 	
@@ -19,14 +19,14 @@ private static final long serialVersionUID = 1L;
 	private Long id;
 	
 	/**
-	 * key
+	 * 配置键
 	 */
-	private String name;
+	private String configKey;
 	
 	/**
-	 * value
+	 * 配置值
 	 */
-	private String value;
+	private String configValue;
 
 	public Long getId() {
 		return id;
@@ -36,20 +36,20 @@ private static final long serialVersionUID = 1L;
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getConfigKey() {
+		return configKey;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setConfigKey(String configKey) {
+		this.configKey = configKey;
 	}
 
-	public String getValue() {
-		return value;
+	public String getConfigValue() {
+		return configValue;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setConfigValue(String configValue) {
+		this.configValue = configValue;
 	}
 	
 }

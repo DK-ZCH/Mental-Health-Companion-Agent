@@ -6,7 +6,7 @@
     <select id="selectListView"
 		resultType="com.entity.UsersEntity" >
 
-		SELECT  u.* FROM users  u
+		SELECT  u.* FROM admin_user  u
         <where> 1=1 ${ew.sqlSegment}</where>
 	</select>
 	

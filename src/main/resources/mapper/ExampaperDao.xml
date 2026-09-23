@@ -5,12 +5,12 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         a.id as id
-        ,a.exampaper_name as exampaperName
-        ,a.exampaper_date as exampaperDate
-        ,a.exampaper_myscore as exampaperMyscore
-        ,a.exampaper_types as exampaperTypes
-        ,a.exampaper_delete as exampaperDelete
-        ,a.create_time as createTime
+        ,a.name as name
+        ,a.duration_minutes as durationMinutes
+        ,a.total_score as totalScore
+        ,a.status as status
+        ,a.is_deleted as isDeleted
+        ,a.created_at as createdAt
     </sql>
     <select id="selectListView" parameterType="map" resultType="com.entity.view.ExampaperView" >
         SELECT
@@ -18,7 +18,7 @@
 
 --         级联表的字段
 
-        FROM exampaper  a
+        FROM assessment_paper  a
 
         <where>
             <if test="params.ids != null">
@@ -27,38 +27,38 @@
                 #{item}
                 </foreach>
             </if>
-            <if test=" params.exampaperName != '' and params.exampaperName != null and params.exampaperName != 'null' ">
-                and a.exampaper_name like CONCAT('%',#{params.exampaperName},'%')
+            <if test=" params.name != '' and params.name != null and params.name != 'null' ">
+                and a.name like CONCAT('%',#{params.name},'%')
             </if>
             <if test="params.exampaperDateStart != null and params.exampaperDateStart != ''">
-                <![CDATA[  and a.exampaper_date >= #{params.exampaperDateStart}   ]]>
+                <![CDATA[  and a.duration_minutes >= #{params.exampaperDateStart}   ]]>
             </if>
             <if test="params.exampaperDateEnd != null and params.exampaperDateEnd != ''">
-                <![CDATA[  and a.exampaper_date <= #{params.exampaperDateEnd}   ]]>
+                <![CDATA[  and a.duration_minutes <= #{params.exampaperDateEnd}   ]]>
             </if>
-             <if test="params.exampaperDate != null and params.exampaperDate != ''">
-                and a.exampaper_date = #{params.exampaperDate}
+             <if test="params.durationMinutes != null and params.durationMinutes != ''">
+                and a.duration_minutes = #{params.durationMinutes}
              </if>
             <if test="params.exampaperMyscoreStart != null and params.exampaperMyscoreStart != ''">
-                <![CDATA[  and a.exampaper_myscore >= #{params.exampaperMyscoreStart}   ]]>
+                <![CDATA[  and a.total_score >= #{params.exampaperMyscoreStart}   ]]>
             </if>
             <if test="params.exampaperMyscoreEnd != null and params.exampaperMyscoreEnd != ''">
-                <![CDATA[  and a.exampaper_myscore <= #{params.exampaperMyscoreEnd}   ]]>
+                <![CDATA[  and a.total_score <= #{params.exampaperMyscoreEnd}   ]]>
             </if>
-             <if test="params.exampaperMyscore != null and params.exampaperMyscore != ''">
-                and a.exampaper_myscore = #{params.exampaperMyscore}
+             <if test="params.totalScore != null and params.totalScore != ''">
+                and a.total_score = #{params.totalScore}
              </if>
-            <if test="params.exampaperTypes != null and params.exampaperTypes != ''">
-                and a.exampaper_types = #{params.exampaperTypes}
+            <if test="params.status != null and params.status != ''">
+                and a.status = #{params.status}
             </if>
             <if test="params.exampaperDeleteStart != null and params.exampaperDeleteStart != ''">
-                <![CDATA[  and a.exampaper_delete >= #{params.exampaperDeleteStart}   ]]>
+                <![CDATA[  and a.is_deleted >= #{params.exampaperDeleteStart}   ]]>
             </if>
             <if test="params.exampaperDeleteEnd != null and params.exampaperDeleteEnd != ''">
-                <![CDATA[  and a.exampaper_delete <= #{params.exampaperDeleteEnd}   ]]>
+                <![CDATA[  and a.is_deleted <= #{params.exampaperDeleteEnd}   ]]>
             </if>
-             <if test="params.exampaperDelete != null and params.exampaperDelete != ''">
-                and a.exampaper_delete = #{params.exampaperDelete}
+             <if test="params.isDeleted != null and params.isDeleted != ''">
+                and a.is_deleted = #{params.isDeleted}
              </if>
 
         </where>

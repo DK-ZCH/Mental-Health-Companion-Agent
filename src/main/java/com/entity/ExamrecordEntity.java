@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("examrecord")
+@TableName("assessment_record")
 public class ExamrecordEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,25 +57,25 @@ public class ExamrecordEntity<T> implements Serializable {
     /**
      * 考试编号
      */
-    @TableField(value = "examrecord_uuid_number")
+    @TableField(value = "record_no")
 
-    private String examrecordUuidNumber;
+    private String recordNo;
 
 
     /**
      * 考试学生
      */
-    @TableField(value = "yonghu_id")
+    @TableField(value = "student_id")
 
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 所属试卷id（外键）
      */
-    @TableField(value = "exampaper_id")
+    @TableField(value = "paper_id")
 
-    private Integer exampaperId;
+    private Integer paperId;
 
 
     /**
@@ -91,9 +91,9 @@ public class ExamrecordEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "insert_time",fill = FieldFill.INSERT)
+    @TableField(value = "submitted_at",fill = FieldFill.INSERT)
 
-    private Date insertTime;
+    private Date submittedAt;
 
 
     /**
@@ -101,9 +101,9 @@ public class ExamrecordEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -122,41 +122,41 @@ public class ExamrecordEntity<T> implements Serializable {
     /**
 	 * 设置：考试编号
 	 */
-    public String getExamrecordUuidNumber() {
-        return examrecordUuidNumber;
+    public String getRecordNo() {
+        return recordNo;
     }
     /**
 	 * 获取：考试编号
 	 */
 
-    public void setExamrecordUuidNumber(String examrecordUuidNumber) {
-        this.examrecordUuidNumber = examrecordUuidNumber;
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
     }
     /**
 	 * 设置：考试学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
     /**
 	 * 获取：考试学生
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：所属试卷id（外键）
 	 */
-    public Integer getExampaperId() {
-        return exampaperId;
+    public Integer getPaperId() {
+        return paperId;
     }
     /**
 	 * 获取：所属试卷id（外键）
 	 */
 
-    public void setExampaperId(Integer exampaperId) {
-        this.exampaperId = exampaperId;
+    public void setPaperId(Integer paperId) {
+        this.paperId = paperId;
     }
     /**
 	 * 设置：所得总分
@@ -174,40 +174,40 @@ public class ExamrecordEntity<T> implements Serializable {
     /**
 	 * 设置：考试时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getSubmittedAt() {
+        return submittedAt;
     }
     /**
 	 * 获取：考试时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setSubmittedAt(Date submittedAt) {
+        this.submittedAt = submittedAt;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Examrecord{" +
             "id=" + id +
-            ", examrecordUuidNumber=" + examrecordUuidNumber +
-            ", yonghuId=" + yonghuId +
-            ", exampaperId=" + exampaperId +
+            ", recordNo=" + recordNo +
+            ", studentId=" + studentId +
+            ", paperId=" + paperId +
             ", totalScore=" + totalScore +
-            ", insertTime=" + insertTime +
-            ", createTime=" + createTime +
+            ", submittedAt=" + submittedAt +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

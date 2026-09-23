@@ -14,7 +14,7 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("dictionary")
+@TableName("sys_dict_item")
 public class DictionaryView extends DictionaryEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 

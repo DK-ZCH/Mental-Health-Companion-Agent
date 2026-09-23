@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("yonghu")
+@TableName("student")
 public class YonghuVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -47,48 +47,48 @@ public class YonghuVO implements Serializable {
      * 学生姓名
      */
 
-    @TableField(value = "yonghu_name")
-    private String yonghuName;
+    @TableField(value = "name")
+    private String name;
 
 
     /**
      * 学生手机号
      */
 
-    @TableField(value = "yonghu_phone")
-    private String yonghuPhone;
+    @TableField(value = "phone")
+    private String phone;
 
 
     /**
      * 学生身份证号
      */
 
-    @TableField(value = "yonghu_id_number")
-    private String yonghuIdNumber;
+    @TableField(value = "id_card_no")
+    private String idCardNo;
 
 
     /**
      * 学生头像
      */
 
-    @TableField(value = "yonghu_photo")
-    private String yonghuPhoto;
+    @TableField(value = "avatar_url")
+    private String avatarUrl;
 
 
     /**
      * 性别
      */
 
-    @TableField(value = "sex_types")
-    private Integer sexTypes;
+    @TableField(value = "gender")
+    private Integer gender;
 
 
     /**
      * 电子邮箱
      */
 
-    @TableField(value = "yonghu_email")
-    private String yonghuEmail;
+    @TableField(value = "email")
+    private String email;
 
 
     /**
@@ -97,8 +97,8 @@ public class YonghuVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -149,8 +149,8 @@ public class YonghuVO implements Serializable {
     /**
 	 * 设置：学生姓名
 	 */
-    public String getYonghuName() {
-        return yonghuName;
+    public String getName() {
+        return name;
     }
 
 
@@ -158,14 +158,14 @@ public class YonghuVO implements Serializable {
 	 * 获取：学生姓名
 	 */
 
-    public void setYonghuName(String yonghuName) {
-        this.yonghuName = yonghuName;
+    public void setName(String name) {
+        this.name = name;
     }
     /**
 	 * 设置：学生手机号
 	 */
-    public String getYonghuPhone() {
-        return yonghuPhone;
+    public String getPhone() {
+        return phone;
     }
 
 
@@ -173,14 +173,14 @@ public class YonghuVO implements Serializable {
 	 * 获取：学生手机号
 	 */
 
-    public void setYonghuPhone(String yonghuPhone) {
-        this.yonghuPhone = yonghuPhone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
     /**
 	 * 设置：学生身份证号
 	 */
-    public String getYonghuIdNumber() {
-        return yonghuIdNumber;
+    public String getIdCardNo() {
+        return idCardNo;
     }
 
 
@@ -188,14 +188,14 @@ public class YonghuVO implements Serializable {
 	 * 获取：学生身份证号
 	 */
 
-    public void setYonghuIdNumber(String yonghuIdNumber) {
-        this.yonghuIdNumber = yonghuIdNumber;
+    public void setIdCardNo(String idCardNo) {
+        this.idCardNo = idCardNo;
     }
     /**
 	 * 设置：学生头像
 	 */
-    public String getYonghuPhoto() {
-        return yonghuPhoto;
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
 
 
@@ -203,14 +203,14 @@ public class YonghuVO implements Serializable {
 	 * 获取：学生头像
 	 */
 
-    public void setYonghuPhoto(String yonghuPhoto) {
-        this.yonghuPhoto = yonghuPhoto;
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
     /**
 	 * 设置：性别
 	 */
-    public Integer getSexTypes() {
-        return sexTypes;
+    public Integer getGender() {
+        return gender;
     }
 
 
@@ -218,14 +218,14 @@ public class YonghuVO implements Serializable {
 	 * 获取：性别
 	 */
 
-    public void setSexTypes(Integer sexTypes) {
-        this.sexTypes = sexTypes;
+    public void setGender(Integer gender) {
+        this.gender = gender;
     }
     /**
 	 * 设置：电子邮箱
 	 */
-    public String getYonghuEmail() {
-        return yonghuEmail;
+    public String getEmail() {
+        return email;
     }
 
 
@@ -233,14 +233,14 @@ public class YonghuVO implements Serializable {
 	 * 获取：电子邮箱
 	 */
 
-    public void setYonghuEmail(String yonghuEmail) {
-        this.yonghuEmail = yonghuEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -248,8 +248,8 @@ public class YonghuVO implements Serializable {
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

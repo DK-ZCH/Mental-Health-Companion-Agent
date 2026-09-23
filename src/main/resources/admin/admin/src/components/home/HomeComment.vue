@@ -11,7 +11,7 @@
           <span class="user">{{item.name}}</span>
         </div>
         <div class="comment">{{item.content}}</div>
-        <div class="create-time">{{item.createTime}}</div>
+        <div class="create-time">{{item.createdAt}}</div>
       </div>
     </div>
   </div>
@@ -27,27 +27,27 @@ export default {
             "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
           content:
             "你以为只要长得漂亮就有男生喜欢？你以为只要有了钱漂亮妹子就自己贴上来了？你以为学霸就能找到好工作？我告诉你吧，这些都是真的！",
-          createTime: "5月02日 00:00"
+          createdAt: "5月02日 00:00"
         },
         {
           name: "MaskLin",
           avator:
             "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
           content: "作者太帅了",
-          createTime: "5月04日 00:00"
+          createdAt: "5月04日 00:00"
         },
         {
           name: "MaskLin",
           avator:
             "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
           content: "作者太帅了",
-          createTime: "5月04日 00:00"
+          createdAt: "5月04日 00:00"
         },
         {
           name: "MaskLin",
           avator: "https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg",
           content: "作者太帅了",
-          createTime: "5月04日 00:00"
+          createdAt: "5月04日 00:00"
         }
       ]
     };

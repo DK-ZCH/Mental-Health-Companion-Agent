@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.enums.IdType;
 /** 
  * 学生
  */
-@TableName("users")
+@TableName("admin_user")
 public class UsersEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -32,7 +32,7 @@ public class UsersEntity implements Serializable {
 	 */
 	private String role;
 	
-	private Date addtime;
+	private Date createdAt;
 
 	public String getUsername() {
 		return username;
@@ -58,12 +58,12 @@ public class UsersEntity implements Serializable {
 		this.role = role;
 	}
 
-	public Date getAddtime() {
-		return addtime;
+	public Date getCreatedAt() {
+		return createdAt;
 	}
 
-	public void setAddtime(Date addtime) {
-		this.addtime = addtime;
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	public Integer getId() {

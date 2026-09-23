@@ -14,7 +14,7 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("examredetails")
+@TableName("assessment_answer")
 public class ExamredetailsView extends ExamredetailsEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -25,57 +25,57 @@ public class ExamredetailsView extends ExamredetailsEntity implements Serializab
 			/**
 			* 试题名称
 			*/
-			private String examquestionName;
+			private String questionContent;
 			/**
 			* 选项，json字符串
 			*/
-			private String examquestionOptions;
+			private String questionOptions;
 			/**
 			* 分值
 			*/
-			private Integer examquestionScore;
+			private Integer questionScore;
 			/**
 			* 正确答案
 			*/
-			private String examquestionAnswer;
+			private String questionAnswer;
 			/**
 			* 答案解析
 			*/
-			private String examquestionAnalysis;
+			private String questionAnalysis;
 			/**
 			* 试题类型
 			*/
-			private Integer examquestionTypes;
+			private Integer questionType;
 				/**
 				* 试题类型的值
 				*/
-				private String examquestionValue;
+				private String questionTypeLabel;
 			/**
 			* 试题排序，值越大排越前面
 			*/
-			private Integer examquestionSequence;
+			private Integer questionSortOrder;
 
 		//级联表 yonghu
 			/**
 			* 学生姓名
 			*/
-			private String yonghuName;
+			private String studentName;
 			/**
 			* 学生手机号
 			*/
-			private String yonghuPhone;
+			private String studentPhone;
 			/**
 			* 学生身份证号
 			*/
-			private String yonghuIdNumber;
+			private String studentIdCardNo;
 			/**
 			* 学生头像
 			*/
-			private String yonghuPhoto;
+			private String studentAvatarUrl;
 			/**
 			* 电子邮箱
 			*/
-			private String yonghuEmail;
+			private String studentEmail;
 
 	public ExamredetailsView() {
 
@@ -109,106 +109,106 @@ public class ExamredetailsView extends ExamredetailsEntity implements Serializab
 					/**
 					* 获取： 试题名称
 					*/
-					public String getExamquestionName() {
-						return examquestionName;
+					public String getQuestionContent() {
+						return questionContent;
 					}
 					/**
 					* 设置： 试题名称
 					*/
-					public void setExamquestionName(String examquestionName) {
-						this.examquestionName = examquestionName;
+					public void setQuestionContent(String questionContent) {
+						this.questionContent = questionContent;
 					}
 
 					/**
 					* 获取： 选项，json字符串
 					*/
-					public String getExamquestionOptions() {
-						return examquestionOptions;
+					public String getQuestionOptions() {
+						return questionOptions;
 					}
 					/**
 					* 设置： 选项，json字符串
 					*/
-					public void setExamquestionOptions(String examquestionOptions) {
-						this.examquestionOptions = examquestionOptions;
+					public void setQuestionOptions(String questionOptions) {
+						this.questionOptions = questionOptions;
 					}
 
 					/**
 					* 获取： 分值
 					*/
-					public Integer getExamquestionScore() {
-						return examquestionScore;
+					public Integer getQuestionScore() {
+						return questionScore;
 					}
 					/**
 					* 设置： 分值
 					*/
-					public void setExamquestionScore(Integer examquestionScore) {
-						this.examquestionScore = examquestionScore;
+					public void setQuestionScore(Integer questionScore) {
+						this.questionScore = questionScore;
 					}
 
 					/**
 					* 获取： 正确答案
 					*/
-					public String getExamquestionAnswer() {
-						return examquestionAnswer;
+					public String getQuestionAnswer() {
+						return questionAnswer;
 					}
 					/**
 					* 设置： 正确答案
 					*/
-					public void setExamquestionAnswer(String examquestionAnswer) {
-						this.examquestionAnswer = examquestionAnswer;
+					public void setQuestionAnswer(String questionAnswer) {
+						this.questionAnswer = questionAnswer;
 					}
 
 					/**
 					* 获取： 答案解析
 					*/
-					public String getExamquestionAnalysis() {
-						return examquestionAnalysis;
+					public String getQuestionAnalysis() {
+						return questionAnalysis;
 					}
 					/**
 					* 设置： 答案解析
 					*/
-					public void setExamquestionAnalysis(String examquestionAnalysis) {
-						this.examquestionAnalysis = examquestionAnalysis;
+					public void setQuestionAnalysis(String questionAnalysis) {
+						this.questionAnalysis = questionAnalysis;
 					}
 
 					/**
 					* 获取： 试题类型
 					*/
-					public Integer getExamquestionTypes() {
-						return examquestionTypes;
+					public Integer getQuestionType() {
+						return questionType;
 					}
 					/**
 					* 设置： 试题类型
 					*/
-					public void setExamquestionTypes(Integer examquestionTypes) {
-						this.examquestionTypes = examquestionTypes;
+					public void setQuestionType(Integer questionType) {
+						this.questionType = questionType;
 					}
 
 
 						/**
 						* 获取： 试题类型的值
 						*/
-						public String getExamquestionValue() {
-							return examquestionValue;
+						public String getQuestionTypeLabel() {
+							return questionTypeLabel;
 						}
 						/**
 						* 设置： 试题类型的值
 						*/
-						public void setExamquestionValue(String examquestionValue) {
-							this.examquestionValue = examquestionValue;
+						public void setQuestionTypeLabel(String questionTypeLabel) {
+							this.questionTypeLabel = questionTypeLabel;
 						}
 
 					/**
 					* 获取： 试题排序，值越大排越前面
 					*/
-					public Integer getExamquestionSequence() {
-						return examquestionSequence;
+					public Integer getQuestionSortOrder() {
+						return questionSortOrder;
 					}
 					/**
 					* 设置： 试题排序，值越大排越前面
 					*/
-					public void setExamquestionSequence(Integer examquestionSequence) {
-						this.examquestionSequence = examquestionSequence;
+					public void setQuestionSortOrder(Integer questionSortOrder) {
+						this.questionSortOrder = questionSortOrder;
 					}
 
 
@@ -241,66 +241,66 @@ public class ExamredetailsView extends ExamredetailsEntity implements Serializab
 					/**
 					* 获取： 学生姓名
 					*/
-					public String getYonghuName() {
-						return yonghuName;
+					public String getStudentName() {
+						return studentName;
 					}
 					/**
 					* 设置： 学生姓名
 					*/
-					public void setYonghuName(String yonghuName) {
-						this.yonghuName = yonghuName;
+					public void setStudentName(String studentName) {
+						this.studentName = studentName;
 					}
 
 					/**
 					* 获取： 学生手机号
 					*/
-					public String getYonghuPhone() {
-						return yonghuPhone;
+					public String getStudentPhone() {
+						return studentPhone;
 					}
 					/**
 					* 设置： 学生手机号
 					*/
-					public void setYonghuPhone(String yonghuPhone) {
-						this.yonghuPhone = yonghuPhone;
+					public void setStudentPhone(String studentPhone) {
+						this.studentPhone = studentPhone;
 					}
 
 					/**
 					* 获取： 学生身份证号
 					*/
-					public String getYonghuIdNumber() {
-						return yonghuIdNumber;
+					public String getStudentIdCardNo() {
+						return studentIdCardNo;
 					}
 					/**
 					* 设置： 学生身份证号
 					*/
-					public void setYonghuIdNumber(String yonghuIdNumber) {
-						this.yonghuIdNumber = yonghuIdNumber;
+					public void setStudentIdCardNo(String studentIdCardNo) {
+						this.studentIdCardNo = studentIdCardNo;
 					}
 
 					/**
 					* 获取： 学生头像
 					*/
-					public String getYonghuPhoto() {
-						return yonghuPhoto;
+					public String getStudentAvatarUrl() {
+						return studentAvatarUrl;
 					}
 					/**
 					* 设置： 学生头像
 					*/
-					public void setYonghuPhoto(String yonghuPhoto) {
-						this.yonghuPhoto = yonghuPhoto;
+					public void setStudentAvatarUrl(String studentAvatarUrl) {
+						this.studentAvatarUrl = studentAvatarUrl;
 					}
 
 					/**
 					* 获取： 电子邮箱
 					*/
-					public String getYonghuEmail() {
-						return yonghuEmail;
+					public String getStudentEmail() {
+						return studentEmail;
 					}
 					/**
 					* 设置： 电子邮箱
 					*/
-					public void setYonghuEmail(String yonghuEmail) {
-						this.yonghuEmail = yonghuEmail;
+					public void setStudentEmail(String studentEmail) {
+						this.studentEmail = studentEmail;
 					}
 
 

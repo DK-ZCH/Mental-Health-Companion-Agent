@@ -7,15 +7,15 @@
         a.id as id
         ,a.username as username
         ,a.password as password
-        ,a.xinlilaoshi_name as xinlilaoshiName
-        ,a.xinlilaoshi_phone as xinlilaoshiPhone
-        ,a.xinlilaoshi_photo as xinlilaoshiPhoto
-        ,a.sex_types as sexTypes
-        ,a.xinlilaoshi_email as xinlilaoshiEmail
-        ,a.xinlilaoshi_shanchang as xinlilaoshiShanchang
-        ,a.xinlilaoshi_lvli as xinlilaoshiLvli
-        ,a.xinlilaoshi_content as xinlilaoshiContent
-        ,a.create_time as createTime
+        ,a.name as name
+        ,a.phone as phone
+        ,a.avatar_url as avatarUrl
+        ,a.gender as gender
+        ,a.email as email
+        ,a.expertise as expertise
+        ,a.resume as resume
+        ,a.introduction as introduction
+        ,a.created_at as createdAt
     </sql>
     <select id="selectListView" parameterType="map" resultType="com.entity.view.XinlilaoshiView" >
         SELECT
@@ -23,7 +23,7 @@
 
 --         级联表的字段
 
-        FROM xinlilaoshi  a
+        FROM counselor  a
 
         <where>
             <if test="params.ids != null">
@@ -38,26 +38,26 @@
             <if test=" params.password != '' and params.password != null and params.password != 'null' ">
                 and a.password like CONCAT('%',#{params.password},'%')
             </if>
-            <if test=" params.xinlilaoshiName != '' and params.xinlilaoshiName != null and params.xinlilaoshiName != 'null' ">
-                and a.xinlilaoshi_name like CONCAT('%',#{params.xinlilaoshiName},'%')
+            <if test=" params.name != '' and params.name != null and params.name != 'null' ">
+                and a.name like CONCAT('%',#{params.name},'%')
             </if>
-            <if test=" params.xinlilaoshiPhone != '' and params.xinlilaoshiPhone != null and params.xinlilaoshiPhone != 'null' ">
-                and a.xinlilaoshi_phone like CONCAT('%',#{params.xinlilaoshiPhone},'%')
+            <if test=" params.phone != '' and params.phone != null and params.phone != 'null' ">
+                and a.phone like CONCAT('%',#{params.phone},'%')
             </if>
-            <if test="params.sexTypes != null and params.sexTypes != ''">
-                and a.sex_types = #{params.sexTypes}
+            <if test="params.gender != null and params.gender != ''">
+                and a.gender = #{params.gender}
             </if>
-            <if test=" params.xinlilaoshiEmail != '' and params.xinlilaoshiEmail != null and params.xinlilaoshiEmail != 'null' ">
-                and a.xinlilaoshi_email like CONCAT('%',#{params.xinlilaoshiEmail},'%')
+            <if test=" params.email != '' and params.email != null and params.email != 'null' ">
+                and a.email like CONCAT('%',#{params.email},'%')
             </if>
-            <if test=" params.xinlilaoshiShanchang != '' and params.xinlilaoshiShanchang != null and params.xinlilaoshiShanchang != 'null' ">
-                and a.xinlilaoshi_shanchang like CONCAT('%',#{params.xinlilaoshiShanchang},'%')
+            <if test=" params.expertise != '' and params.expertise != null and params.expertise != 'null' ">
+                and a.expertise like CONCAT('%',#{params.expertise},'%')
             </if>
-            <if test=" params.xinlilaoshiLvli != '' and params.xinlilaoshiLvli != null and params.xinlilaoshiLvli != 'null' ">
-                and a.xinlilaoshi_lvli like CONCAT('%',#{params.xinlilaoshiLvli},'%')
+            <if test=" params.resume != '' and params.resume != null and params.resume != 'null' ">
+                and a.resume like CONCAT('%',#{params.resume},'%')
             </if>
-            <if test=" params.xinlilaoshiContent != '' and params.xinlilaoshiContent != null and params.xinlilaoshiContent != 'null' ">
-                and a.xinlilaoshi_content like CONCAT('%',#{params.xinlilaoshiContent},'%')
+            <if test=" params.introduction != '' and params.introduction != null and params.introduction != 'null' ">
+                and a.introduction like CONCAT('%',#{params.introduction},'%')
             </if>
 
         </where>

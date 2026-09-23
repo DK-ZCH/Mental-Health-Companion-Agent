@@ -30,31 +30,31 @@ public class ExampaperModel implements Serializable {
     /**
      * 试卷名称
      */
-    private String exampaperName;
+    private String name;
 
 
     /**
      * 考试时长(分钟)
      */
-    private Integer exampaperDate;
+    private Integer durationMinutes;
 
 
     /**
      * 试卷总分数
      */
-    private Integer exampaperMyscore;
+    private Integer totalScore;
 
 
     /**
      * 试卷状态
      */
-    private Integer exampaperTypes;
+    private Integer status;
 
 
     /**
      * 逻辑删除（0代表未删除 1代表已删除）
      */
-    private Integer exampaperDelete;
+    private Integer isDeleted;
 
 
     /**
@@ -62,7 +62,7 @@ public class ExampaperModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -82,86 +82,86 @@ public class ExampaperModel implements Serializable {
     /**
 	 * 获取：试卷名称
 	 */
-    public String getExampaperName() {
-        return exampaperName;
+    public String getName() {
+        return name;
     }
 
 
     /**
 	 * 设置：试卷名称
 	 */
-    public void setExampaperName(String exampaperName) {
-        this.exampaperName = exampaperName;
+    public void setName(String name) {
+        this.name = name;
     }
     /**
 	 * 获取：考试时长(分钟)
 	 */
-    public Integer getExampaperDate() {
-        return exampaperDate;
+    public Integer getDurationMinutes() {
+        return durationMinutes;
     }
 
 
     /**
 	 * 设置：考试时长(分钟)
 	 */
-    public void setExampaperDate(Integer exampaperDate) {
-        this.exampaperDate = exampaperDate;
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
     /**
 	 * 获取：试卷总分数
 	 */
-    public Integer getExampaperMyscore() {
-        return exampaperMyscore;
+    public Integer getTotalScore() {
+        return totalScore;
     }
 
 
     /**
 	 * 设置：试卷总分数
 	 */
-    public void setExampaperMyscore(Integer exampaperMyscore) {
-        this.exampaperMyscore = exampaperMyscore;
+    public void setTotalScore(Integer totalScore) {
+        this.totalScore = totalScore;
     }
     /**
 	 * 获取：试卷状态
 	 */
-    public Integer getExampaperTypes() {
-        return exampaperTypes;
+    public Integer getStatus() {
+        return status;
     }
 
 
     /**
 	 * 设置：试卷状态
 	 */
-    public void setExampaperTypes(Integer exampaperTypes) {
-        this.exampaperTypes = exampaperTypes;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
     /**
 	 * 获取：逻辑删除（0代表未删除 1代表已删除）
 	 */
-    public Integer getExampaperDelete() {
-        return exampaperDelete;
+    public Integer getIsDeleted() {
+        return isDeleted;
     }
 
 
     /**
 	 * 设置：逻辑删除（0代表未删除 1代表已删除）
 	 */
-    public void setExampaperDelete(Integer exampaperDelete) {
-        this.exampaperDelete = exampaperDelete;
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
     /**
 	 * 获取：创建时间 show2 photoShow
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间 show2 photoShow
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

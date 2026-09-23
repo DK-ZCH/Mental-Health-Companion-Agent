@@ -14,7 +14,7 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("xinlilaoshi_liuyan")
+@TableName("counselor_message")
 public class XinlilaoshiLiuyanView extends XinlilaoshiLiuyanEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -25,53 +25,53 @@ public class XinlilaoshiLiuyanView extends XinlilaoshiLiuyanEntity implements Se
 			/**
 			* 学生姓名
 			*/
-			private String yonghuName;
+			private String studentName;
 			/**
 			* 学生手机号
 			*/
-			private String yonghuPhone;
+			private String studentPhone;
 			/**
 			* 学生身份证号
 			*/
-			private String yonghuIdNumber;
+			private String studentIdCardNo;
 			/**
 			* 学生头像
 			*/
-			private String yonghuPhoto;
+			private String studentAvatarUrl;
 			/**
 			* 电子邮箱
 			*/
-			private String yonghuEmail;
+			private String studentEmail;
 
 		//级联表 xinlilaoshi
 			/**
 			* 心理老师姓名
 			*/
-			private String xinlilaoshiName;
+			private String counselorName;
 			/**
 			* 心理老师手机号
 			*/
-			private String xinlilaoshiPhone;
+			private String counselorPhone;
 			/**
 			* 心理老师头像
 			*/
-			private String xinlilaoshiPhoto;
+			private String counselorAvatarUrl;
 			/**
 			* 电子邮箱
 			*/
-			private String xinlilaoshiEmail;
+			private String counselorEmail;
 			/**
 			* 擅长
 			*/
-			private String xinlilaoshiShanchang;
+			private String counselorExpertise;
 			/**
 			* 履历
 			*/
-			private String xinlilaoshiLvli;
+			private String counselorResume;
 			/**
 			* 心理老师详细介绍
 			*/
-			private String xinlilaoshiContent;
+			private String counselorIntroduction;
 
 	public XinlilaoshiLiuyanView() {
 
@@ -131,66 +131,66 @@ public class XinlilaoshiLiuyanView extends XinlilaoshiLiuyanEntity implements Se
 					/**
 					* 获取： 学生姓名
 					*/
-					public String getYonghuName() {
-						return yonghuName;
+					public String getStudentName() {
+						return studentName;
 					}
 					/**
 					* 设置： 学生姓名
 					*/
-					public void setYonghuName(String yonghuName) {
-						this.yonghuName = yonghuName;
+					public void setStudentName(String studentName) {
+						this.studentName = studentName;
 					}
 
 					/**
 					* 获取： 学生手机号
 					*/
-					public String getYonghuPhone() {
-						return yonghuPhone;
+					public String getStudentPhone() {
+						return studentPhone;
 					}
 					/**
 					* 设置： 学生手机号
 					*/
-					public void setYonghuPhone(String yonghuPhone) {
-						this.yonghuPhone = yonghuPhone;
+					public void setStudentPhone(String studentPhone) {
+						this.studentPhone = studentPhone;
 					}
 
 					/**
 					* 获取： 学生身份证号
 					*/
-					public String getYonghuIdNumber() {
-						return yonghuIdNumber;
+					public String getStudentIdCardNo() {
+						return studentIdCardNo;
 					}
 					/**
 					* 设置： 学生身份证号
 					*/
-					public void setYonghuIdNumber(String yonghuIdNumber) {
-						this.yonghuIdNumber = yonghuIdNumber;
+					public void setStudentIdCardNo(String studentIdCardNo) {
+						this.studentIdCardNo = studentIdCardNo;
 					}
 
 					/**
 					* 获取： 学生头像
 					*/
-					public String getYonghuPhoto() {
-						return yonghuPhoto;
+					public String getStudentAvatarUrl() {
+						return studentAvatarUrl;
 					}
 					/**
 					* 设置： 学生头像
 					*/
-					public void setYonghuPhoto(String yonghuPhoto) {
-						this.yonghuPhoto = yonghuPhoto;
+					public void setStudentAvatarUrl(String studentAvatarUrl) {
+						this.studentAvatarUrl = studentAvatarUrl;
 					}
 
 					/**
 					* 获取： 电子邮箱
 					*/
-					public String getYonghuEmail() {
-						return yonghuEmail;
+					public String getStudentEmail() {
+						return studentEmail;
 					}
 					/**
 					* 设置： 电子邮箱
 					*/
-					public void setYonghuEmail(String yonghuEmail) {
-						this.yonghuEmail = yonghuEmail;
+					public void setStudentEmail(String studentEmail) {
+						this.studentEmail = studentEmail;
 					}
 
 
@@ -199,92 +199,92 @@ public class XinlilaoshiLiuyanView extends XinlilaoshiLiuyanEntity implements Se
 					/**
 					* 获取： 心理老师姓名
 					*/
-					public String getXinlilaoshiName() {
-						return xinlilaoshiName;
+					public String getCounselorName() {
+						return counselorName;
 					}
 					/**
 					* 设置： 心理老师姓名
 					*/
-					public void setXinlilaoshiName(String xinlilaoshiName) {
-						this.xinlilaoshiName = xinlilaoshiName;
+					public void setCounselorName(String counselorName) {
+						this.counselorName = counselorName;
 					}
 
 					/**
 					* 获取： 心理老师手机号
 					*/
-					public String getXinlilaoshiPhone() {
-						return xinlilaoshiPhone;
+					public String getCounselorPhone() {
+						return counselorPhone;
 					}
 					/**
 					* 设置： 心理老师手机号
 					*/
-					public void setXinlilaoshiPhone(String xinlilaoshiPhone) {
-						this.xinlilaoshiPhone = xinlilaoshiPhone;
+					public void setCounselorPhone(String counselorPhone) {
+						this.counselorPhone = counselorPhone;
 					}
 
 					/**
 					* 获取： 心理老师头像
 					*/
-					public String getXinlilaoshiPhoto() {
-						return xinlilaoshiPhoto;
+					public String getCounselorAvatarUrl() {
+						return counselorAvatarUrl;
 					}
 					/**
 					* 设置： 心理老师头像
 					*/
-					public void setXinlilaoshiPhoto(String xinlilaoshiPhoto) {
-						this.xinlilaoshiPhoto = xinlilaoshiPhoto;
+					public void setCounselorAvatarUrl(String counselorAvatarUrl) {
+						this.counselorAvatarUrl = counselorAvatarUrl;
 					}
 
 					/**
 					* 获取： 电子邮箱
 					*/
-					public String getXinlilaoshiEmail() {
-						return xinlilaoshiEmail;
+					public String getCounselorEmail() {
+						return counselorEmail;
 					}
 					/**
 					* 设置： 电子邮箱
 					*/
-					public void setXinlilaoshiEmail(String xinlilaoshiEmail) {
-						this.xinlilaoshiEmail = xinlilaoshiEmail;
+					public void setCounselorEmail(String counselorEmail) {
+						this.counselorEmail = counselorEmail;
 					}
 
 					/**
 					* 获取： 擅长
 					*/
-					public String getXinlilaoshiShanchang() {
-						return xinlilaoshiShanchang;
+					public String getCounselorExpertise() {
+						return counselorExpertise;
 					}
 					/**
 					* 设置： 擅长
 					*/
-					public void setXinlilaoshiShanchang(String xinlilaoshiShanchang) {
-						this.xinlilaoshiShanchang = xinlilaoshiShanchang;
+					public void setCounselorExpertise(String counselorExpertise) {
+						this.counselorExpertise = counselorExpertise;
 					}
 
 					/**
 					* 获取： 履历
 					*/
-					public String getXinlilaoshiLvli() {
-						return xinlilaoshiLvli;
+					public String getCounselorResume() {
+						return counselorResume;
 					}
 					/**
 					* 设置： 履历
 					*/
-					public void setXinlilaoshiLvli(String xinlilaoshiLvli) {
-						this.xinlilaoshiLvli = xinlilaoshiLvli;
+					public void setCounselorResume(String counselorResume) {
+						this.counselorResume = counselorResume;
 					}
 
 					/**
 					* 获取： 心理老师详细介绍
 					*/
-					public String getXinlilaoshiContent() {
-						return xinlilaoshiContent;
+					public String getCounselorIntroduction() {
+						return counselorIntroduction;
 					}
 					/**
 					* 设置： 心理老师详细介绍
 					*/
-					public void setXinlilaoshiContent(String xinlilaoshiContent) {
-						this.xinlilaoshiContent = xinlilaoshiContent;
+					public void setCounselorIntroduction(String counselorIntroduction) {
+						this.counselorIntroduction = counselorIntroduction;
 					}
 
 

@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("tongzhi")
+@TableName("notification")
 public class TongzhiVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,24 +31,24 @@ public class TongzhiVO implements Serializable {
      * 通知名称
      */
 
-    @TableField(value = "tongzhi_name")
-    private String tongzhiName;
+    @TableField(value = "title")
+    private String title;
 
 
     /**
      * 通知图片
      */
 
-    @TableField(value = "tongzhi_photo")
-    private String tongzhiPhoto;
+    @TableField(value = "cover_url")
+    private String coverUrl;
 
 
     /**
      * 通知类型
      */
 
-    @TableField(value = "tongzhi_types")
-    private Integer tongzhiTypes;
+    @TableField(value = "category")
+    private Integer category;
 
 
     /**
@@ -57,16 +57,16 @@ public class TongzhiVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "insert_time")
-    private Date insertTime;
+    @TableField(value = "published_at")
+    private Date publishedAt;
 
 
     /**
      * 通知详情
      */
 
-    @TableField(value = "tongzhi_content")
-    private String tongzhiContent;
+    @TableField(value = "content")
+    private String content;
 
 
     /**
@@ -75,8 +75,8 @@ public class TongzhiVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -97,8 +97,8 @@ public class TongzhiVO implements Serializable {
     /**
 	 * 设置：通知名称
 	 */
-    public String getTongzhiName() {
-        return tongzhiName;
+    public String getTitle() {
+        return title;
     }
 
 
@@ -106,14 +106,14 @@ public class TongzhiVO implements Serializable {
 	 * 获取：通知名称
 	 */
 
-    public void setTongzhiName(String tongzhiName) {
-        this.tongzhiName = tongzhiName;
+    public void setTitle(String title) {
+        this.title = title;
     }
     /**
 	 * 设置：通知图片
 	 */
-    public String getTongzhiPhoto() {
-        return tongzhiPhoto;
+    public String getCoverUrl() {
+        return coverUrl;
     }
 
 
@@ -121,14 +121,14 @@ public class TongzhiVO implements Serializable {
 	 * 获取：通知图片
 	 */
 
-    public void setTongzhiPhoto(String tongzhiPhoto) {
-        this.tongzhiPhoto = tongzhiPhoto;
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
     /**
 	 * 设置：通知类型
 	 */
-    public Integer getTongzhiTypes() {
-        return tongzhiTypes;
+    public Integer getCategory() {
+        return category;
     }
 
 
@@ -136,14 +136,14 @@ public class TongzhiVO implements Serializable {
 	 * 获取：通知类型
 	 */
 
-    public void setTongzhiTypes(Integer tongzhiTypes) {
-        this.tongzhiTypes = tongzhiTypes;
+    public void setCategory(Integer category) {
+        this.category = category;
     }
     /**
 	 * 设置：通知发布时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getPublishedAt() {
+        return publishedAt;
     }
 
 
@@ -151,14 +151,14 @@ public class TongzhiVO implements Serializable {
 	 * 获取：通知发布时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setPublishedAt(Date publishedAt) {
+        this.publishedAt = publishedAt;
     }
     /**
 	 * 设置：通知详情
 	 */
-    public String getTongzhiContent() {
-        return tongzhiContent;
+    public String getContent() {
+        return content;
     }
 
 
@@ -166,14 +166,14 @@ public class TongzhiVO implements Serializable {
 	 * 获取：通知详情
 	 */
 
-    public void setTongzhiContent(String tongzhiContent) {
-        this.tongzhiContent = tongzhiContent;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 设置：创建时间 show1 show2 nameShow
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -181,8 +181,8 @@ public class TongzhiVO implements Serializable {
 	 * 获取：创建时间 show1 show2 nameShow
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

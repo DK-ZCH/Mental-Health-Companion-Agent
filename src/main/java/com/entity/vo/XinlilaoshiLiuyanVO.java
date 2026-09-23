@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("xinlilaoshi_liuyan")
+@TableName("counselor_message")
 public class XinlilaoshiLiuyanVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,24 +31,24 @@ public class XinlilaoshiLiuyanVO implements Serializable {
      * 心理老师
      */
 
-    @TableField(value = "xinlilaoshi_id")
-    private Integer xinlilaoshiId;
+    @TableField(value = "counselor_id")
+    private Integer counselorId;
 
 
     /**
      * 学生
      */
 
-    @TableField(value = "yonghu_id")
-    private Integer yonghuId;
+    @TableField(value = "student_id")
+    private Integer studentId;
 
 
     /**
      * 留言内容
      */
 
-    @TableField(value = "xinlilaoshi_liuyan_text")
-    private String xinlilaoshiLiuyanText;
+    @TableField(value = "content")
+    private String content;
 
 
     /**
@@ -57,16 +57,16 @@ public class XinlilaoshiLiuyanVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "insert_time")
-    private Date insertTime;
+    @TableField(value = "sent_at")
+    private Date sentAt;
 
 
     /**
      * 回复内容
      */
 
-    @TableField(value = "reply_text")
-    private String replyText;
+    @TableField(value = "reply_content")
+    private String replyContent;
 
 
     /**
@@ -75,8 +75,8 @@ public class XinlilaoshiLiuyanVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "update_time")
-    private Date updateTime;
+    @TableField(value = "replied_at")
+    private Date repliedAt;
 
 
     /**
@@ -85,8 +85,8 @@ public class XinlilaoshiLiuyanVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -107,8 +107,8 @@ public class XinlilaoshiLiuyanVO implements Serializable {
     /**
 	 * 设置：心理老师
 	 */
-    public Integer getXinlilaoshiId() {
-        return xinlilaoshiId;
+    public Integer getCounselorId() {
+        return counselorId;
     }
 
 
@@ -116,14 +116,14 @@ public class XinlilaoshiLiuyanVO implements Serializable {
 	 * 获取：心理老师
 	 */
 
-    public void setXinlilaoshiId(Integer xinlilaoshiId) {
-        this.xinlilaoshiId = xinlilaoshiId;
+    public void setCounselorId(Integer counselorId) {
+        this.counselorId = counselorId;
     }
     /**
 	 * 设置：学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
@@ -131,14 +131,14 @@ public class XinlilaoshiLiuyanVO implements Serializable {
 	 * 获取：学生
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：留言内容
 	 */
-    public String getXinlilaoshiLiuyanText() {
-        return xinlilaoshiLiuyanText;
+    public String getContent() {
+        return content;
     }
 
 
@@ -146,14 +146,14 @@ public class XinlilaoshiLiuyanVO implements Serializable {
 	 * 获取：留言内容
 	 */
 
-    public void setXinlilaoshiLiuyanText(String xinlilaoshiLiuyanText) {
-        this.xinlilaoshiLiuyanText = xinlilaoshiLiuyanText;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 设置：留言时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getSentAt() {
+        return sentAt;
     }
 
 
@@ -161,14 +161,14 @@ public class XinlilaoshiLiuyanVO implements Serializable {
 	 * 获取：留言时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setSentAt(Date sentAt) {
+        this.sentAt = sentAt;
     }
     /**
 	 * 设置：回复内容
 	 */
-    public String getReplyText() {
-        return replyText;
+    public String getReplyContent() {
+        return replyContent;
     }
 
 
@@ -176,14 +176,14 @@ public class XinlilaoshiLiuyanVO implements Serializable {
 	 * 获取：回复内容
 	 */
 
-    public void setReplyText(String replyText) {
-        this.replyText = replyText;
+    public void setReplyContent(String replyContent) {
+        this.replyContent = replyContent;
     }
     /**
 	 * 设置：回复时间
 	 */
-    public Date getUpdateTime() {
-        return updateTime;
+    public Date getRepliedAt() {
+        return repliedAt;
     }
 
 
@@ -191,14 +191,14 @@ public class XinlilaoshiLiuyanVO implements Serializable {
 	 * 获取：回复时间
 	 */
 
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setRepliedAt(Date repliedAt) {
+        this.repliedAt = repliedAt;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -206,8 +206,8 @@ public class XinlilaoshiLiuyanVO implements Serializable {
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

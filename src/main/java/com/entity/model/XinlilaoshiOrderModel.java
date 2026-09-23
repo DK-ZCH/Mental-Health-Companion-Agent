@@ -30,19 +30,19 @@ public class XinlilaoshiOrderModel implements Serializable {
     /**
      * 预约流水号
      */
-    private String xinlilaoshiOrderUuidNumber;
+    private String appointmentNo;
 
 
     /**
      * 心理老师
      */
-    private Integer xinlilaoshiId;
+    private Integer counselorId;
 
 
     /**
      * 学生
      */
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
@@ -50,25 +50,25 @@ public class XinlilaoshiOrderModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date yuyueTime;
+    private Date appointmentDate;
 
 
     /**
      * 预约时间段
      */
-    private Integer shijianduanTypes;
+    private Integer timeSlot;
 
 
     /**
      * 预约状态
      */
-    private Integer xinlilaoshiOrderYesnoTypes;
+    private Integer status;
 
 
     /**
      * 审核意见
      */
-    private String xinlilaoshiOrderYesnoText;
+    private String reviewComment;
 
 
     /**
@@ -76,7 +76,7 @@ public class XinlilaoshiOrderModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date insertTime;
+    private Date appliedAt;
 
 
     /**
@@ -84,7 +84,7 @@ public class XinlilaoshiOrderModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -104,128 +104,128 @@ public class XinlilaoshiOrderModel implements Serializable {
     /**
 	 * 获取：预约流水号
 	 */
-    public String getXinlilaoshiOrderUuidNumber() {
-        return xinlilaoshiOrderUuidNumber;
+    public String getAppointmentNo() {
+        return appointmentNo;
     }
 
 
     /**
 	 * 设置：预约流水号
 	 */
-    public void setXinlilaoshiOrderUuidNumber(String xinlilaoshiOrderUuidNumber) {
-        this.xinlilaoshiOrderUuidNumber = xinlilaoshiOrderUuidNumber;
+    public void setAppointmentNo(String appointmentNo) {
+        this.appointmentNo = appointmentNo;
     }
     /**
 	 * 获取：心理老师
 	 */
-    public Integer getXinlilaoshiId() {
-        return xinlilaoshiId;
+    public Integer getCounselorId() {
+        return counselorId;
     }
 
 
     /**
 	 * 设置：心理老师
 	 */
-    public void setXinlilaoshiId(Integer xinlilaoshiId) {
-        this.xinlilaoshiId = xinlilaoshiId;
+    public void setCounselorId(Integer counselorId) {
+        this.counselorId = counselorId;
     }
     /**
 	 * 获取：学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
     /**
 	 * 设置：学生
 	 */
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 获取：预约日期
 	 */
-    public Date getYuyueTime() {
-        return yuyueTime;
+    public Date getAppointmentDate() {
+        return appointmentDate;
     }
 
 
     /**
 	 * 设置：预约日期
 	 */
-    public void setYuyueTime(Date yuyueTime) {
-        this.yuyueTime = yuyueTime;
+    public void setAppointmentDate(Date appointmentDate) {
+        this.appointmentDate = appointmentDate;
     }
     /**
 	 * 获取：预约时间段
 	 */
-    public Integer getShijianduanTypes() {
-        return shijianduanTypes;
+    public Integer getTimeSlot() {
+        return timeSlot;
     }
 
 
     /**
 	 * 设置：预约时间段
 	 */
-    public void setShijianduanTypes(Integer shijianduanTypes) {
-        this.shijianduanTypes = shijianduanTypes;
+    public void setTimeSlot(Integer timeSlot) {
+        this.timeSlot = timeSlot;
     }
     /**
 	 * 获取：预约状态
 	 */
-    public Integer getXinlilaoshiOrderYesnoTypes() {
-        return xinlilaoshiOrderYesnoTypes;
+    public Integer getStatus() {
+        return status;
     }
 
 
     /**
 	 * 设置：预约状态
 	 */
-    public void setXinlilaoshiOrderYesnoTypes(Integer xinlilaoshiOrderYesnoTypes) {
-        this.xinlilaoshiOrderYesnoTypes = xinlilaoshiOrderYesnoTypes;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
     /**
 	 * 获取：审核意见
 	 */
-    public String getXinlilaoshiOrderYesnoText() {
-        return xinlilaoshiOrderYesnoText;
+    public String getReviewComment() {
+        return reviewComment;
     }
 
 
     /**
 	 * 设置：审核意见
 	 */
-    public void setXinlilaoshiOrderYesnoText(String xinlilaoshiOrderYesnoText) {
-        this.xinlilaoshiOrderYesnoText = xinlilaoshiOrderYesnoText;
+    public void setReviewComment(String reviewComment) {
+        this.reviewComment = reviewComment;
     }
     /**
 	 * 获取：申请时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getAppliedAt() {
+        return appliedAt;
     }
 
 
     /**
 	 * 设置：申请时间
 	 */
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setAppliedAt(Date appliedAt) {
+        this.appliedAt = appliedAt;
     }
     /**
 	 * 获取：创建时间 show3
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间 show3
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

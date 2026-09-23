@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("examredetails")
+@TableName("assessment_answer")
 public class ExamredetailsEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,41 +57,41 @@ public class ExamredetailsEntity<T> implements Serializable {
     /**
      * 试卷编号
      */
-    @TableField(value = "examredetails_uuid_number")
+    @TableField(value = "record_no")
 
-    private String examredetailsUuidNumber;
+    private String recordNo;
 
 
     /**
      * 学生id
      */
-    @TableField(value = "yonghu_id")
+    @TableField(value = "student_id")
 
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 试题id（外键）
      */
-    @TableField(value = "examquestion_id")
+    @TableField(value = "question_id")
 
-    private Integer examquestionId;
+    private Integer questionId;
 
 
     /**
      * 考生答案
      */
-    @TableField(value = "examredetails_myanswer")
+    @TableField(value = "student_answer")
 
-    private String examredetailsMyanswer;
+    private String studentAnswer;
 
 
     /**
      * 试题得分
      */
-    @TableField(value = "examredetails_myscore")
+    @TableField(value = "score")
 
-    private Integer examredetailsMyscore;
+    private Integer score;
 
 
     /**
@@ -99,9 +99,9 @@ public class ExamredetailsEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -120,92 +120,92 @@ public class ExamredetailsEntity<T> implements Serializable {
     /**
 	 * 设置：试卷编号
 	 */
-    public String getExamredetailsUuidNumber() {
-        return examredetailsUuidNumber;
+    public String getRecordNo() {
+        return recordNo;
     }
     /**
 	 * 获取：试卷编号
 	 */
 
-    public void setExamredetailsUuidNumber(String examredetailsUuidNumber) {
-        this.examredetailsUuidNumber = examredetailsUuidNumber;
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
     }
     /**
 	 * 设置：学生id
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
     /**
 	 * 获取：学生id
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：试题id（外键）
 	 */
-    public Integer getExamquestionId() {
-        return examquestionId;
+    public Integer getQuestionId() {
+        return questionId;
     }
     /**
 	 * 获取：试题id（外键）
 	 */
 
-    public void setExamquestionId(Integer examquestionId) {
-        this.examquestionId = examquestionId;
+    public void setQuestionId(Integer questionId) {
+        this.questionId = questionId;
     }
     /**
 	 * 设置：考生答案
 	 */
-    public String getExamredetailsMyanswer() {
-        return examredetailsMyanswer;
+    public String getStudentAnswer() {
+        return studentAnswer;
     }
     /**
 	 * 获取：考生答案
 	 */
 
-    public void setExamredetailsMyanswer(String examredetailsMyanswer) {
-        this.examredetailsMyanswer = examredetailsMyanswer;
+    public void setStudentAnswer(String studentAnswer) {
+        this.studentAnswer = studentAnswer;
     }
     /**
 	 * 设置：试题得分
 	 */
-    public Integer getExamredetailsMyscore() {
-        return examredetailsMyscore;
+    public Integer getScore() {
+        return score;
     }
     /**
 	 * 获取：试题得分
 	 */
 
-    public void setExamredetailsMyscore(Integer examredetailsMyscore) {
-        this.examredetailsMyscore = examredetailsMyscore;
+    public void setScore(Integer score) {
+        this.score = score;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Examredetails{" +
             "id=" + id +
-            ", examredetailsUuidNumber=" + examredetailsUuidNumber +
-            ", yonghuId=" + yonghuId +
-            ", examquestionId=" + examquestionId +
-            ", examredetailsMyanswer=" + examredetailsMyanswer +
-            ", examredetailsMyscore=" + examredetailsMyscore +
-            ", createTime=" + createTime +
+            ", recordNo=" + recordNo +
+            ", studentId=" + studentId +
+            ", questionId=" + questionId +
+            ", studentAnswer=" + studentAnswer +
+            ", score=" + score +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

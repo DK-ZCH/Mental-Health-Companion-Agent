@@ -14,14 +14,14 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("jiankangzhishi")
+@TableName("knowledge_article")
 public class JiankangzhishiView extends JiankangzhishiEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
 		* 健康知识类型的值
 		*/
-		private String jiankangzhishiValue;
+		private String categoryLabel;
 
 
 
@@ -43,14 +43,14 @@ public class JiankangzhishiView extends JiankangzhishiEntity implements Serializ
 			/**
 			* 获取： 健康知识类型的值
 			*/
-			public String getJiankangzhishiValue() {
-				return jiankangzhishiValue;
+			public String getCategoryLabel() {
+				return categoryLabel;
 			}
 			/**
 			* 设置： 健康知识类型的值
 			*/
-			public void setJiankangzhishiValue(String jiankangzhishiValue) {
-				this.jiankangzhishiValue = jiankangzhishiValue;
+			public void setCategoryLabel(String categoryLabel) {
+				this.categoryLabel = categoryLabel;
 			}
 
 

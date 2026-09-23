@@ -14,14 +14,14 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("tongzhi")
+@TableName("notification")
 public class TongzhiView extends TongzhiEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
 		* 通知类型的值
 		*/
-		private String tongzhiValue;
+		private String categoryLabel;
 
 
 
@@ -43,14 +43,14 @@ public class TongzhiView extends TongzhiEntity implements Serializable {
 			/**
 			* 获取： 通知类型的值
 			*/
-			public String getTongzhiValue() {
-				return tongzhiValue;
+			public String getCategoryLabel() {
+				return categoryLabel;
 			}
 			/**
 			* 设置： 通知类型的值
 			*/
-			public void setTongzhiValue(String tongzhiValue) {
-				this.tongzhiValue = tongzhiValue;
+			public void setCategoryLabel(String categoryLabel) {
+				this.categoryLabel = categoryLabel;
 			}
 
 

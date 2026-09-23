@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("xinlilaoshi_order")
+@TableName("counseling_appointment")
 public class XinlilaoshiOrderEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,25 +57,25 @@ public class XinlilaoshiOrderEntity<T> implements Serializable {
     /**
      * 预约流水号
      */
-    @TableField(value = "xinlilaoshi_order_uuid_number")
+    @TableField(value = "appointment_no")
 
-    private String xinlilaoshiOrderUuidNumber;
+    private String appointmentNo;
 
 
     /**
      * 心理老师
      */
-    @TableField(value = "xinlilaoshi_id")
+    @TableField(value = "counselor_id")
 
-    private Integer xinlilaoshiId;
+    private Integer counselorId;
 
 
     /**
      * 学生
      */
-    @TableField(value = "yonghu_id")
+    @TableField(value = "student_id")
 
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
@@ -83,33 +83,33 @@ public class XinlilaoshiOrderEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
 	@DateTimeFormat
-    @TableField(value = "yuyue_time")
+    @TableField(value = "appointment_date")
 
-    private Date yuyueTime;
+    private Date appointmentDate;
 
 
     /**
      * 预约时间段
      */
-    @TableField(value = "shijianduan_types")
+    @TableField(value = "time_slot")
 
-    private Integer shijianduanTypes;
+    private Integer timeSlot;
 
 
     /**
      * 预约状态
      */
-    @TableField(value = "xinlilaoshi_order_yesno_types")
+    @TableField(value = "status")
 
-    private Integer xinlilaoshiOrderYesnoTypes;
+    private Integer status;
 
 
     /**
      * 审核意见
      */
-    @TableField(value = "xinlilaoshi_order_yesno_text")
+    @TableField(value = "review_comment")
 
-    private String xinlilaoshiOrderYesnoText;
+    private String reviewComment;
 
 
     /**
@@ -117,9 +117,9 @@ public class XinlilaoshiOrderEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "insert_time",fill = FieldFill.INSERT)
+    @TableField(value = "applied_at",fill = FieldFill.INSERT)
 
-    private Date insertTime;
+    private Date appliedAt;
 
 
     /**
@@ -127,9 +127,9 @@ public class XinlilaoshiOrderEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -148,134 +148,134 @@ public class XinlilaoshiOrderEntity<T> implements Serializable {
     /**
 	 * 设置：预约流水号
 	 */
-    public String getXinlilaoshiOrderUuidNumber() {
-        return xinlilaoshiOrderUuidNumber;
+    public String getAppointmentNo() {
+        return appointmentNo;
     }
     /**
 	 * 获取：预约流水号
 	 */
 
-    public void setXinlilaoshiOrderUuidNumber(String xinlilaoshiOrderUuidNumber) {
-        this.xinlilaoshiOrderUuidNumber = xinlilaoshiOrderUuidNumber;
+    public void setAppointmentNo(String appointmentNo) {
+        this.appointmentNo = appointmentNo;
     }
     /**
 	 * 设置：心理老师
 	 */
-    public Integer getXinlilaoshiId() {
-        return xinlilaoshiId;
+    public Integer getCounselorId() {
+        return counselorId;
     }
     /**
 	 * 获取：心理老师
 	 */
 
-    public void setXinlilaoshiId(Integer xinlilaoshiId) {
-        this.xinlilaoshiId = xinlilaoshiId;
+    public void setCounselorId(Integer counselorId) {
+        this.counselorId = counselorId;
     }
     /**
 	 * 设置：学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
     /**
 	 * 获取：学生
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：预约日期
 	 */
-    public Date getYuyueTime() {
-        return yuyueTime;
+    public Date getAppointmentDate() {
+        return appointmentDate;
     }
     /**
 	 * 获取：预约日期
 	 */
 
-    public void setYuyueTime(Date yuyueTime) {
-        this.yuyueTime = yuyueTime;
+    public void setAppointmentDate(Date appointmentDate) {
+        this.appointmentDate = appointmentDate;
     }
     /**
 	 * 设置：预约时间段
 	 */
-    public Integer getShijianduanTypes() {
-        return shijianduanTypes;
+    public Integer getTimeSlot() {
+        return timeSlot;
     }
     /**
 	 * 获取：预约时间段
 	 */
 
-    public void setShijianduanTypes(Integer shijianduanTypes) {
-        this.shijianduanTypes = shijianduanTypes;
+    public void setTimeSlot(Integer timeSlot) {
+        this.timeSlot = timeSlot;
     }
     /**
 	 * 设置：预约状态
 	 */
-    public Integer getXinlilaoshiOrderYesnoTypes() {
-        return xinlilaoshiOrderYesnoTypes;
+    public Integer getStatus() {
+        return status;
     }
     /**
 	 * 获取：预约状态
 	 */
 
-    public void setXinlilaoshiOrderYesnoTypes(Integer xinlilaoshiOrderYesnoTypes) {
-        this.xinlilaoshiOrderYesnoTypes = xinlilaoshiOrderYesnoTypes;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
     /**
 	 * 设置：审核意见
 	 */
-    public String getXinlilaoshiOrderYesnoText() {
-        return xinlilaoshiOrderYesnoText;
+    public String getReviewComment() {
+        return reviewComment;
     }
     /**
 	 * 获取：审核意见
 	 */
 
-    public void setXinlilaoshiOrderYesnoText(String xinlilaoshiOrderYesnoText) {
-        this.xinlilaoshiOrderYesnoText = xinlilaoshiOrderYesnoText;
+    public void setReviewComment(String reviewComment) {
+        this.reviewComment = reviewComment;
     }
     /**
 	 * 设置：申请时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getAppliedAt() {
+        return appliedAt;
     }
     /**
 	 * 获取：申请时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setAppliedAt(Date appliedAt) {
+        this.appliedAt = appliedAt;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "XinlilaoshiOrder{" +
             "id=" + id +
-            ", xinlilaoshiOrderUuidNumber=" + xinlilaoshiOrderUuidNumber +
-            ", xinlilaoshiId=" + xinlilaoshiId +
-            ", yonghuId=" + yonghuId +
-            ", yuyueTime=" + yuyueTime +
-            ", shijianduanTypes=" + shijianduanTypes +
-            ", xinlilaoshiOrderYesnoTypes=" + xinlilaoshiOrderYesnoTypes +
-            ", xinlilaoshiOrderYesnoText=" + xinlilaoshiOrderYesnoText +
-            ", insertTime=" + insertTime +
-            ", createTime=" + createTime +
+            ", appointmentNo=" + appointmentNo +
+            ", counselorId=" + counselorId +
+            ", studentId=" + studentId +
+            ", appointmentDate=" + appointmentDate +
+            ", timeSlot=" + timeSlot +
+            ", status=" + status +
+            ", reviewComment=" + reviewComment +
+            ", appliedAt=" + appliedAt +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("tongzhi")
+@TableName("notification")
 public class TongzhiEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,25 +57,25 @@ public class TongzhiEntity<T> implements Serializable {
     /**
      * 通知名称
      */
-    @TableField(value = "tongzhi_name")
+    @TableField(value = "title")
 
-    private String tongzhiName;
+    private String title;
 
 
     /**
      * 通知图片
      */
-    @TableField(value = "tongzhi_photo")
+    @TableField(value = "cover_url")
 
-    private String tongzhiPhoto;
+    private String coverUrl;
 
 
     /**
      * 通知类型
      */
-    @TableField(value = "tongzhi_types")
+    @TableField(value = "category")
 
-    private Integer tongzhiTypes;
+    private Integer category;
 
 
     /**
@@ -83,17 +83,17 @@ public class TongzhiEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "insert_time",fill = FieldFill.INSERT)
+    @TableField(value = "published_at",fill = FieldFill.INSERT)
 
-    private Date insertTime;
+    private Date publishedAt;
 
 
     /**
      * 通知详情
      */
-    @TableField(value = "tongzhi_content")
+    @TableField(value = "content")
 
-    private String tongzhiContent;
+    private String content;
 
 
     /**
@@ -101,9 +101,9 @@ public class TongzhiEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -122,92 +122,92 @@ public class TongzhiEntity<T> implements Serializable {
     /**
 	 * 设置：通知名称
 	 */
-    public String getTongzhiName() {
-        return tongzhiName;
+    public String getTitle() {
+        return title;
     }
     /**
 	 * 获取：通知名称
 	 */
 
-    public void setTongzhiName(String tongzhiName) {
-        this.tongzhiName = tongzhiName;
+    public void setTitle(String title) {
+        this.title = title;
     }
     /**
 	 * 设置：通知图片
 	 */
-    public String getTongzhiPhoto() {
-        return tongzhiPhoto;
+    public String getCoverUrl() {
+        return coverUrl;
     }
     /**
 	 * 获取：通知图片
 	 */
 
-    public void setTongzhiPhoto(String tongzhiPhoto) {
-        this.tongzhiPhoto = tongzhiPhoto;
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
     /**
 	 * 设置：通知类型
 	 */
-    public Integer getTongzhiTypes() {
-        return tongzhiTypes;
+    public Integer getCategory() {
+        return category;
     }
     /**
 	 * 获取：通知类型
 	 */
 
-    public void setTongzhiTypes(Integer tongzhiTypes) {
-        this.tongzhiTypes = tongzhiTypes;
+    public void setCategory(Integer category) {
+        this.category = category;
     }
     /**
 	 * 设置：通知发布时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getPublishedAt() {
+        return publishedAt;
     }
     /**
 	 * 获取：通知发布时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setPublishedAt(Date publishedAt) {
+        this.publishedAt = publishedAt;
     }
     /**
 	 * 设置：通知详情
 	 */
-    public String getTongzhiContent() {
-        return tongzhiContent;
+    public String getContent() {
+        return content;
     }
     /**
 	 * 获取：通知详情
 	 */
 
-    public void setTongzhiContent(String tongzhiContent) {
-        this.tongzhiContent = tongzhiContent;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Tongzhi{" +
             "id=" + id +
-            ", tongzhiName=" + tongzhiName +
-            ", tongzhiPhoto=" + tongzhiPhoto +
-            ", tongzhiTypes=" + tongzhiTypes +
-            ", insertTime=" + insertTime +
-            ", tongzhiContent=" + tongzhiContent +
-            ", createTime=" + createTime +
+            ", title=" + title +
+            ", coverUrl=" + coverUrl +
+            ", category=" + category +
+            ", publishedAt=" + publishedAt +
+            ", content=" + content +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

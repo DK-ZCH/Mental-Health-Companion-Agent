@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("xinlilaoshi_collection")
+@TableName("counselor_favorite")
 public class XinlilaoshiCollectionVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,24 +31,24 @@ public class XinlilaoshiCollectionVO implements Serializable {
      * 心理老师
      */
 
-    @TableField(value = "xinlilaoshi_id")
-    private Integer xinlilaoshiId;
+    @TableField(value = "counselor_id")
+    private Integer counselorId;
 
 
     /**
      * 学生
      */
 
-    @TableField(value = "yonghu_id")
-    private Integer yonghuId;
+    @TableField(value = "student_id")
+    private Integer studentId;
 
 
     /**
      * 类型
      */
 
-    @TableField(value = "xinlilaoshi_collection_types")
-    private Integer xinlilaoshiCollectionTypes;
+    @TableField(value = "favorite_type")
+    private Integer favoriteType;
 
 
     /**
@@ -57,8 +57,8 @@ public class XinlilaoshiCollectionVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "insert_time")
-    private Date insertTime;
+    @TableField(value = "favorited_at")
+    private Date favoritedAt;
 
 
     /**
@@ -67,8 +67,8 @@ public class XinlilaoshiCollectionVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -89,8 +89,8 @@ public class XinlilaoshiCollectionVO implements Serializable {
     /**
 	 * 设置：心理老师
 	 */
-    public Integer getXinlilaoshiId() {
-        return xinlilaoshiId;
+    public Integer getCounselorId() {
+        return counselorId;
     }
 
 
@@ -98,14 +98,14 @@ public class XinlilaoshiCollectionVO implements Serializable {
 	 * 获取：心理老师
 	 */
 
-    public void setXinlilaoshiId(Integer xinlilaoshiId) {
-        this.xinlilaoshiId = xinlilaoshiId;
+    public void setCounselorId(Integer counselorId) {
+        this.counselorId = counselorId;
     }
     /**
 	 * 设置：学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
@@ -113,14 +113,14 @@ public class XinlilaoshiCollectionVO implements Serializable {
 	 * 获取：学生
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：类型
 	 */
-    public Integer getXinlilaoshiCollectionTypes() {
-        return xinlilaoshiCollectionTypes;
+    public Integer getFavoriteType() {
+        return favoriteType;
     }
 
 
@@ -128,14 +128,14 @@ public class XinlilaoshiCollectionVO implements Serializable {
 	 * 获取：类型
 	 */
 
-    public void setXinlilaoshiCollectionTypes(Integer xinlilaoshiCollectionTypes) {
-        this.xinlilaoshiCollectionTypes = xinlilaoshiCollectionTypes;
+    public void setFavoriteType(Integer favoriteType) {
+        this.favoriteType = favoriteType;
     }
     /**
 	 * 设置：收藏时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getFavoritedAt() {
+        return favoritedAt;
     }
 
 
@@ -143,14 +143,14 @@ public class XinlilaoshiCollectionVO implements Serializable {
 	 * 获取：收藏时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setFavoritedAt(Date favoritedAt) {
+        this.favoritedAt = favoritedAt;
     }
     /**
 	 * 设置：创建时间 show3 photoShow
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -158,8 +158,8 @@ public class XinlilaoshiCollectionVO implements Serializable {
 	 * 获取：创建时间 show3 photoShow
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

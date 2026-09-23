@@ -71,9 +71,9 @@ public class TongzhiController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -121,15 +121,15 @@ public class TongzhiController {
             return R.error(511,"永远不会进入");
 
         Wrapper<TongzhiEntity> queryWrapper = new EntityWrapper<TongzhiEntity>()
-            .eq("tongzhi_name", tongzhi.getTongzhiName())
-            .eq("tongzhi_types", tongzhi.getTongzhiTypes())
+            .eq("title", tongzhi.getTitle())
+            .eq("category", tongzhi.getCategory())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         TongzhiEntity tongzhiEntity = tongzhiService.selectOne(queryWrapper);
         if(tongzhiEntity==null){
-            tongzhi.setInsertTime(new Date());
-            tongzhi.setCreateTime(new Date());
+            tongzhi.setPublishedAt(new Date());
+            tongzhi.setCreatedAt(new Date());
             tongzhiService.insert(tongzhi);
             return R.ok();
         }else {
@@ -151,14 +151,14 @@ public class TongzhiController {
         Wrapper<TongzhiEntity> queryWrapper = new EntityWrapper<TongzhiEntity>()
             .notIn("id",tongzhi.getId())
             .andNew()
-            .eq("tongzhi_name", tongzhi.getTongzhiName())
-            .eq("tongzhi_types", tongzhi.getTongzhiTypes())
+            .eq("title", tongzhi.getTitle())
+            .eq("category", tongzhi.getCategory())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         TongzhiEntity tongzhiEntity = tongzhiService.selectOne(queryWrapper);
-        if("".equals(tongzhi.getTongzhiPhoto()) || "null".equals(tongzhi.getTongzhiPhoto())){
-                tongzhi.setTongzhiPhoto(null);
+        if("".equals(tongzhi.getCoverUrl()) || "null".equals(tongzhi.getCoverUrl())){
+                tongzhi.setCoverUrl(null);
         }
         if(tongzhiEntity==null){
             tongzhiService.updateById(tongzhi);//根据id更新
@@ -185,7 +185,7 @@ public class TongzhiController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<TongzhiEntity> tongzhiList = new ArrayList<>();//上传的东西
@@ -209,12 +209,12 @@ public class TongzhiController {
                         for(List<String> data:dataList){
                             //循环
                             TongzhiEntity tongzhiEntity = new TongzhiEntity();
-//                            tongzhiEntity.setTongzhiName(data.get(0));                    //通知名称 要改的
-//                            tongzhiEntity.setTongzhiPhoto("");//详情和图片
-//                            tongzhiEntity.setTongzhiTypes(Integer.valueOf(data.get(0)));   //通知类型 要改的
-//                            tongzhiEntity.setInsertTime(date);//时间
-//                            tongzhiEntity.setTongzhiContent("");//详情和图片
-//                            tongzhiEntity.setCreateTime(date);//时间
+//                            tongzhiEntity.setTitle(data.get(0));                    //通知名称 要改的
+//                            tongzhiEntity.setCoverUrl("");//详情和图片
+//                            tongzhiEntity.setCategory(Integer.valueOf(data.get(0)));   //通知类型 要改的
+//                            tongzhiEntity.setPublishedAt(date);//时间
+//                            tongzhiEntity.setContent("");//详情和图片
+//                            tongzhiEntity.setCreatedAt(date);//时间
                             tongzhiList.add(tongzhiEntity);
 
 
@@ -288,14 +288,14 @@ public class TongzhiController {
     public R add(@RequestBody TongzhiEntity tongzhi, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,tongzhi:{}",this.getClass().getName(),tongzhi.toString());
         Wrapper<TongzhiEntity> queryWrapper = new EntityWrapper<TongzhiEntity>()
-            .eq("tongzhi_name", tongzhi.getTongzhiName())
-            .eq("tongzhi_types", tongzhi.getTongzhiTypes())
+            .eq("title", tongzhi.getTitle())
+            .eq("category", tongzhi.getCategory())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         TongzhiEntity tongzhiEntity = tongzhiService.selectOne(queryWrapper);
         if(tongzhiEntity==null){
-            tongzhi.setInsertTime(new Date());
-            tongzhi.setCreateTime(new Date());
+            tongzhi.setPublishedAt(new Date());
+            tongzhi.setCreatedAt(new Date());
         tongzhiService.insert(tongzhi);
             return R.ok();
         }else {

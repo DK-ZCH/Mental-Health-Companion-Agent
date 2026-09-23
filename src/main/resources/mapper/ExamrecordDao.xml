@@ -5,32 +5,32 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         a.id as id
-        ,a.examrecord_uuid_number as examrecordUuidNumber
-        ,a.yonghu_id as yonghuId
-        ,a.exampaper_id as exampaperId
+        ,a.record_no as recordNo
+        ,a.student_id as studentId
+        ,a.paper_id as paperId
         ,a.total_score as totalScore
-        ,a.insert_time as insertTime
-        ,a.create_time as createTime
+        ,a.submitted_at as submittedAt
+        ,a.created_at as createdAt
     </sql>
     <select id="selectListView" parameterType="map" resultType="com.entity.view.ExamrecordView" >
         SELECT
         <include refid="Base_Column_List" />
 
 --         级联表的字段
-        ,exampaper.exampaper_name as exampaperName
-        ,exampaper.exampaper_date as exampaperDate
-        ,exampaper.exampaper_myscore as exampaperMyscore
-        ,exampaper.exampaper_types as exampaperTypes
-        ,exampaper.exampaper_delete as exampaperDelete
-        ,yonghu.yonghu_name as yonghuName
-        ,yonghu.yonghu_phone as yonghuPhone
-        ,yonghu.yonghu_id_number as yonghuIdNumber
-        ,yonghu.yonghu_photo as yonghuPhoto
-        ,yonghu.yonghu_email as yonghuEmail
+        ,assessment_paper.name as paperName
+        ,assessment_paper.duration_minutes as paperDurationMinutes
+        ,assessment_paper.total_score as paperTotalScore
+        ,assessment_paper.status as paperStatus
+        ,assessment_paper.is_deleted as paperIsDeleted
+        ,student.name as studentName
+        ,student.phone as studentPhone
+        ,student.id_card_no as studentIdCardNo
+        ,student.avatar_url as studentAvatarUrl
+        ,student.email as studentEmail
 
-        FROM examrecord  a
-        left JOIN exampaper exampaper ON a.exampaper_id = exampaper.id
-        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        FROM assessment_record  a
+        left JOIN assessment_paper assessment_paper ON a.paper_id = assessment_paper.id
+        left JOIN student student ON a.student_id = student.id
 
         <where>
             <if test="params.ids != null">
@@ -39,17 +39,17 @@
                 #{item}
                 </foreach>
             </if>
-            <if test=" params.examrecordUuidNumber != '' and params.examrecordUuidNumber != null and params.examrecordUuidNumber != 'null' ">
-                and a.examrecord_uuid_number like CONCAT('%',#{params.examrecordUuidNumber},'%')
+            <if test=" params.recordNo != '' and params.recordNo != null and params.recordNo != 'null' ">
+                and a.record_no like CONCAT('%',#{params.recordNo},'%')
             </if>
-            <if test="params.yonghuId != null and params.yonghuId != ''">
+            <if test="params.studentId != null and params.studentId != ''">
                 and (
-                    a.yonghu_id = #{params.yonghuId}
+                    a.student_id = #{params.studentId}
                 )
             </if>
-            <if test="params.exampaperId != null and params.exampaperId != ''">
+            <if test="params.paperId != null and params.paperId != ''">
                 and (
-                    a.exampaper_id = #{params.exampaperId}
+                    a.paper_id = #{params.paperId}
                 )
             </if>
             <if test="params.totalScoreStart != null and params.totalScoreStart != ''">
@@ -61,66 +61,66 @@
              <if test="params.totalScore != null and params.totalScore != ''">
                 and a.total_score = #{params.totalScore}
              </if>
-            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
-                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            <if test=" params.submittedAtStart != '' and params.submittedAtStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.submitted_at) >= UNIX_TIMESTAMP(#{params.submittedAtStart}) ]]>
             </if>
-            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
-                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            <if test=" params.submittedAtEnd != '' and params.submittedAtEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.submitted_at) <= UNIX_TIMESTAMP(#{params.submittedAtEnd}) ]]>
             </if>
 
                 <!-- 判断试卷表的id不为空 -->
             <if test=" params.exampaperIdNotNull != '' and params.exampaperIdNotNull != null and params.exampaperIdNotNull != 'null' ">
-                and a.exampaper_id IS NOT NULL
+                and a.paper_id IS NOT NULL
             </if>
-            <if test=" params.exampaperName != '' and params.exampaperName != null and params.exampaperName != 'null' ">
-                and exampaper.exampaper_name like CONCAT('%',#{params.exampaperName},'%')
+            <if test=" params.paperName != '' and params.paperName != null and params.paperName != 'null' ">
+                and assessment_paper.name like CONCAT('%',#{params.paperName},'%')
             </if>
             <if test="params.exampaperDateStart != null  and params.exampaperDateStart != '' ">
-                <![CDATA[  and exampaper.exampaper_date >= #{params.exampaperDateStart}   ]]>
+                <![CDATA[  and assessment_paper.duration_minutes >= #{params.exampaperDateStart}   ]]>
             </if>
             <if test="params.exampaperDateEnd != null  and params.exampaperDateEnd != '' ">
-                <![CDATA[  and exampaper.exampaper_date <= #{params.exampaperDateEnd}   ]]>
+                <![CDATA[  and assessment_paper.duration_minutes <= #{params.exampaperDateEnd}   ]]>
             </if>
-            <if test="params.exampaperDate != null  and params.exampaperDate != '' ">
-                and exampaper.exampaper_date = #{params.exampaperDate}
+            <if test="params.paperDurationMinutes != null  and params.paperDurationMinutes != '' ">
+                and assessment_paper.duration_minutes = #{params.paperDurationMinutes}
             </if>
             <if test="params.exampaperMyscoreStart != null  and params.exampaperMyscoreStart != '' ">
-                <![CDATA[  and exampaper.exampaper_myscore >= #{params.exampaperMyscoreStart}   ]]>
+                <![CDATA[  and assessment_paper.total_score >= #{params.exampaperMyscoreStart}   ]]>
             </if>
             <if test="params.exampaperMyscoreEnd != null  and params.exampaperMyscoreEnd != '' ">
-                <![CDATA[  and exampaper.exampaper_myscore <= #{params.exampaperMyscoreEnd}   ]]>
+                <![CDATA[  and assessment_paper.total_score <= #{params.exampaperMyscoreEnd}   ]]>
             </if>
-            <if test="params.exampaperMyscore != null  and params.exampaperMyscore != '' ">
-                and exampaper.exampaper_myscore = #{params.exampaperMyscore}
+            <if test="params.paperTotalScore != null  and params.paperTotalScore != '' ">
+                and assessment_paper.total_score = #{params.paperTotalScore}
             </if>
-            <if test="params.exampaperTypes != null  and params.exampaperTypes != ''">
-                and exampaper.exampaper_types = #{params.exampaperTypes}
+            <if test="params.paperStatus != null  and params.paperStatus != ''">
+                and assessment_paper.status = #{params.paperStatus}
             </if>
 
             <if test="params.exampaperDeleteStart != null  and params.exampaperDeleteStart != '' ">
-                <![CDATA[  and exampaper.exampaper_delete >= #{params.exampaperDeleteStart}   ]]>
+                <![CDATA[  and assessment_paper.is_deleted >= #{params.exampaperDeleteStart}   ]]>
             </if>
             <if test="params.exampaperDeleteEnd != null  and params.exampaperDeleteEnd != '' ">
-                <![CDATA[  and exampaper.exampaper_delete <= #{params.exampaperDeleteEnd}   ]]>
+                <![CDATA[  and assessment_paper.is_deleted <= #{params.exampaperDeleteEnd}   ]]>
             </if>
-            <if test="params.exampaperDelete != null  and params.exampaperDelete != '' ">
-                and exampaper.exampaper_delete = #{params.exampaperDelete}
+            <if test="params.paperIsDeleted != null  and params.paperIsDeleted != '' ">
+                and assessment_paper.is_deleted = #{params.paperIsDeleted}
             </if>
                 <!-- 判断学生的id不为空 -->
             <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
-                and a.yonghu_id IS NOT NULL
+                and a.student_id IS NOT NULL
             </if>
-            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
-                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            <if test=" params.studentName != '' and params.studentName != null and params.studentName != 'null' ">
+                and student.name like CONCAT('%',#{params.studentName},'%')
             </if>
-            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
-                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            <if test=" params.studentPhone != '' and params.studentPhone != null and params.studentPhone != 'null' ">
+                and student.phone like CONCAT('%',#{params.studentPhone},'%')
             </if>
-            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
-                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            <if test=" params.studentIdCardNo != '' and params.studentIdCardNo != null and params.studentIdCardNo != 'null' ">
+                and student.id_card_no like CONCAT('%',#{params.studentIdCardNo},'%')
             </if>
-            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
-                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            <if test=" params.studentEmail != '' and params.studentEmail != null and params.studentEmail != 'null' ">
+                and student.email like CONCAT('%',#{params.studentEmail},'%')
             </if>
         </where>
 

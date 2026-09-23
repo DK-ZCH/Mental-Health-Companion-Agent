@@ -71,9 +71,9 @@ public class XinlilaoshiLiuyanController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -101,16 +101,16 @@ public class XinlilaoshiLiuyanController {
             BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
-                YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiLiuyan.getYonghuId());
+                YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiLiuyan.getStudentId());
                 if(yonghu != null){
-                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createdAt", "sentAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiLiuyan.getXinlilaoshiId());
+                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiLiuyan.getCounselorId());
                 if(xinlilaoshi != null){
-                    BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setXinlilaoshiId(xinlilaoshi.getId());
+                    BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createdAt", "sentAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setCounselorId(xinlilaoshi.getId());
                 }
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(view, request);
@@ -132,12 +132,12 @@ public class XinlilaoshiLiuyanController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("心理老师".equals(role))
-            xinlilaoshiLiuyan.setXinlilaoshiId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiLiuyan.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         else if("学生".equals(role))
-            xinlilaoshiLiuyan.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiLiuyan.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
 
-        xinlilaoshiLiuyan.setInsertTime(new Date());
-        xinlilaoshiLiuyan.setCreateTime(new Date());
+        xinlilaoshiLiuyan.setSentAt(new Date());
+        xinlilaoshiLiuyan.setCreatedAt(new Date());
         xinlilaoshiLiuyanService.insert(xinlilaoshiLiuyan);
         return R.ok();
     }
@@ -153,9 +153,9 @@ public class XinlilaoshiLiuyanController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
 //        else if("心理老师".equals(role))
-//            xinlilaoshiLiuyan.setXinlilaoshiId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+//            xinlilaoshiLiuyan.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
 //        else if("学生".equals(role))
-//            xinlilaoshiLiuyan.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+//            xinlilaoshiLiuyan.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         //根据字段查询是否有相同数据
         Wrapper<XinlilaoshiLiuyanEntity> queryWrapper = new EntityWrapper<XinlilaoshiLiuyanEntity>()
             .eq("id",0)
@@ -163,7 +163,7 @@ public class XinlilaoshiLiuyanController {
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         XinlilaoshiLiuyanEntity xinlilaoshiLiuyanEntity = xinlilaoshiLiuyanService.selectOne(queryWrapper);
-        xinlilaoshiLiuyan.setUpdateTime(new Date());
+        xinlilaoshiLiuyan.setRepliedAt(new Date());
         if(xinlilaoshiLiuyanEntity==null){
             xinlilaoshiLiuyanService.updateById(xinlilaoshiLiuyan);//根据id更新
             return R.ok();
@@ -189,7 +189,7 @@ public class XinlilaoshiLiuyanController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<XinlilaoshiLiuyanEntity> xinlilaoshiLiuyanList = new ArrayList<>();//上传的东西
@@ -213,13 +213,13 @@ public class XinlilaoshiLiuyanController {
                         for(List<String> data:dataList){
                             //循环
                             XinlilaoshiLiuyanEntity xinlilaoshiLiuyanEntity = new XinlilaoshiLiuyanEntity();
-//                            xinlilaoshiLiuyanEntity.setXinlilaoshiId(Integer.valueOf(data.get(0)));   //心理老师 要改的
-//                            xinlilaoshiLiuyanEntity.setYonghuId(Integer.valueOf(data.get(0)));   //学生 要改的
-//                            xinlilaoshiLiuyanEntity.setXinlilaoshiLiuyanText(data.get(0));                    //留言内容 要改的
-//                            xinlilaoshiLiuyanEntity.setInsertTime(date);//时间
-//                            xinlilaoshiLiuyanEntity.setReplyText(data.get(0));                    //回复内容 要改的
-//                            xinlilaoshiLiuyanEntity.setUpdateTime(sdf.parse(data.get(0)));          //回复时间 要改的
-//                            xinlilaoshiLiuyanEntity.setCreateTime(date);//时间
+//                            xinlilaoshiLiuyanEntity.setCounselorId(Integer.valueOf(data.get(0)));   //心理老师 要改的
+//                            xinlilaoshiLiuyanEntity.setStudentId(Integer.valueOf(data.get(0)));   //学生 要改的
+//                            xinlilaoshiLiuyanEntity.setContent(data.get(0));                    //留言内容 要改的
+//                            xinlilaoshiLiuyanEntity.setSentAt(date);//时间
+//                            xinlilaoshiLiuyanEntity.setReplyContent(data.get(0));                    //回复内容 要改的
+//                            xinlilaoshiLiuyanEntity.setRepliedAt(sdf.parse(data.get(0)));          //回复时间 要改的
+//                            xinlilaoshiLiuyanEntity.setCreatedAt(date);//时间
                             xinlilaoshiLiuyanList.add(xinlilaoshiLiuyanEntity);
 
 
@@ -278,16 +278,16 @@ public class XinlilaoshiLiuyanController {
                 BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
-                    YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiLiuyan.getYonghuId());
+                    YonghuEntity yonghu = yonghuService.selectById(xinlilaoshiLiuyan.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiLiuyan.getXinlilaoshiId());
+                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.selectById(xinlilaoshiLiuyan.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setXinlilaoshiId(xinlilaoshi.getId());
+                    view.setCounselorId(xinlilaoshi.getId());
                 }
                 //修改对应字典表字段
                 dictionaryService.dictionaryConvert(view, request);
@@ -304,8 +304,8 @@ public class XinlilaoshiLiuyanController {
     @RequestMapping("/add")
     public R add(@RequestBody XinlilaoshiLiuyanEntity xinlilaoshiLiuyan, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,xinlilaoshiLiuyan:{}",this.getClass().getName(),xinlilaoshiLiuyan.toString());
-        xinlilaoshiLiuyan.setInsertTime(new Date());
-        xinlilaoshiLiuyan.setCreateTime(new Date());
+        xinlilaoshiLiuyan.setSentAt(new Date());
+        xinlilaoshiLiuyan.setCreatedAt(new Date());
         xinlilaoshiLiuyanService.insert(xinlilaoshiLiuyan);
         return R.ok();
         }

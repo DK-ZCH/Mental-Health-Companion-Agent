@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("jiankangzhishi")
+@TableName("knowledge_article")
 public class JiankangzhishiVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,24 +31,24 @@ public class JiankangzhishiVO implements Serializable {
      * 健康知识名称
      */
 
-    @TableField(value = "jiankangzhishi_name")
-    private String jiankangzhishiName;
+    @TableField(value = "title")
+    private String title;
 
 
     /**
      * 健康知识图片
      */
 
-    @TableField(value = "jiankangzhishi_photo")
-    private String jiankangzhishiPhoto;
+    @TableField(value = "cover_url")
+    private String coverUrl;
 
 
     /**
      * 健康知识类型
      */
 
-    @TableField(value = "jiankangzhishi_types")
-    private Integer jiankangzhishiTypes;
+    @TableField(value = "category")
+    private Integer category;
 
 
     /**
@@ -57,16 +57,16 @@ public class JiankangzhishiVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "insert_time")
-    private Date insertTime;
+    @TableField(value = "published_at")
+    private Date publishedAt;
 
 
     /**
      * 健康知识详情
      */
 
-    @TableField(value = "jiankangzhishi_content")
-    private String jiankangzhishiContent;
+    @TableField(value = "content")
+    private String content;
 
 
     /**
@@ -75,8 +75,8 @@ public class JiankangzhishiVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -97,8 +97,8 @@ public class JiankangzhishiVO implements Serializable {
     /**
 	 * 设置：健康知识名称
 	 */
-    public String getJiankangzhishiName() {
-        return jiankangzhishiName;
+    public String getTitle() {
+        return title;
     }
 
 
@@ -106,14 +106,14 @@ public class JiankangzhishiVO implements Serializable {
 	 * 获取：健康知识名称
 	 */
 
-    public void setJiankangzhishiName(String jiankangzhishiName) {
-        this.jiankangzhishiName = jiankangzhishiName;
+    public void setTitle(String title) {
+        this.title = title;
     }
     /**
 	 * 设置：健康知识图片
 	 */
-    public String getJiankangzhishiPhoto() {
-        return jiankangzhishiPhoto;
+    public String getCoverUrl() {
+        return coverUrl;
     }
 
 
@@ -121,14 +121,14 @@ public class JiankangzhishiVO implements Serializable {
 	 * 获取：健康知识图片
 	 */
 
-    public void setJiankangzhishiPhoto(String jiankangzhishiPhoto) {
-        this.jiankangzhishiPhoto = jiankangzhishiPhoto;
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
     /**
 	 * 设置：健康知识类型
 	 */
-    public Integer getJiankangzhishiTypes() {
-        return jiankangzhishiTypes;
+    public Integer getCategory() {
+        return category;
     }
 
 
@@ -136,14 +136,14 @@ public class JiankangzhishiVO implements Serializable {
 	 * 获取：健康知识类型
 	 */
 
-    public void setJiankangzhishiTypes(Integer jiankangzhishiTypes) {
-        this.jiankangzhishiTypes = jiankangzhishiTypes;
+    public void setCategory(Integer category) {
+        this.category = category;
     }
     /**
 	 * 设置：健康知识发布时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getPublishedAt() {
+        return publishedAt;
     }
 
 
@@ -151,14 +151,14 @@ public class JiankangzhishiVO implements Serializable {
 	 * 获取：健康知识发布时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setPublishedAt(Date publishedAt) {
+        this.publishedAt = publishedAt;
     }
     /**
 	 * 设置：健康知识详情
 	 */
-    public String getJiankangzhishiContent() {
-        return jiankangzhishiContent;
+    public String getContent() {
+        return content;
     }
 
 
@@ -166,14 +166,14 @@ public class JiankangzhishiVO implements Serializable {
 	 * 获取：健康知识详情
 	 */
 
-    public void setJiankangzhishiContent(String jiankangzhishiContent) {
-        this.jiankangzhishiContent = jiankangzhishiContent;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 设置：创建时间 show1 show2 nameShow
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -181,8 +181,8 @@ public class JiankangzhishiVO implements Serializable {
 	 * 获取：创建时间 show1 show2 nameShow
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

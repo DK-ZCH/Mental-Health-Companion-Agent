@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("xinlilaoshi_liuyan")
+@TableName("counselor_message")
 public class XinlilaoshiLiuyanEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,25 +57,25 @@ public class XinlilaoshiLiuyanEntity<T> implements Serializable {
     /**
      * 心理老师
      */
-    @TableField(value = "xinlilaoshi_id")
+    @TableField(value = "counselor_id")
 
-    private Integer xinlilaoshiId;
+    private Integer counselorId;
 
 
     /**
      * 学生
      */
-    @TableField(value = "yonghu_id")
+    @TableField(value = "student_id")
 
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 留言内容
      */
-    @TableField(value = "xinlilaoshi_liuyan_text")
+    @TableField(value = "content")
 
-    private String xinlilaoshiLiuyanText;
+    private String content;
 
 
     /**
@@ -83,17 +83,17 @@ public class XinlilaoshiLiuyanEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "insert_time",fill = FieldFill.INSERT)
+    @TableField(value = "sent_at",fill = FieldFill.INSERT)
 
-    private Date insertTime;
+    private Date sentAt;
 
 
     /**
      * 回复内容
      */
-    @TableField(value = "reply_text")
+    @TableField(value = "reply_content")
 
-    private String replyText;
+    private String replyContent;
 
 
     /**
@@ -101,9 +101,9 @@ public class XinlilaoshiLiuyanEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "update_time",fill = FieldFill.UPDATE)
+    @TableField(value = "replied_at",fill = FieldFill.UPDATE)
 
-    private Date updateTime;
+    private Date repliedAt;
 
 
     /**
@@ -111,9 +111,9 @@ public class XinlilaoshiLiuyanEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -132,106 +132,106 @@ public class XinlilaoshiLiuyanEntity<T> implements Serializable {
     /**
 	 * 设置：心理老师
 	 */
-    public Integer getXinlilaoshiId() {
-        return xinlilaoshiId;
+    public Integer getCounselorId() {
+        return counselorId;
     }
     /**
 	 * 获取：心理老师
 	 */
 
-    public void setXinlilaoshiId(Integer xinlilaoshiId) {
-        this.xinlilaoshiId = xinlilaoshiId;
+    public void setCounselorId(Integer counselorId) {
+        this.counselorId = counselorId;
     }
     /**
 	 * 设置：学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
     /**
 	 * 获取：学生
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：留言内容
 	 */
-    public String getXinlilaoshiLiuyanText() {
-        return xinlilaoshiLiuyanText;
+    public String getContent() {
+        return content;
     }
     /**
 	 * 获取：留言内容
 	 */
 
-    public void setXinlilaoshiLiuyanText(String xinlilaoshiLiuyanText) {
-        this.xinlilaoshiLiuyanText = xinlilaoshiLiuyanText;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 设置：留言时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getSentAt() {
+        return sentAt;
     }
     /**
 	 * 获取：留言时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setSentAt(Date sentAt) {
+        this.sentAt = sentAt;
     }
     /**
 	 * 设置：回复内容
 	 */
-    public String getReplyText() {
-        return replyText;
+    public String getReplyContent() {
+        return replyContent;
     }
     /**
 	 * 获取：回复内容
 	 */
 
-    public void setReplyText(String replyText) {
-        this.replyText = replyText;
+    public void setReplyContent(String replyContent) {
+        this.replyContent = replyContent;
     }
     /**
 	 * 设置：回复时间
 	 */
-    public Date getUpdateTime() {
-        return updateTime;
+    public Date getRepliedAt() {
+        return repliedAt;
     }
     /**
 	 * 获取：回复时间
 	 */
 
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setRepliedAt(Date repliedAt) {
+        this.repliedAt = repliedAt;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "XinlilaoshiLiuyan{" +
             "id=" + id +
-            ", xinlilaoshiId=" + xinlilaoshiId +
-            ", yonghuId=" + yonghuId +
-            ", xinlilaoshiLiuyanText=" + xinlilaoshiLiuyanText +
-            ", insertTime=" + insertTime +
-            ", replyText=" + replyText +
-            ", updateTime=" + updateTime +
-            ", createTime=" + createTime +
+            ", counselorId=" + counselorId +
+            ", studentId=" + studentId +
+            ", content=" + content +
+            ", sentAt=" + sentAt +
+            ", replyContent=" + replyContent +
+            ", repliedAt=" + repliedAt +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

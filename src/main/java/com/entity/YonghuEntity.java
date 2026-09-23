@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("yonghu")
+@TableName("student")
 public class YonghuEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -73,49 +73,49 @@ public class YonghuEntity<T> implements Serializable {
     /**
      * 学生姓名
      */
-    @TableField(value = "yonghu_name")
+    @TableField(value = "name")
 
-    private String yonghuName;
+    private String name;
 
 
     /**
      * 学生手机号
      */
-    @TableField(value = "yonghu_phone")
+    @TableField(value = "phone")
 
-    private String yonghuPhone;
+    private String phone;
 
 
     /**
      * 学生身份证号
      */
-    @TableField(value = "yonghu_id_number")
+    @TableField(value = "id_card_no")
 
-    private String yonghuIdNumber;
+    private String idCardNo;
 
 
     /**
      * 学生头像
      */
-    @TableField(value = "yonghu_photo")
+    @TableField(value = "avatar_url")
 
-    private String yonghuPhoto;
+    private String avatarUrl;
 
 
     /**
      * 性别
      */
-    @TableField(value = "sex_types")
+    @TableField(value = "gender")
 
-    private Integer sexTypes;
+    private Integer gender;
 
 
     /**
      * 电子邮箱
      */
-    @TableField(value = "yonghu_email")
+    @TableField(value = "email")
 
-    private String yonghuEmail;
+    private String email;
 
 
     /**
@@ -123,9 +123,9 @@ public class YonghuEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -170,93 +170,93 @@ public class YonghuEntity<T> implements Serializable {
     /**
 	 * 设置：学生姓名
 	 */
-    public String getYonghuName() {
-        return yonghuName;
+    public String getName() {
+        return name;
     }
     /**
 	 * 获取：学生姓名
 	 */
 
-    public void setYonghuName(String yonghuName) {
-        this.yonghuName = yonghuName;
+    public void setName(String name) {
+        this.name = name;
     }
     /**
 	 * 设置：学生手机号
 	 */
-    public String getYonghuPhone() {
-        return yonghuPhone;
+    public String getPhone() {
+        return phone;
     }
     /**
 	 * 获取：学生手机号
 	 */
 
-    public void setYonghuPhone(String yonghuPhone) {
-        this.yonghuPhone = yonghuPhone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
     /**
 	 * 设置：学生身份证号
 	 */
-    public String getYonghuIdNumber() {
-        return yonghuIdNumber;
+    public String getIdCardNo() {
+        return idCardNo;
     }
     /**
 	 * 获取：学生身份证号
 	 */
 
-    public void setYonghuIdNumber(String yonghuIdNumber) {
-        this.yonghuIdNumber = yonghuIdNumber;
+    public void setIdCardNo(String idCardNo) {
+        this.idCardNo = idCardNo;
     }
     /**
 	 * 设置：学生头像
 	 */
-    public String getYonghuPhoto() {
-        return yonghuPhoto;
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
     /**
 	 * 获取：学生头像
 	 */
 
-    public void setYonghuPhoto(String yonghuPhoto) {
-        this.yonghuPhoto = yonghuPhoto;
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
     /**
 	 * 设置：性别
 	 */
-    public Integer getSexTypes() {
-        return sexTypes;
+    public Integer getGender() {
+        return gender;
     }
     /**
 	 * 获取：性别
 	 */
 
-    public void setSexTypes(Integer sexTypes) {
-        this.sexTypes = sexTypes;
+    public void setGender(Integer gender) {
+        this.gender = gender;
     }
     /**
 	 * 设置：电子邮箱
 	 */
-    public String getYonghuEmail() {
-        return yonghuEmail;
+    public String getEmail() {
+        return email;
     }
     /**
 	 * 获取：电子邮箱
 	 */
 
-    public void setYonghuEmail(String yonghuEmail) {
-        this.yonghuEmail = yonghuEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
@@ -265,13 +265,13 @@ public class YonghuEntity<T> implements Serializable {
             "id=" + id +
             ", username=" + username +
             ", password=" + password +
-            ", yonghuName=" + yonghuName +
-            ", yonghuPhone=" + yonghuPhone +
-            ", yonghuIdNumber=" + yonghuIdNumber +
-            ", yonghuPhoto=" + yonghuPhoto +
-            ", sexTypes=" + sexTypes +
-            ", yonghuEmail=" + yonghuEmail +
-            ", createTime=" + createTime +
+            ", name=" + name +
+            ", phone=" + phone +
+            ", idCardNo=" + idCardNo +
+            ", avatarUrl=" + avatarUrl +
+            ", gender=" + gender +
+            ", email=" + email +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

@@ -71,9 +71,9 @@ public class ExampaperController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         params.put("exampaperDeleteStart",1);params.put("exampaperDeleteEnd",1);
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
@@ -122,18 +122,18 @@ public class ExampaperController {
             return R.error(511,"永远不会进入");
 
         Wrapper<ExampaperEntity> queryWrapper = new EntityWrapper<ExampaperEntity>()
-            .eq("exampaper_name", exampaper.getExampaperName())
-            .eq("exampaper_date", exampaper.getExampaperDate())
-            .eq("exampaper_myscore", exampaper.getExampaperMyscore())
-            .eq("exampaper_types", exampaper.getExampaperTypes())
-            .eq("exampaper_delete", exampaper.getExampaperDelete())
+            .eq("name", exampaper.getName())
+            .eq("duration_minutes", exampaper.getDurationMinutes())
+            .eq("total_score", exampaper.getTotalScore())
+            .eq("status", exampaper.getStatus())
+            .eq("is_deleted", exampaper.getIsDeleted())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExampaperEntity exampaperEntity = exampaperService.selectOne(queryWrapper);
         if(exampaperEntity==null){
-            exampaper.setExampaperDelete(1);
-            exampaper.setCreateTime(new Date());
+            exampaper.setIsDeleted(1);
+            exampaper.setCreatedAt(new Date());
             exampaperService.insert(exampaper);
             return R.ok();
         }else {
@@ -155,11 +155,11 @@ public class ExampaperController {
         Wrapper<ExampaperEntity> queryWrapper = new EntityWrapper<ExampaperEntity>()
             .notIn("id",exampaper.getId())
             .andNew()
-            .eq("exampaper_name", exampaper.getExampaperName())
-            .eq("exampaper_date", exampaper.getExampaperDate())
-            .eq("exampaper_myscore", exampaper.getExampaperMyscore())
-            .eq("exampaper_types", exampaper.getExampaperTypes())
-            .eq("exampaper_delete", exampaper.getExampaperDelete())
+            .eq("name", exampaper.getName())
+            .eq("duration_minutes", exampaper.getDurationMinutes())
+            .eq("total_score", exampaper.getTotalScore())
+            .eq("status", exampaper.getStatus())
+            .eq("is_deleted", exampaper.getIsDeleted())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
@@ -182,7 +182,7 @@ public class ExampaperController {
         for(Integer id:ids){
             ExampaperEntity exampaperEntity = new ExampaperEntity();
             exampaperEntity.setId(id);
-            exampaperEntity.setExampaperDelete(2);
+            exampaperEntity.setIsDeleted(2);
             list.add(exampaperEntity);
         }
         if(list != null && list.size() >0){
@@ -198,7 +198,7 @@ public class ExampaperController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<ExampaperEntity> exampaperList = new ArrayList<>();//上传的东西
@@ -222,12 +222,12 @@ public class ExampaperController {
                         for(List<String> data:dataList){
                             //循环
                             ExampaperEntity exampaperEntity = new ExampaperEntity();
-//                            exampaperEntity.setExampaperName(data.get(0));                    //试卷名称 要改的
-//                            exampaperEntity.setExampaperDate(Integer.valueOf(data.get(0)));   //考试时长(分钟) 要改的
-//                            exampaperEntity.setExampaperMyscore(Integer.valueOf(data.get(0)));   //试卷总分数 要改的
-//                            exampaperEntity.setExampaperTypes(Integer.valueOf(data.get(0)));   //试卷状态 要改的
-//                            exampaperEntity.setExampaperDelete(1);//逻辑删除字段
-//                            exampaperEntity.setCreateTime(date);//时间
+//                            exampaperEntity.setName(data.get(0));                    //试卷名称 要改的
+//                            exampaperEntity.setDurationMinutes(Integer.valueOf(data.get(0)));   //考试时长(分钟) 要改的
+//                            exampaperEntity.setTotalScore(Integer.valueOf(data.get(0)));   //试卷总分数 要改的
+//                            exampaperEntity.setStatus(Integer.valueOf(data.get(0)));   //试卷状态 要改的
+//                            exampaperEntity.setIsDeleted(1);//逻辑删除字段
+//                            exampaperEntity.setCreatedAt(date);//时间
                             exampaperList.add(exampaperEntity);
 
 
@@ -301,17 +301,17 @@ public class ExampaperController {
     public R add(@RequestBody ExampaperEntity exampaper, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,exampaper:{}",this.getClass().getName(),exampaper.toString());
         Wrapper<ExampaperEntity> queryWrapper = new EntityWrapper<ExampaperEntity>()
-            .eq("exampaper_name", exampaper.getExampaperName())
-            .eq("exampaper_date", exampaper.getExampaperDate())
-            .eq("exampaper_myscore", exampaper.getExampaperMyscore())
-            .eq("exampaper_types", exampaper.getExampaperTypes())
-            .eq("exampaper_delete", exampaper.getExampaperDelete())
+            .eq("name", exampaper.getName())
+            .eq("duration_minutes", exampaper.getDurationMinutes())
+            .eq("total_score", exampaper.getTotalScore())
+            .eq("status", exampaper.getStatus())
+            .eq("is_deleted", exampaper.getIsDeleted())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExampaperEntity exampaperEntity = exampaperService.selectOne(queryWrapper);
         if(exampaperEntity==null){
-            exampaper.setExampaperDelete(1);
-            exampaper.setCreateTime(new Date());
+            exampaper.setIsDeleted(1);
+            exampaper.setCreatedAt(new Date());
         exampaperService.insert(exampaper);
             return R.ok();
         }else {

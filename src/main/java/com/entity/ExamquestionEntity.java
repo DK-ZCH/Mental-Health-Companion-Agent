@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("examquestion")
+@TableName("assessment_question")
 public class ExamquestionEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,65 +57,65 @@ public class ExamquestionEntity<T> implements Serializable {
     /**
      * 所属试卷id（外键）
      */
-    @TableField(value = "exampaper_id")
+    @TableField(value = "paper_id")
 
-    private Integer exampaperId;
+    private Integer paperId;
 
 
     /**
      * 试题名称
      */
-    @TableField(value = "examquestion_name")
+    @TableField(value = "content")
 
-    private String examquestionName;
+    private String content;
 
 
     /**
      * 选项，json字符串
      */
-    @TableField(value = "examquestion_options")
+    @TableField(value = "options")
 
-    private String examquestionOptions;
+    private String options;
 
 
     /**
      * 分值
      */
-    @TableField(value = "examquestion_score")
+    @TableField(value = "score")
 
-    private Integer examquestionScore;
+    private Integer score;
 
 
     /**
      * 正确答案
      */
-    @TableField(value = "examquestion_answer")
+    @TableField(value = "answer")
 
-    private String examquestionAnswer;
+    private String answer;
 
 
     /**
      * 答案解析
      */
-    @TableField(value = "examquestion_analysis")
+    @TableField(value = "analysis")
 
-    private String examquestionAnalysis;
+    private String analysis;
 
 
     /**
      * 试题类型
      */
-    @TableField(value = "examquestion_types")
+    @TableField(value = "question_type")
 
-    private Integer examquestionTypes;
+    private Integer questionType;
 
 
     /**
      * 试题排序，值越大排越前面
      */
-    @TableField(value = "examquestion_sequence")
+    @TableField(value = "sort_order")
 
-    private Integer examquestionSequence;
+    private Integer sortOrder;
 
 
     /**
@@ -123,9 +123,9 @@ public class ExamquestionEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -144,134 +144,134 @@ public class ExamquestionEntity<T> implements Serializable {
     /**
 	 * 设置：所属试卷id（外键）
 	 */
-    public Integer getExampaperId() {
-        return exampaperId;
+    public Integer getPaperId() {
+        return paperId;
     }
     /**
 	 * 获取：所属试卷id（外键）
 	 */
 
-    public void setExampaperId(Integer exampaperId) {
-        this.exampaperId = exampaperId;
+    public void setPaperId(Integer paperId) {
+        this.paperId = paperId;
     }
     /**
 	 * 设置：试题名称
 	 */
-    public String getExamquestionName() {
-        return examquestionName;
+    public String getContent() {
+        return content;
     }
     /**
 	 * 获取：试题名称
 	 */
 
-    public void setExamquestionName(String examquestionName) {
-        this.examquestionName = examquestionName;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 设置：选项，json字符串
 	 */
-    public String getExamquestionOptions() {
-        return examquestionOptions;
+    public String getOptions() {
+        return options;
     }
     /**
 	 * 获取：选项，json字符串
 	 */
 
-    public void setExamquestionOptions(String examquestionOptions) {
-        this.examquestionOptions = examquestionOptions;
+    public void setOptions(String options) {
+        this.options = options;
     }
     /**
 	 * 设置：分值
 	 */
-    public Integer getExamquestionScore() {
-        return examquestionScore;
+    public Integer getScore() {
+        return score;
     }
     /**
 	 * 获取：分值
 	 */
 
-    public void setExamquestionScore(Integer examquestionScore) {
-        this.examquestionScore = examquestionScore;
+    public void setScore(Integer score) {
+        this.score = score;
     }
     /**
 	 * 设置：正确答案
 	 */
-    public String getExamquestionAnswer() {
-        return examquestionAnswer;
+    public String getAnswer() {
+        return answer;
     }
     /**
 	 * 获取：正确答案
 	 */
 
-    public void setExamquestionAnswer(String examquestionAnswer) {
-        this.examquestionAnswer = examquestionAnswer;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
     /**
 	 * 设置：答案解析
 	 */
-    public String getExamquestionAnalysis() {
-        return examquestionAnalysis;
+    public String getAnalysis() {
+        return analysis;
     }
     /**
 	 * 获取：答案解析
 	 */
 
-    public void setExamquestionAnalysis(String examquestionAnalysis) {
-        this.examquestionAnalysis = examquestionAnalysis;
+    public void setAnalysis(String analysis) {
+        this.analysis = analysis;
     }
     /**
 	 * 设置：试题类型
 	 */
-    public Integer getExamquestionTypes() {
-        return examquestionTypes;
+    public Integer getQuestionType() {
+        return questionType;
     }
     /**
 	 * 获取：试题类型
 	 */
 
-    public void setExamquestionTypes(Integer examquestionTypes) {
-        this.examquestionTypes = examquestionTypes;
+    public void setQuestionType(Integer questionType) {
+        this.questionType = questionType;
     }
     /**
 	 * 设置：试题排序，值越大排越前面
 	 */
-    public Integer getExamquestionSequence() {
-        return examquestionSequence;
+    public Integer getSortOrder() {
+        return sortOrder;
     }
     /**
 	 * 获取：试题排序，值越大排越前面
 	 */
 
-    public void setExamquestionSequence(Integer examquestionSequence) {
-        this.examquestionSequence = examquestionSequence;
+    public void setSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Examquestion{" +
             "id=" + id +
-            ", exampaperId=" + exampaperId +
-            ", examquestionName=" + examquestionName +
-            ", examquestionOptions=" + examquestionOptions +
-            ", examquestionScore=" + examquestionScore +
-            ", examquestionAnswer=" + examquestionAnswer +
-            ", examquestionAnalysis=" + examquestionAnalysis +
-            ", examquestionTypes=" + examquestionTypes +
-            ", examquestionSequence=" + examquestionSequence +
-            ", createTime=" + createTime +
+            ", paperId=" + paperId +
+            ", content=" + content +
+            ", options=" + options +
+            ", score=" + score +
+            ", answer=" + answer +
+            ", analysis=" + analysis +
+            ", questionType=" + questionType +
+            ", sortOrder=" + sortOrder +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

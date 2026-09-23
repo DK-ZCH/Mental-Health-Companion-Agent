@@ -63,13 +63,13 @@ public class FileController{
 		File dest = new File(upload.getAbsolutePath()+"/"+fileName);
 		file.transferTo(dest);
 		if(StringUtils.isNotBlank(type) && type.equals("1")) {
-			ConfigEntity configEntity = configService.selectOne(new EntityWrapper<ConfigEntity>().eq("name", "faceFile"));
+			ConfigEntity configEntity = configService.selectOne(new EntityWrapper<ConfigEntity>().eq("config_key", "faceFile"));
 			if(configEntity==null) {
 				configEntity = new ConfigEntity();
-				configEntity.setName("faceFile");
-				configEntity.setValue(fileName);
+				configEntity.setConfigKey("faceFile");
+				configEntity.setConfigValue(fileName);
 			} else {
-				configEntity.setValue(fileName);
+				configEntity.setConfigValue(fileName);
 			}
 			configService.insertOrUpdate(configEntity);
 		}

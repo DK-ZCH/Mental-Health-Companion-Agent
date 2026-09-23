@@ -14,14 +14,14 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("examquestion")
+@TableName("assessment_question")
 public class ExamquestionView extends ExamquestionEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
 		* 试题类型的值
 		*/
-		private String examquestionValue;
+		private String questionTypeLabel;
 
 
 
@@ -29,27 +29,27 @@ public class ExamquestionView extends ExamquestionEntity implements Serializable
 			/**
 			* 试卷名称
 			*/
-			private String exampaperName;
+			private String paperName;
 			/**
 			* 考试时长(分钟)
 			*/
-			private Integer exampaperDate;
+			private Integer paperDurationMinutes;
 			/**
 			* 试卷总分数
 			*/
-			private Integer exampaperMyscore;
+			private Integer paperTotalScore;
 			/**
 			* 试卷状态
 			*/
-			private Integer exampaperTypes;
+			private Integer paperStatus;
 				/**
 				* 试卷状态的值
 				*/
-				private String exampaperValue;
+				private String paperStatusLabel;
 			/**
 			* 逻辑删除（0代表未删除 1代表已删除）
 			*/
-			private Integer exampaperDelete;
+			private Integer paperIsDeleted;
 
 	public ExamquestionView() {
 
@@ -69,14 +69,14 @@ public class ExamquestionView extends ExamquestionEntity implements Serializable
 			/**
 			* 获取： 试题类型的值
 			*/
-			public String getExamquestionValue() {
-				return examquestionValue;
+			public String getQuestionTypeLabel() {
+				return questionTypeLabel;
 			}
 			/**
 			* 设置： 试题类型的值
 			*/
-			public void setExamquestionValue(String examquestionValue) {
-				this.examquestionValue = examquestionValue;
+			public void setQuestionTypeLabel(String questionTypeLabel) {
+				this.questionTypeLabel = questionTypeLabel;
 			}
 
 
@@ -89,80 +89,80 @@ public class ExamquestionView extends ExamquestionEntity implements Serializable
 					/**
 					* 获取： 试卷名称
 					*/
-					public String getExampaperName() {
-						return exampaperName;
+					public String getPaperName() {
+						return paperName;
 					}
 					/**
 					* 设置： 试卷名称
 					*/
-					public void setExampaperName(String exampaperName) {
-						this.exampaperName = exampaperName;
+					public void setPaperName(String paperName) {
+						this.paperName = paperName;
 					}
 
 					/**
 					* 获取： 考试时长(分钟)
 					*/
-					public Integer getExampaperDate() {
-						return exampaperDate;
+					public Integer getPaperDurationMinutes() {
+						return paperDurationMinutes;
 					}
 					/**
 					* 设置： 考试时长(分钟)
 					*/
-					public void setExampaperDate(Integer exampaperDate) {
-						this.exampaperDate = exampaperDate;
+					public void setPaperDurationMinutes(Integer paperDurationMinutes) {
+						this.paperDurationMinutes = paperDurationMinutes;
 					}
 
 					/**
 					* 获取： 试卷总分数
 					*/
-					public Integer getExampaperMyscore() {
-						return exampaperMyscore;
+					public Integer getPaperTotalScore() {
+						return paperTotalScore;
 					}
 					/**
 					* 设置： 试卷总分数
 					*/
-					public void setExampaperMyscore(Integer exampaperMyscore) {
-						this.exampaperMyscore = exampaperMyscore;
+					public void setPaperTotalScore(Integer paperTotalScore) {
+						this.paperTotalScore = paperTotalScore;
 					}
 
 					/**
 					* 获取： 试卷状态
 					*/
-					public Integer getExampaperTypes() {
-						return exampaperTypes;
+					public Integer getPaperStatus() {
+						return paperStatus;
 					}
 					/**
 					* 设置： 试卷状态
 					*/
-					public void setExampaperTypes(Integer exampaperTypes) {
-						this.exampaperTypes = exampaperTypes;
+					public void setPaperStatus(Integer paperStatus) {
+						this.paperStatus = paperStatus;
 					}
 
 
 						/**
 						* 获取： 试卷状态的值
 						*/
-						public String getExampaperValue() {
-							return exampaperValue;
+						public String getPaperStatusLabel() {
+							return paperStatusLabel;
 						}
 						/**
 						* 设置： 试卷状态的值
 						*/
-						public void setExampaperValue(String exampaperValue) {
-							this.exampaperValue = exampaperValue;
+						public void setPaperStatusLabel(String paperStatusLabel) {
+							this.paperStatusLabel = paperStatusLabel;
 						}
 
 					/**
 					* 获取： 逻辑删除（0代表未删除 1代表已删除）
 					*/
-					public Integer getExampaperDelete() {
-						return exampaperDelete;
+					public Integer getPaperIsDeleted() {
+						return paperIsDeleted;
 					}
 					/**
 					* 设置： 逻辑删除（0代表未删除 1代表已删除）
 					*/
-					public void setExampaperDelete(Integer exampaperDelete) {
-						this.exampaperDelete = exampaperDelete;
+					public void setPaperIsDeleted(Integer paperIsDeleted) {
+						this.paperIsDeleted = paperIsDeleted;
 					}
 
 

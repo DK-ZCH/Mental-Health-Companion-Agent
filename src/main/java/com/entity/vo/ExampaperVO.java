@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("exampaper")
+@TableName("assessment_paper")
 public class ExampaperVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,40 +31,40 @@ public class ExampaperVO implements Serializable {
      * 试卷名称
      */
 
-    @TableField(value = "exampaper_name")
-    private String exampaperName;
+    @TableField(value = "name")
+    private String name;
 
 
     /**
      * 考试时长(分钟)
      */
 
-    @TableField(value = "exampaper_date")
-    private Integer exampaperDate;
+    @TableField(value = "duration_minutes")
+    private Integer durationMinutes;
 
 
     /**
      * 试卷总分数
      */
 
-    @TableField(value = "exampaper_myscore")
-    private Integer exampaperMyscore;
+    @TableField(value = "total_score")
+    private Integer totalScore;
 
 
     /**
      * 试卷状态
      */
 
-    @TableField(value = "exampaper_types")
-    private Integer exampaperTypes;
+    @TableField(value = "status")
+    private Integer status;
 
 
     /**
      * 逻辑删除（0代表未删除 1代表已删除）
      */
 
-    @TableField(value = "exampaper_delete")
-    private Integer exampaperDelete;
+    @TableField(value = "is_deleted")
+    private Integer isDeleted;
 
 
     /**
@@ -73,8 +73,8 @@ public class ExampaperVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -95,8 +95,8 @@ public class ExampaperVO implements Serializable {
     /**
 	 * 设置：试卷名称
 	 */
-    public String getExampaperName() {
-        return exampaperName;
+    public String getName() {
+        return name;
     }
 
 
@@ -104,14 +104,14 @@ public class ExampaperVO implements Serializable {
 	 * 获取：试卷名称
 	 */
 
-    public void setExampaperName(String exampaperName) {
-        this.exampaperName = exampaperName;
+    public void setName(String name) {
+        this.name = name;
     }
     /**
 	 * 设置：考试时长(分钟)
 	 */
-    public Integer getExampaperDate() {
-        return exampaperDate;
+    public Integer getDurationMinutes() {
+        return durationMinutes;
     }
 
 
@@ -119,14 +119,14 @@ public class ExampaperVO implements Serializable {
 	 * 获取：考试时长(分钟)
 	 */
 
-    public void setExampaperDate(Integer exampaperDate) {
-        this.exampaperDate = exampaperDate;
+    public void setDurationMinutes(Integer durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
     /**
 	 * 设置：试卷总分数
 	 */
-    public Integer getExampaperMyscore() {
-        return exampaperMyscore;
+    public Integer getTotalScore() {
+        return totalScore;
     }
 
 
@@ -134,14 +134,14 @@ public class ExampaperVO implements Serializable {
 	 * 获取：试卷总分数
 	 */
 
-    public void setExampaperMyscore(Integer exampaperMyscore) {
-        this.exampaperMyscore = exampaperMyscore;
+    public void setTotalScore(Integer totalScore) {
+        this.totalScore = totalScore;
     }
     /**
 	 * 设置：试卷状态
 	 */
-    public Integer getExampaperTypes() {
-        return exampaperTypes;
+    public Integer getStatus() {
+        return status;
     }
 
 
@@ -149,14 +149,14 @@ public class ExampaperVO implements Serializable {
 	 * 获取：试卷状态
 	 */
 
-    public void setExampaperTypes(Integer exampaperTypes) {
-        this.exampaperTypes = exampaperTypes;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
     /**
 	 * 设置：逻辑删除（0代表未删除 1代表已删除）
 	 */
-    public Integer getExampaperDelete() {
-        return exampaperDelete;
+    public Integer getIsDeleted() {
+        return isDeleted;
     }
 
 
@@ -164,14 +164,14 @@ public class ExampaperVO implements Serializable {
 	 * 获取：逻辑删除（0代表未删除 1代表已删除）
 	 */
 
-    public void setExampaperDelete(Integer exampaperDelete) {
-        this.exampaperDelete = exampaperDelete;
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
     /**
 	 * 设置：创建时间 show2 photoShow
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -179,8 +179,8 @@ public class ExampaperVO implements Serializable {
 	 * 获取：创建时间 show2 photoShow
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

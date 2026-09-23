@@ -30,19 +30,19 @@ public class XinlilaoshiLiuyanModel implements Serializable {
     /**
      * 心理老师
      */
-    private Integer xinlilaoshiId;
+    private Integer counselorId;
 
 
     /**
      * 学生
      */
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 留言内容
      */
-    private String xinlilaoshiLiuyanText;
+    private String content;
 
 
     /**
@@ -50,13 +50,13 @@ public class XinlilaoshiLiuyanModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date insertTime;
+    private Date sentAt;
 
 
     /**
      * 回复内容
      */
-    private String replyText;
+    private String replyContent;
 
 
     /**
@@ -64,7 +64,7 @@ public class XinlilaoshiLiuyanModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date updateTime;
+    private Date repliedAt;
 
 
     /**
@@ -72,7 +72,7 @@ public class XinlilaoshiLiuyanModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -92,100 +92,100 @@ public class XinlilaoshiLiuyanModel implements Serializable {
     /**
 	 * 获取：心理老师
 	 */
-    public Integer getXinlilaoshiId() {
-        return xinlilaoshiId;
+    public Integer getCounselorId() {
+        return counselorId;
     }
 
 
     /**
 	 * 设置：心理老师
 	 */
-    public void setXinlilaoshiId(Integer xinlilaoshiId) {
-        this.xinlilaoshiId = xinlilaoshiId;
+    public void setCounselorId(Integer counselorId) {
+        this.counselorId = counselorId;
     }
     /**
 	 * 获取：学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
     /**
 	 * 设置：学生
 	 */
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 获取：留言内容
 	 */
-    public String getXinlilaoshiLiuyanText() {
-        return xinlilaoshiLiuyanText;
+    public String getContent() {
+        return content;
     }
 
 
     /**
 	 * 设置：留言内容
 	 */
-    public void setXinlilaoshiLiuyanText(String xinlilaoshiLiuyanText) {
-        this.xinlilaoshiLiuyanText = xinlilaoshiLiuyanText;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 获取：留言时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getSentAt() {
+        return sentAt;
     }
 
 
     /**
 	 * 设置：留言时间
 	 */
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setSentAt(Date sentAt) {
+        this.sentAt = sentAt;
     }
     /**
 	 * 获取：回复内容
 	 */
-    public String getReplyText() {
-        return replyText;
+    public String getReplyContent() {
+        return replyContent;
     }
 
 
     /**
 	 * 设置：回复内容
 	 */
-    public void setReplyText(String replyText) {
-        this.replyText = replyText;
+    public void setReplyContent(String replyContent) {
+        this.replyContent = replyContent;
     }
     /**
 	 * 获取：回复时间
 	 */
-    public Date getUpdateTime() {
-        return updateTime;
+    public Date getRepliedAt() {
+        return repliedAt;
     }
 
 
     /**
 	 * 设置：回复时间
 	 */
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setRepliedAt(Date repliedAt) {
+        this.repliedAt = repliedAt;
     }
     /**
 	 * 获取：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

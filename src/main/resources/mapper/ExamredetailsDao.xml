@@ -5,34 +5,34 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         a.id as id
-        ,a.examredetails_uuid_number as examredetailsUuidNumber
-        ,a.yonghu_id as yonghuId
-        ,a.examquestion_id as examquestionId
-        ,a.examredetails_myanswer as examredetailsMyanswer
-        ,a.examredetails_myscore as examredetailsMyscore
-        ,a.create_time as createTime
+        ,a.record_no as recordNo
+        ,a.student_id as studentId
+        ,a.question_id as questionId
+        ,a.student_answer as studentAnswer
+        ,a.score as score
+        ,a.created_at as createdAt
     </sql>
     <select id="selectListView" parameterType="map" resultType="com.entity.view.ExamredetailsView" >
         SELECT
         <include refid="Base_Column_List" />
 
 --         级联表的字段
-        ,examquestion.examquestion_name as examquestionName
-        ,examquestion.examquestion_options as examquestionOptions
-        ,examquestion.examquestion_score as examquestionScore
-        ,examquestion.examquestion_answer as examquestionAnswer
-        ,examquestion.examquestion_analysis as examquestionAnalysis
-        ,examquestion.examquestion_types as examquestionTypes
-        ,examquestion.examquestion_sequence as examquestionSequence
-        ,yonghu.yonghu_name as yonghuName
-        ,yonghu.yonghu_phone as yonghuPhone
-        ,yonghu.yonghu_id_number as yonghuIdNumber
-        ,yonghu.yonghu_photo as yonghuPhoto
-        ,yonghu.yonghu_email as yonghuEmail
+        ,assessment_question.content as questionContent
+        ,assessment_question.options as questionOptions
+        ,assessment_question.score as questionScore
+        ,assessment_question.answer as questionAnswer
+        ,assessment_question.analysis as questionAnalysis
+        ,assessment_question.question_type as questionType
+        ,assessment_question.sort_order as questionSortOrder
+        ,student.name as studentName
+        ,student.phone as studentPhone
+        ,student.id_card_no as studentIdCardNo
+        ,student.avatar_url as studentAvatarUrl
+        ,student.email as studentEmail
 
-        FROM examredetails  a
-        left JOIN examquestion examquestion ON a.examquestion_id = examquestion.id
-        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        FROM assessment_answer  a
+        left JOIN assessment_question assessment_question ON a.question_id = assessment_question.id
+        left JOIN student student ON a.student_id = student.id
 
         <where>
             <if test="params.ids != null">
@@ -41,88 +41,88 @@
                 #{item}
                 </foreach>
             </if>
-            <if test=" params.examredetailsUuidNumber != '' and params.examredetailsUuidNumber != null and params.examredetailsUuidNumber != 'null' ">
-                and a.examredetails_uuid_number like CONCAT('%',#{params.examredetailsUuidNumber},'%')
+            <if test=" params.recordNo != '' and params.recordNo != null and params.recordNo != 'null' ">
+                and a.record_no like CONCAT('%',#{params.recordNo},'%')
             </if>
-            <if test="params.yonghuId != null and params.yonghuId != ''">
+            <if test="params.studentId != null and params.studentId != ''">
                 and (
-                    a.yonghu_id = #{params.yonghuId}
+                    a.student_id = #{params.studentId}
                 )
             </if>
-            <if test="params.examquestionId != null and params.examquestionId != ''">
+            <if test="params.questionId != null and params.questionId != ''">
                 and (
-                    a.examquestion_id = #{params.examquestionId}
+                    a.question_id = #{params.questionId}
                 )
             </if>
-            <if test=" params.examredetailsMyanswer != '' and params.examredetailsMyanswer != null and params.examredetailsMyanswer != 'null' ">
-                and a.examredetails_myanswer like CONCAT('%',#{params.examredetailsMyanswer},'%')
+            <if test=" params.studentAnswer != '' and params.studentAnswer != null and params.studentAnswer != 'null' ">
+                and a.student_answer like CONCAT('%',#{params.studentAnswer},'%')
             </if>
             <if test="params.examredetailsMyscoreStart != null and params.examredetailsMyscoreStart != ''">
-                <![CDATA[  and a.examredetails_myscore >= #{params.examredetailsMyscoreStart}   ]]>
+                <![CDATA[  and a.score >= #{params.examredetailsMyscoreStart}   ]]>
             </if>
             <if test="params.examredetailsMyscoreEnd != null and params.examredetailsMyscoreEnd != ''">
-                <![CDATA[  and a.examredetails_myscore <= #{params.examredetailsMyscoreEnd}   ]]>
+                <![CDATA[  and a.score <= #{params.examredetailsMyscoreEnd}   ]]>
             </if>
-             <if test="params.examredetailsMyscore != null and params.examredetailsMyscore != ''">
-                and a.examredetails_myscore = #{params.examredetailsMyscore}
+             <if test="params.score != null and params.score != ''">
+                and a.score = #{params.score}
              </if>
 
                 <!-- 判断试题表的id不为空 -->
             <if test=" params.examquestionIdNotNull != '' and params.examquestionIdNotNull != null and params.examquestionIdNotNull != 'null' ">
-                and a.examquestion_id IS NOT NULL
+                and a.question_id IS NOT NULL
             </if>
-            <if test="params.exampaperId != null  and params.exampaperId != ''">
-                and examquestion.exampaper_id = #{params.exampaperId}
+            <if test="params.paperId != null  and params.paperId != ''">
+                and assessment_question.paper_id = #{params.paperId}
             </if>
-            <if test=" params.examquestionName != '' and params.examquestionName != null and params.examquestionName != 'null' ">
-                and examquestion.examquestion_name like CONCAT('%',#{params.examquestionName},'%')
+            <if test=" params.questionContent != '' and params.questionContent != null and params.questionContent != 'null' ">
+                and assessment_question.content like CONCAT('%',#{params.questionContent},'%')
             </if>
-            <if test=" params.examquestionOptions != '' and params.examquestionOptions != null and params.examquestionOptions != 'null' ">
-                and examquestion.examquestion_options like CONCAT('%',#{params.examquestionOptions},'%')
+            <if test=" params.questionOptions != '' and params.questionOptions != null and params.questionOptions != 'null' ">
+                and assessment_question.options like CONCAT('%',#{params.questionOptions},'%')
             </if>
             <if test="params.examquestionScoreStart != null  and params.examquestionScoreStart != '' ">
-                <![CDATA[  and examquestion.examquestion_score >= #{params.examquestionScoreStart}   ]]>
+                <![CDATA[  and assessment_question.score >= #{params.examquestionScoreStart}   ]]>
             </if>
             <if test="params.examquestionScoreEnd != null  and params.examquestionScoreEnd != '' ">
-                <![CDATA[  and examquestion.examquestion_score <= #{params.examquestionScoreEnd}   ]]>
+                <![CDATA[  and assessment_question.score <= #{params.examquestionScoreEnd}   ]]>
             </if>
-            <if test="params.examquestionScore != null  and params.examquestionScore != '' ">
-                and examquestion.examquestion_score = #{params.examquestionScore}
+            <if test="params.questionScore != null  and params.questionScore != '' ">
+                and assessment_question.score = #{params.questionScore}
             </if>
-            <if test=" params.examquestionAnswer != '' and params.examquestionAnswer != null and params.examquestionAnswer != 'null' ">
-                and examquestion.examquestion_answer like CONCAT('%',#{params.examquestionAnswer},'%')
+            <if test=" params.questionAnswer != '' and params.questionAnswer != null and params.questionAnswer != 'null' ">
+                and assessment_question.answer like CONCAT('%',#{params.questionAnswer},'%')
             </if>
-            <if test=" params.examquestionAnalysis != '' and params.examquestionAnalysis != null and params.examquestionAnalysis != 'null' ">
-                and examquestion.examquestion_analysis like CONCAT('%',#{params.examquestionAnalysis},'%')
+            <if test=" params.questionAnalysis != '' and params.questionAnalysis != null and params.questionAnalysis != 'null' ">
+                and assessment_question.analysis like CONCAT('%',#{params.questionAnalysis},'%')
             </if>
-            <if test="params.examquestionTypes != null  and params.examquestionTypes != ''">
-                and examquestion.examquestion_types = #{params.examquestionTypes}
+            <if test="params.questionType != null  and params.questionType != ''">
+                and assessment_question.question_type = #{params.questionType}
             </if>
 
             <if test="params.examquestionSequenceStart != null  and params.examquestionSequenceStart != '' ">
-                <![CDATA[  and examquestion.examquestion_sequence >= #{params.examquestionSequenceStart}   ]]>
+                <![CDATA[  and assessment_question.sort_order >= #{params.examquestionSequenceStart}   ]]>
             </if>
             <if test="params.examquestionSequenceEnd != null  and params.examquestionSequenceEnd != '' ">
-                <![CDATA[  and examquestion.examquestion_sequence <= #{params.examquestionSequenceEnd}   ]]>
+                <![CDATA[  and assessment_question.sort_order <= #{params.examquestionSequenceEnd}   ]]>
             </if>
-            <if test="params.examquestionSequence != null  and params.examquestionSequence != '' ">
-                and examquestion.examquestion_sequence = #{params.examquestionSequence}
+            <if test="params.questionSortOrder != null  and params.questionSortOrder != '' ">
+                and assessment_question.sort_order = #{params.questionSortOrder}
             </if>
                 <!-- 判断学生的id不为空 -->
             <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
-                and a.yonghu_id IS NOT NULL
+                and a.student_id IS NOT NULL
             </if>
-            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
-                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            <if test=" params.studentName != '' and params.studentName != null and params.studentName != 'null' ">
+                and student.name like CONCAT('%',#{params.studentName},'%')
             </if>
-            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
-                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            <if test=" params.studentPhone != '' and params.studentPhone != null and params.studentPhone != 'null' ">
+                and student.phone like CONCAT('%',#{params.studentPhone},'%')
             </if>
-            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
-                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            <if test=" params.studentIdCardNo != '' and params.studentIdCardNo != null and params.studentIdCardNo != 'null' ">
+                and student.id_card_no like CONCAT('%',#{params.studentIdCardNo},'%')
             </if>
-            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
-                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            <if test=" params.studentEmail != '' and params.studentEmail != null and params.studentEmail != 'null' ">
+                and student.email like CONCAT('%',#{params.studentEmail},'%')
             </if>
         </where>
 

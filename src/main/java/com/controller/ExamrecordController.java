@@ -73,9 +73,9 @@ public class ExamrecordController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -103,16 +103,16 @@ public class ExamrecordController {
             BeanUtils.copyProperties( examrecord , view );//把实体数据重构到view中
 
                 //级联表
-                ExampaperEntity exampaper = exampaperService.selectById(examrecord.getExampaperId());
+                ExampaperEntity exampaper = exampaperService.selectById(examrecord.getPaperId());
                 if(exampaper != null){
-                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExampaperId(exampaper.getId());
+                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createdAt", "submittedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setPaperId(exampaper.getId());
                 }
                 //级联表
-                YonghuEntity yonghu = yonghuService.selectById(examrecord.getYonghuId());
+                YonghuEntity yonghu = yonghuService.selectById(examrecord.getStudentId());
                 if(yonghu != null){
-                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createdAt", "submittedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setStudentId(yonghu.getId());
                 }
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(view, request);
@@ -134,20 +134,20 @@ public class ExamrecordController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("学生".equals(role))
-            examrecord.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            examrecord.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
 
         Wrapper<ExamrecordEntity> queryWrapper = new EntityWrapper<ExamrecordEntity>()
-            .eq("examrecord_uuid_number", examrecord.getExamrecordUuidNumber())
-            .eq("yonghu_id", examrecord.getYonghuId())
-            .eq("exampaper_id", examrecord.getExampaperId())
+            .eq("record_no", examrecord.getRecordNo())
+            .eq("student_id", examrecord.getStudentId())
+            .eq("paper_id", examrecord.getPaperId())
             .eq("total_score", examrecord.getTotalScore())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamrecordEntity examrecordEntity = examrecordService.selectOne(queryWrapper);
         if(examrecordEntity==null){
-            examrecord.setInsertTime(new Date());
-            examrecord.setCreateTime(new Date());
+            examrecord.setSubmittedAt(new Date());
+            examrecord.setCreatedAt(new Date());
             examrecordService.insert(examrecord);
             return R.ok();
         }else {
@@ -166,14 +166,14 @@ public class ExamrecordController {
 //        if(false)
 //            return R.error(511,"永远不会进入");
 //        else if("学生".equals(role))
-//            examrecord.setYonghuId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+//            examrecord.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
         //根据字段查询是否有相同数据
         Wrapper<ExamrecordEntity> queryWrapper = new EntityWrapper<ExamrecordEntity>()
             .notIn("id",examrecord.getId())
             .andNew()
-            .eq("examrecord_uuid_number", examrecord.getExamrecordUuidNumber())
-            .eq("yonghu_id", examrecord.getYonghuId())
-            .eq("exampaper_id", examrecord.getExampaperId())
+            .eq("record_no", examrecord.getRecordNo())
+            .eq("student_id", examrecord.getStudentId())
+            .eq("paper_id", examrecord.getPaperId())
             .eq("total_score", examrecord.getTotalScore())
             ;
 
@@ -204,7 +204,7 @@ public class ExamrecordController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<ExamrecordEntity> examrecordList = new ArrayList<>();//上传的东西
@@ -228,34 +228,34 @@ public class ExamrecordController {
                         for(List<String> data:dataList){
                             //循环
                             ExamrecordEntity examrecordEntity = new ExamrecordEntity();
-//                            examrecordEntity.setExamrecordUuidNumber(data.get(0));                    //考试编号 要改的
-//                            examrecordEntity.setYonghuId(Integer.valueOf(data.get(0)));   //考试学生 要改的
-//                            examrecordEntity.setExampaperId(Integer.valueOf(data.get(0)));   //所属试卷id（外键） 要改的
+//                            examrecordEntity.setRecordNo(data.get(0));                    //考试编号 要改的
+//                            examrecordEntity.setStudentId(Integer.valueOf(data.get(0)));   //考试学生 要改的
+//                            examrecordEntity.setPaperId(Integer.valueOf(data.get(0)));   //所属试卷id（外键） 要改的
 //                            examrecordEntity.setTotalScore(Integer.valueOf(data.get(0)));   //所得总分 要改的
-//                            examrecordEntity.setInsertTime(date);//时间
-//                            examrecordEntity.setCreateTime(date);//时间
+//                            examrecordEntity.setSubmittedAt(date);//时间
+//                            examrecordEntity.setCreatedAt(date);//时间
                             examrecordList.add(examrecordEntity);
 
 
                             //把要查询是否重复的字段放入map中
                                 //考试编号
-                                if(seachFields.containsKey("examrecordUuidNumber")){
-                                    List<String> examrecordUuidNumber = seachFields.get("examrecordUuidNumber");
-                                    examrecordUuidNumber.add(data.get(0));//要改的
+                                if(seachFields.containsKey("recordNo")){
+                                    List<String> recordNo = seachFields.get("recordNo");
+                                    recordNo.add(data.get(0));//要改的
                                 }else{
-                                    List<String> examrecordUuidNumber = new ArrayList<>();
-                                    examrecordUuidNumber.add(data.get(0));//要改的
-                                    seachFields.put("examrecordUuidNumber",examrecordUuidNumber);
+                                    List<String> recordNo = new ArrayList<>();
+                                    recordNo.add(data.get(0));//要改的
+                                    seachFields.put("recordNo",recordNo);
                                 }
                         }
 
                         //查询是否重复
                          //考试编号
-                        List<ExamrecordEntity> examrecordEntities_examrecordUuidNumber = examrecordService.selectList(new EntityWrapper<ExamrecordEntity>().in("examrecord_uuid_number", seachFields.get("examrecordUuidNumber")));
+                        List<ExamrecordEntity> examrecordEntities_examrecordUuidNumber = examrecordService.selectList(new EntityWrapper<ExamrecordEntity>().in("record_no", seachFields.get("recordNo")));
                         if(examrecordEntities_examrecordUuidNumber.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
                             for(ExamrecordEntity s:examrecordEntities_examrecordUuidNumber){
-                                repeatFields.add(s.getExamrecordUuidNumber());
+                                repeatFields.add(s.getRecordNo());
                             }
                             return R.error(511,"数据库的该表中的 [考试编号] 字段已经存在 存在数据为:"+repeatFields.toString());
                         }
@@ -310,16 +310,16 @@ public class ExamrecordController {
                 BeanUtils.copyProperties( examrecord , view );//把实体数据重构到view中
 
                 //级联表
-                    ExampaperEntity exampaper = exampaperService.selectById(examrecord.getExampaperId());
+                    ExampaperEntity exampaper = exampaperService.selectById(examrecord.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExampaperId(exampaper.getId());
+                    view.setPaperId(exampaper.getId());
                 }
                 //级联表
-                    YonghuEntity yonghu = yonghuService.selectById(examrecord.getYonghuId());
+                    YonghuEntity yonghu = yonghuService.selectById(examrecord.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setYonghuId(yonghu.getId());
+                    view.setStudentId(yonghu.getId());
                 }
                 //修改对应字典表字段
                 dictionaryService.dictionaryConvert(view, request);
@@ -337,16 +337,16 @@ public class ExamrecordController {
     public R add(@RequestBody ExamrecordEntity examrecord, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,examrecord:{}",this.getClass().getName(),examrecord.toString());
         Wrapper<ExamrecordEntity> queryWrapper = new EntityWrapper<ExamrecordEntity>()
-            .eq("examrecord_uuid_number", examrecord.getExamrecordUuidNumber())
-            .eq("yonghu_id", examrecord.getYonghuId())
-            .eq("exampaper_id", examrecord.getExampaperId())
+            .eq("record_no", examrecord.getRecordNo())
+            .eq("student_id", examrecord.getStudentId())
+            .eq("paper_id", examrecord.getPaperId())
             .eq("total_score", examrecord.getTotalScore())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamrecordEntity examrecordEntity = examrecordService.selectOne(queryWrapper);
         if(examrecordEntity==null){
-            examrecord.setInsertTime(new Date());
-            examrecord.setCreateTime(new Date());
+            examrecord.setSubmittedAt(new Date());
+            examrecord.setCreatedAt(new Date());
         examrecordService.insert(examrecord);
             return R.ok();
         }else {
@@ -362,15 +362,15 @@ public class ExamrecordController {
     * 后端保存
     */
     @RequestMapping("/saveExamrecord")
-    public R saveExamrecord(Integer exampaperId, HttpServletRequest request){
+    public R saveExamrecord(Integer paperId, HttpServletRequest request){
         ExamrecordEntity examrecord = new ExamrecordEntity();
         String uuid = String.valueOf(new Date().getTime());
-        examrecord.setExamrecordUuidNumber(uuid);
-        examrecord.setExampaperId(exampaperId);
+        examrecord.setRecordNo(uuid);
+        examrecord.setPaperId(paperId);
         examrecord.setTotalScore(0);
-        examrecord.setYonghuId((Integer) request.getSession().getAttribute("userId"));
-        examrecord.setInsertTime(new Date());
-        examrecord.setCreateTime(new Date());
+        examrecord.setStudentId((Integer) request.getSession().getAttribute("userId"));
+        examrecord.setSubmittedAt(new Date());
+        examrecord.setCreatedAt(new Date());
         boolean insert = examrecordService.insert(examrecord);
         if(!insert){
             return R.error();
@@ -390,10 +390,10 @@ public class ExamrecordController {
         List<ExamrecordEntity> examrecordE = examrecordService.selectBatchIds(Arrays.asList(ids));//考试记录表
         List<String> joinIds = new ArrayList<>();
         for (ExamrecordEntity examrecord:examrecordE) {
-            joinIds.add(examrecord.getExamrecordUuidNumber());
+            joinIds.add(examrecord.getRecordNo());
         }
-        boolean examredetails_uuid_number = examredetailsService.delete(new EntityWrapper<ExamredetailsEntity>().in("examredetails_uuid_number", joinIds));
-        if(!examredetails_uuid_number){
+        boolean deleteSuccess = examredetailsService.delete(new EntityWrapper<ExamredetailsEntity>().in("record_no", joinIds));
+        if(!deleteSuccess){
             return R.error();
         }
         boolean b = examrecordService.deleteBatchIds(Arrays.asList(ids));//删除当前表

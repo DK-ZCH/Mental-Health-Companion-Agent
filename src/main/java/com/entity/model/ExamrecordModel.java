@@ -30,19 +30,19 @@ public class ExamrecordModel implements Serializable {
     /**
      * 考试编号
      */
-    private String examrecordUuidNumber;
+    private String recordNo;
 
 
     /**
      * 考试学生
      */
-    private Integer yonghuId;
+    private Integer studentId;
 
 
     /**
      * 所属试卷id（外键）
      */
-    private Integer exampaperId;
+    private Integer paperId;
 
 
     /**
@@ -56,7 +56,7 @@ public class ExamrecordModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date insertTime;
+    private Date submittedAt;
 
 
     /**
@@ -64,7 +64,7 @@ public class ExamrecordModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -84,44 +84,44 @@ public class ExamrecordModel implements Serializable {
     /**
 	 * 获取：考试编号
 	 */
-    public String getExamrecordUuidNumber() {
-        return examrecordUuidNumber;
+    public String getRecordNo() {
+        return recordNo;
     }
 
 
     /**
 	 * 设置：考试编号
 	 */
-    public void setExamrecordUuidNumber(String examrecordUuidNumber) {
-        this.examrecordUuidNumber = examrecordUuidNumber;
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
     }
     /**
 	 * 获取：考试学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
     /**
 	 * 设置：考试学生
 	 */
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 获取：所属试卷id（外键）
 	 */
-    public Integer getExampaperId() {
-        return exampaperId;
+    public Integer getPaperId() {
+        return paperId;
     }
 
 
     /**
 	 * 设置：所属试卷id（外键）
 	 */
-    public void setExampaperId(Integer exampaperId) {
-        this.exampaperId = exampaperId;
+    public void setPaperId(Integer paperId) {
+        this.paperId = paperId;
     }
     /**
 	 * 获取：所得总分
@@ -140,30 +140,30 @@ public class ExamrecordModel implements Serializable {
     /**
 	 * 获取：考试时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getSubmittedAt() {
+        return submittedAt;
     }
 
 
     /**
 	 * 设置：考试时间
 	 */
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setSubmittedAt(Date submittedAt) {
+        this.submittedAt = submittedAt;
     }
     /**
 	 * 获取：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

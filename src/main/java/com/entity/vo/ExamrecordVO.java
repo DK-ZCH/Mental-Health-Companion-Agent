@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("examrecord")
+@TableName("assessment_record")
 public class ExamrecordVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,24 +31,24 @@ public class ExamrecordVO implements Serializable {
      * 考试编号
      */
 
-    @TableField(value = "examrecord_uuid_number")
-    private String examrecordUuidNumber;
+    @TableField(value = "record_no")
+    private String recordNo;
 
 
     /**
      * 考试学生
      */
 
-    @TableField(value = "yonghu_id")
-    private Integer yonghuId;
+    @TableField(value = "student_id")
+    private Integer studentId;
 
 
     /**
      * 所属试卷id（外键）
      */
 
-    @TableField(value = "exampaper_id")
-    private Integer exampaperId;
+    @TableField(value = "paper_id")
+    private Integer paperId;
 
 
     /**
@@ -65,8 +65,8 @@ public class ExamrecordVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "insert_time")
-    private Date insertTime;
+    @TableField(value = "submitted_at")
+    private Date submittedAt;
 
 
     /**
@@ -75,8 +75,8 @@ public class ExamrecordVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -97,8 +97,8 @@ public class ExamrecordVO implements Serializable {
     /**
 	 * 设置：考试编号
 	 */
-    public String getExamrecordUuidNumber() {
-        return examrecordUuidNumber;
+    public String getRecordNo() {
+        return recordNo;
     }
 
 
@@ -106,14 +106,14 @@ public class ExamrecordVO implements Serializable {
 	 * 获取：考试编号
 	 */
 
-    public void setExamrecordUuidNumber(String examrecordUuidNumber) {
-        this.examrecordUuidNumber = examrecordUuidNumber;
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
     }
     /**
 	 * 设置：考试学生
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
@@ -121,14 +121,14 @@ public class ExamrecordVO implements Serializable {
 	 * 获取：考试学生
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：所属试卷id（外键）
 	 */
-    public Integer getExampaperId() {
-        return exampaperId;
+    public Integer getPaperId() {
+        return paperId;
     }
 
 
@@ -136,8 +136,8 @@ public class ExamrecordVO implements Serializable {
 	 * 获取：所属试卷id（外键）
 	 */
 
-    public void setExampaperId(Integer exampaperId) {
-        this.exampaperId = exampaperId;
+    public void setPaperId(Integer paperId) {
+        this.paperId = paperId;
     }
     /**
 	 * 设置：所得总分
@@ -157,8 +157,8 @@ public class ExamrecordVO implements Serializable {
     /**
 	 * 设置：考试时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getSubmittedAt() {
+        return submittedAt;
     }
 
 
@@ -166,14 +166,14 @@ public class ExamrecordVO implements Serializable {
 	 * 获取：考试时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setSubmittedAt(Date submittedAt) {
+        this.submittedAt = submittedAt;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -181,8 +181,8 @@ public class ExamrecordVO implements Serializable {
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

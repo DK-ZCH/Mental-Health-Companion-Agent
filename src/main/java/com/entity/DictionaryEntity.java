@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("dictionary")
+@TableName("sys_dict_item")
 public class DictionaryEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,49 +57,49 @@ public class DictionaryEntity<T> implements Serializable {
     /**
      * 字段
      */
-    @TableField(value = "dic_code")
+    @TableField(value = "dict_code")
 
-    private String dicCode;
+    private String dictCode;
 
 
     /**
      * 字段名
      */
-    @TableField(value = "dic_name")
+    @TableField(value = "dict_name")
 
-    private String dicName;
+    private String dictName;
 
 
     /**
      * 编码
      */
-    @TableField(value = "code_index")
+    @TableField(value = "item_code")
 
-    private Integer codeIndex;
+    private Integer itemCode;
 
 
     /**
      * 编码名字
      */
-    @TableField(value = "index_name")
+    @TableField(value = "item_name")
 
-    private String indexName;
+    private String itemName;
 
 
     /**
      * 父字段id
      */
-    @TableField(value = "super_id")
+    @TableField(value = "parent_id")
 
-    private Integer superId;
+    private Integer parentId;
 
 
     /**
      * 备注
      */
-    @TableField(value = "beizhu")
+    @TableField(value = "remark")
 
-    private String beizhu;
+    private String remark;
 
 
     /**
@@ -107,9 +107,9 @@ public class DictionaryEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -128,106 +128,106 @@ public class DictionaryEntity<T> implements Serializable {
     /**
 	 * 设置：字段
 	 */
-    public String getDicCode() {
-        return dicCode;
+    public String getDictCode() {
+        return dictCode;
     }
     /**
 	 * 获取：字段
 	 */
 
-    public void setDicCode(String dicCode) {
-        this.dicCode = dicCode;
+    public void setDictCode(String dictCode) {
+        this.dictCode = dictCode;
     }
     /**
 	 * 设置：字段名
 	 */
-    public String getDicName() {
-        return dicName;
+    public String getDictName() {
+        return dictName;
     }
     /**
 	 * 获取：字段名
 	 */
 
-    public void setDicName(String dicName) {
-        this.dicName = dicName;
+    public void setDictName(String dictName) {
+        this.dictName = dictName;
     }
     /**
 	 * 设置：编码
 	 */
-    public Integer getCodeIndex() {
-        return codeIndex;
+    public Integer getItemCode() {
+        return itemCode;
     }
     /**
 	 * 获取：编码
 	 */
 
-    public void setCodeIndex(Integer codeIndex) {
-        this.codeIndex = codeIndex;
+    public void setItemCode(Integer itemCode) {
+        this.itemCode = itemCode;
     }
     /**
 	 * 设置：编码名字
 	 */
-    public String getIndexName() {
-        return indexName;
+    public String getItemName() {
+        return itemName;
     }
     /**
 	 * 获取：编码名字
 	 */
 
-    public void setIndexName(String indexName) {
-        this.indexName = indexName;
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
     /**
 	 * 设置：父字段id
 	 */
-    public Integer getSuperId() {
-        return superId;
+    public Integer getParentId() {
+        return parentId;
     }
     /**
 	 * 获取：父字段id
 	 */
 
-    public void setSuperId(Integer superId) {
-        this.superId = superId;
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
     /**
 	 * 设置：备注
 	 */
-    public String getBeizhu() {
-        return beizhu;
+    public String getRemark() {
+        return remark;
     }
     /**
 	 * 获取：备注
 	 */
 
-    public void setBeizhu(String beizhu) {
-        this.beizhu = beizhu;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Dictionary{" +
             "id=" + id +
-            ", dicCode=" + dicCode +
-            ", dicName=" + dicName +
-            ", codeIndex=" + codeIndex +
-            ", indexName=" + indexName +
-            ", superId=" + superId +
-            ", beizhu=" + beizhu +
-            ", createTime=" + createTime +
+            ", dictCode=" + dictCode +
+            ", dictName=" + dictName +
+            ", itemCode=" + itemCode +
+            ", itemName=" + itemName +
+            ", parentId=" + parentId +
+            ", remark=" + remark +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

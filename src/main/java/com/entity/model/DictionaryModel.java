@@ -30,37 +30,37 @@ public class DictionaryModel implements Serializable {
     /**
      * 字段
      */
-    private String dicCode;
+    private String dictCode;
 
 
     /**
      * 字段名
      */
-    private String dicName;
+    private String dictName;
 
 
     /**
      * 编码
      */
-    private Integer codeIndex;
+    private Integer itemCode;
 
 
     /**
      * 编码名字
      */
-    private String indexName;
+    private String itemName;
 
 
     /**
      * 父字段id
      */
-    private Integer superId;
+    private Integer parentId;
 
 
     /**
      * 备注
      */
-    private String beizhu;
+    private String remark;
 
 
     /**
@@ -68,7 +68,7 @@ public class DictionaryModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -88,100 +88,100 @@ public class DictionaryModel implements Serializable {
     /**
 	 * 获取：字段
 	 */
-    public String getDicCode() {
-        return dicCode;
+    public String getDictCode() {
+        return dictCode;
     }
 
 
     /**
 	 * 设置：字段
 	 */
-    public void setDicCode(String dicCode) {
-        this.dicCode = dicCode;
+    public void setDictCode(String dictCode) {
+        this.dictCode = dictCode;
     }
     /**
 	 * 获取：字段名
 	 */
-    public String getDicName() {
-        return dicName;
+    public String getDictName() {
+        return dictName;
     }
 
 
     /**
 	 * 设置：字段名
 	 */
-    public void setDicName(String dicName) {
-        this.dicName = dicName;
+    public void setDictName(String dictName) {
+        this.dictName = dictName;
     }
     /**
 	 * 获取：编码
 	 */
-    public Integer getCodeIndex() {
-        return codeIndex;
+    public Integer getItemCode() {
+        return itemCode;
     }
 
 
     /**
 	 * 设置：编码
 	 */
-    public void setCodeIndex(Integer codeIndex) {
-        this.codeIndex = codeIndex;
+    public void setItemCode(Integer itemCode) {
+        this.itemCode = itemCode;
     }
     /**
 	 * 获取：编码名字
 	 */
-    public String getIndexName() {
-        return indexName;
+    public String getItemName() {
+        return itemName;
     }
 
 
     /**
 	 * 设置：编码名字
 	 */
-    public void setIndexName(String indexName) {
-        this.indexName = indexName;
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
     /**
 	 * 获取：父字段id
 	 */
-    public Integer getSuperId() {
-        return superId;
+    public Integer getParentId() {
+        return parentId;
     }
 
 
     /**
 	 * 设置：父字段id
 	 */
-    public void setSuperId(Integer superId) {
-        this.superId = superId;
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
     /**
 	 * 获取：备注
 	 */
-    public String getBeizhu() {
-        return beizhu;
+    public String getRemark() {
+        return remark;
     }
 
 
     /**
 	 * 设置：备注
 	 */
-    public void setBeizhu(String beizhu) {
-        this.beizhu = beizhu;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
     /**
 	 * 获取：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

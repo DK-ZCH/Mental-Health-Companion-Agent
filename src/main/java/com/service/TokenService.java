@@ -22,7 +22,7 @@ public interface TokenService extends IService<TokenEntity> {
    	
    	PageUtils queryPage(Map<String, Object> params,Wrapper<TokenEntity> wrapper);
 	
-   	String generateToken(Integer userid,String username,String tableName, String role);
+   	String generateToken(Integer userId,String username,String tableName, String role);
    	
    	TokenEntity getTokenEntity(String token);
 }

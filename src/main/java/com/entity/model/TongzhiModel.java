@@ -30,19 +30,19 @@ public class TongzhiModel implements Serializable {
     /**
      * 通知名称
      */
-    private String tongzhiName;
+    private String title;
 
 
     /**
      * 通知图片
      */
-    private String tongzhiPhoto;
+    private String coverUrl;
 
 
     /**
      * 通知类型
      */
-    private Integer tongzhiTypes;
+    private Integer category;
 
 
     /**
@@ -50,13 +50,13 @@ public class TongzhiModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date insertTime;
+    private Date publishedAt;
 
 
     /**
      * 通知详情
      */
-    private String tongzhiContent;
+    private String content;
 
 
     /**
@@ -64,7 +64,7 @@ public class TongzhiModel implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -84,86 +84,86 @@ public class TongzhiModel implements Serializable {
     /**
 	 * 获取：通知名称
 	 */
-    public String getTongzhiName() {
-        return tongzhiName;
+    public String getTitle() {
+        return title;
     }
 
 
     /**
 	 * 设置：通知名称
 	 */
-    public void setTongzhiName(String tongzhiName) {
-        this.tongzhiName = tongzhiName;
+    public void setTitle(String title) {
+        this.title = title;
     }
     /**
 	 * 获取：通知图片
 	 */
-    public String getTongzhiPhoto() {
-        return tongzhiPhoto;
+    public String getCoverUrl() {
+        return coverUrl;
     }
 
 
     /**
 	 * 设置：通知图片
 	 */
-    public void setTongzhiPhoto(String tongzhiPhoto) {
-        this.tongzhiPhoto = tongzhiPhoto;
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
     /**
 	 * 获取：通知类型
 	 */
-    public Integer getTongzhiTypes() {
-        return tongzhiTypes;
+    public Integer getCategory() {
+        return category;
     }
 
 
     /**
 	 * 设置：通知类型
 	 */
-    public void setTongzhiTypes(Integer tongzhiTypes) {
-        this.tongzhiTypes = tongzhiTypes;
+    public void setCategory(Integer category) {
+        this.category = category;
     }
     /**
 	 * 获取：通知发布时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getPublishedAt() {
+        return publishedAt;
     }
 
 
     /**
 	 * 设置：通知发布时间
 	 */
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setPublishedAt(Date publishedAt) {
+        this.publishedAt = publishedAt;
     }
     /**
 	 * 获取：通知详情
 	 */
-    public String getTongzhiContent() {
-        return tongzhiContent;
+    public String getContent() {
+        return content;
     }
 
 
     /**
 	 * 设置：通知详情
 	 */
-    public void setTongzhiContent(String tongzhiContent) {
-        this.tongzhiContent = tongzhiContent;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 获取：创建时间 show1 show2 nameShow
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
     /**
 	 * 设置：创建时间 show1 show2 nameShow
 	 */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     }

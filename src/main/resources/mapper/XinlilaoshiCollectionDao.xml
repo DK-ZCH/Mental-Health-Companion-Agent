@@ -5,33 +5,33 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         a.id as id
-        ,a.xinlilaoshi_id as xinlilaoshiId
-        ,a.yonghu_id as yonghuId
-        ,a.xinlilaoshi_collection_types as xinlilaoshiCollectionTypes
-        ,a.insert_time as insertTime
-        ,a.create_time as createTime
+        ,a.counselor_id as counselorId
+        ,a.student_id as studentId
+        ,a.favorite_type as favoriteType
+        ,a.favorited_at as favoritedAt
+        ,a.created_at as createdAt
     </sql>
     <select id="selectListView" parameterType="map" resultType="com.entity.view.XinlilaoshiCollectionView" >
         SELECT
         <include refid="Base_Column_List" />
 
 --         级联表的字段
-        ,yonghu.yonghu_name as yonghuName
-        ,yonghu.yonghu_phone as yonghuPhone
-        ,yonghu.yonghu_id_number as yonghuIdNumber
-        ,yonghu.yonghu_photo as yonghuPhoto
-        ,yonghu.yonghu_email as yonghuEmail
-        ,xinlilaoshi.xinlilaoshi_name as xinlilaoshiName
-        ,xinlilaoshi.xinlilaoshi_phone as xinlilaoshiPhone
-        ,xinlilaoshi.xinlilaoshi_photo as xinlilaoshiPhoto
-        ,xinlilaoshi.xinlilaoshi_email as xinlilaoshiEmail
-        ,xinlilaoshi.xinlilaoshi_shanchang as xinlilaoshiShanchang
-        ,xinlilaoshi.xinlilaoshi_lvli as xinlilaoshiLvli
-        ,xinlilaoshi.xinlilaoshi_content as xinlilaoshiContent
+        ,student.name as studentName
+        ,student.phone as studentPhone
+        ,student.id_card_no as studentIdCardNo
+        ,student.avatar_url as studentAvatarUrl
+        ,student.email as studentEmail
+        ,counselor.name as counselorName
+        ,counselor.phone as counselorPhone
+        ,counselor.avatar_url as counselorAvatarUrl
+        ,counselor.email as counselorEmail
+        ,counselor.expertise as counselorExpertise
+        ,counselor.resume as counselorResume
+        ,counselor.introduction as counselorIntroduction
 
-        FROM xinlilaoshi_collection  a
-        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
-        left JOIN xinlilaoshi xinlilaoshi ON a.xinlilaoshi_id = xinlilaoshi.id
+        FROM counselor_favorite  a
+        left JOIN student student ON a.student_id = student.id
+        left JOIN counselor counselor ON a.counselor_id = counselor.id
 
         <where>
             <if test="params.ids != null">
@@ -40,63 +40,63 @@
                 #{item}
                 </foreach>
             </if>
-            <if test="params.xinlilaoshiId != null and params.xinlilaoshiId != ''">
+            <if test="params.counselorId != null and params.counselorId != ''">
                 and (
-                    a.xinlilaoshi_id = #{params.xinlilaoshiId}
+                    a.counselor_id = #{params.counselorId}
                 )
             </if>
-            <if test="params.yonghuId != null and params.yonghuId != ''">
+            <if test="params.studentId != null and params.studentId != ''">
                 and (
-                    a.yonghu_id = #{params.yonghuId}
+                    a.student_id = #{params.studentId}
                 )
             </if>
-            <if test="params.xinlilaoshiCollectionTypes != null and params.xinlilaoshiCollectionTypes != ''">
-                and a.xinlilaoshi_collection_types = #{params.xinlilaoshiCollectionTypes}
+            <if test="params.favoriteType != null and params.favoriteType != ''">
+                and a.favorite_type = #{params.favoriteType}
             </if>
-            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
-                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            <if test=" params.favoritedAtStart != '' and params.favoritedAtStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.favorited_at) >= UNIX_TIMESTAMP(#{params.favoritedAtStart}) ]]>
             </if>
-            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
-                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            <if test=" params.favoritedAtEnd != '' and params.favoritedAtEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.favorited_at) <= UNIX_TIMESTAMP(#{params.favoritedAtEnd}) ]]>
             </if>
 
                 <!-- 判断学生的id不为空 -->
             <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
-                and a.yonghu_id IS NOT NULL
+                and a.student_id IS NOT NULL
             </if>
-            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
-                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            <if test=" params.studentName != '' and params.studentName != null and params.studentName != 'null' ">
+                and student.name like CONCAT('%',#{params.studentName},'%')
             </if>
-            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
-                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            <if test=" params.studentPhone != '' and params.studentPhone != null and params.studentPhone != 'null' ">
+                and student.phone like CONCAT('%',#{params.studentPhone},'%')
             </if>
-            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
-                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            <if test=" params.studentIdCardNo != '' and params.studentIdCardNo != null and params.studentIdCardNo != 'null' ">
+                and student.id_card_no like CONCAT('%',#{params.studentIdCardNo},'%')
             </if>
-            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
-                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            <if test=" params.studentEmail != '' and params.studentEmail != null and params.studentEmail != 'null' ">
+                and student.email like CONCAT('%',#{params.studentEmail},'%')
             </if>
                 <!-- 判断心理老师的id不为空 -->
             <if test=" params.xinlilaoshiIdNotNull != '' and params.xinlilaoshiIdNotNull != null and params.xinlilaoshiIdNotNull != 'null' ">
-                and a.xinlilaoshi_id IS NOT NULL
+                and a.counselor_id IS NOT NULL
             </if>
-            <if test=" params.xinlilaoshiName != '' and params.xinlilaoshiName != null and params.xinlilaoshiName != 'null' ">
-                and xinlilaoshi.xinlilaoshi_name like CONCAT('%',#{params.xinlilaoshiName},'%')
+            <if test=" params.counselorName != '' and params.counselorName != null and params.counselorName != 'null' ">
+                and counselor.name like CONCAT('%',#{params.counselorName},'%')
             </if>
-            <if test=" params.xinlilaoshiPhone != '' and params.xinlilaoshiPhone != null and params.xinlilaoshiPhone != 'null' ">
-                and xinlilaoshi.xinlilaoshi_phone like CONCAT('%',#{params.xinlilaoshiPhone},'%')
+            <if test=" params.counselorPhone != '' and params.counselorPhone != null and params.counselorPhone != 'null' ">
+                and counselor.phone like CONCAT('%',#{params.counselorPhone},'%')
             </if>
-            <if test=" params.xinlilaoshiEmail != '' and params.xinlilaoshiEmail != null and params.xinlilaoshiEmail != 'null' ">
-                and xinlilaoshi.xinlilaoshi_email like CONCAT('%',#{params.xinlilaoshiEmail},'%')
+            <if test=" params.counselorEmail != '' and params.counselorEmail != null and params.counselorEmail != 'null' ">
+                and counselor.email like CONCAT('%',#{params.counselorEmail},'%')
             </if>
-            <if test=" params.xinlilaoshiShanchang != '' and params.xinlilaoshiShanchang != null and params.xinlilaoshiShanchang != 'null' ">
-                and xinlilaoshi.xinlilaoshi_shanchang like CONCAT('%',#{params.xinlilaoshiShanchang},'%')
+            <if test=" params.counselorExpertise != '' and params.counselorExpertise != null and params.counselorExpertise != 'null' ">
+                and counselor.expertise like CONCAT('%',#{params.counselorExpertise},'%')
             </if>
-            <if test=" params.xinlilaoshiLvli != '' and params.xinlilaoshiLvli != null and params.xinlilaoshiLvli != 'null' ">
-                and xinlilaoshi.xinlilaoshi_lvli like CONCAT('%',#{params.xinlilaoshiLvli},'%')
+            <if test=" params.counselorResume != '' and params.counselorResume != null and params.counselorResume != 'null' ">
+                and counselor.resume like CONCAT('%',#{params.counselorResume},'%')
             </if>
-            <if test=" params.xinlilaoshiContent != '' and params.xinlilaoshiContent != null and params.xinlilaoshiContent != 'null' ">
-                and xinlilaoshi.xinlilaoshi_content like CONCAT('%',#{params.xinlilaoshiContent},'%')
+            <if test=" params.counselorIntroduction != '' and params.counselorIntroduction != null and params.counselorIntroduction != 'null' ">
+                and counselor.introduction like CONCAT('%',#{params.counselorIntroduction},'%')
             </if>
         </where>
 

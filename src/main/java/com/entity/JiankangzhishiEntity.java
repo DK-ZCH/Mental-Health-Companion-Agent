@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.enums.IdType;
  * @author 
  * @email
  */
-@TableName("jiankangzhishi")
+@TableName("knowledge_article")
 public class JiankangzhishiEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -57,25 +57,25 @@ public class JiankangzhishiEntity<T> implements Serializable {
     /**
      * 健康知识名称
      */
-    @TableField(value = "jiankangzhishi_name")
+    @TableField(value = "title")
 
-    private String jiankangzhishiName;
+    private String title;
 
 
     /**
      * 健康知识图片
      */
-    @TableField(value = "jiankangzhishi_photo")
+    @TableField(value = "cover_url")
 
-    private String jiankangzhishiPhoto;
+    private String coverUrl;
 
 
     /**
      * 健康知识类型
      */
-    @TableField(value = "jiankangzhishi_types")
+    @TableField(value = "category")
 
-    private Integer jiankangzhishiTypes;
+    private Integer category;
 
 
     /**
@@ -83,17 +83,17 @@ public class JiankangzhishiEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "insert_time",fill = FieldFill.INSERT)
+    @TableField(value = "published_at",fill = FieldFill.INSERT)
 
-    private Date insertTime;
+    private Date publishedAt;
 
 
     /**
      * 健康知识详情
      */
-    @TableField(value = "jiankangzhishi_content")
+    @TableField(value = "content")
 
-    private String jiankangzhishiContent;
+    private String content;
 
 
     /**
@@ -101,9 +101,9 @@ public class JiankangzhishiEntity<T> implements Serializable {
      */
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    @TableField(value = "created_at",fill = FieldFill.INSERT)
 
-    private Date createTime;
+    private Date createdAt;
 
 
     /**
@@ -122,92 +122,92 @@ public class JiankangzhishiEntity<T> implements Serializable {
     /**
 	 * 设置：健康知识名称
 	 */
-    public String getJiankangzhishiName() {
-        return jiankangzhishiName;
+    public String getTitle() {
+        return title;
     }
     /**
 	 * 获取：健康知识名称
 	 */
 
-    public void setJiankangzhishiName(String jiankangzhishiName) {
-        this.jiankangzhishiName = jiankangzhishiName;
+    public void setTitle(String title) {
+        this.title = title;
     }
     /**
 	 * 设置：健康知识图片
 	 */
-    public String getJiankangzhishiPhoto() {
-        return jiankangzhishiPhoto;
+    public String getCoverUrl() {
+        return coverUrl;
     }
     /**
 	 * 获取：健康知识图片
 	 */
 
-    public void setJiankangzhishiPhoto(String jiankangzhishiPhoto) {
-        this.jiankangzhishiPhoto = jiankangzhishiPhoto;
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
     /**
 	 * 设置：健康知识类型
 	 */
-    public Integer getJiankangzhishiTypes() {
-        return jiankangzhishiTypes;
+    public Integer getCategory() {
+        return category;
     }
     /**
 	 * 获取：健康知识类型
 	 */
 
-    public void setJiankangzhishiTypes(Integer jiankangzhishiTypes) {
-        this.jiankangzhishiTypes = jiankangzhishiTypes;
+    public void setCategory(Integer category) {
+        this.category = category;
     }
     /**
 	 * 设置：健康知识发布时间
 	 */
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getPublishedAt() {
+        return publishedAt;
     }
     /**
 	 * 获取：健康知识发布时间
 	 */
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setPublishedAt(Date publishedAt) {
+        this.publishedAt = publishedAt;
     }
     /**
 	 * 设置：健康知识详情
 	 */
-    public String getJiankangzhishiContent() {
-        return jiankangzhishiContent;
+    public String getContent() {
+        return content;
     }
     /**
 	 * 获取：健康知识详情
 	 */
 
-    public void setJiankangzhishiContent(String jiankangzhishiContent) {
-        this.jiankangzhishiContent = jiankangzhishiContent;
+    public void setContent(String content) {
+        this.content = content;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
     /**
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Jiankangzhishi{" +
             "id=" + id +
-            ", jiankangzhishiName=" + jiankangzhishiName +
-            ", jiankangzhishiPhoto=" + jiankangzhishiPhoto +
-            ", jiankangzhishiTypes=" + jiankangzhishiTypes +
-            ", insertTime=" + insertTime +
-            ", jiankangzhishiContent=" + jiankangzhishiContent +
-            ", createTime=" + createTime +
+            ", title=" + title +
+            ", coverUrl=" + coverUrl +
+            ", category=" + category +
+            ", publishedAt=" + publishedAt +
+            ", content=" + content +
+            ", createdAt=" + createdAt +
         "}";
     }
 }

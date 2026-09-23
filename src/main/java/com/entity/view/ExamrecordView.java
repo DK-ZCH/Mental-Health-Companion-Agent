@@ -14,7 +14,7 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("examrecord")
+@TableName("assessment_record")
 public class ExamrecordView extends ExamrecordEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -25,49 +25,49 @@ public class ExamrecordView extends ExamrecordEntity implements Serializable {
 			/**
 			* 试卷名称
 			*/
-			private String exampaperName;
+			private String paperName;
 			/**
 			* 考试时长(分钟)
 			*/
-			private Integer exampaperDate;
+			private Integer paperDurationMinutes;
 			/**
 			* 试卷总分数
 			*/
-			private Integer exampaperMyscore;
+			private Integer paperTotalScore;
 			/**
 			* 试卷状态
 			*/
-			private Integer exampaperTypes;
+			private Integer paperStatus;
 				/**
 				* 试卷状态的值
 				*/
-				private String exampaperValue;
+				private String paperStatusLabel;
 			/**
 			* 逻辑删除（0代表未删除 1代表已删除）
 			*/
-			private Integer exampaperDelete;
+			private Integer paperIsDeleted;
 
 		//级联表 yonghu
 			/**
 			* 学生姓名
 			*/
-			private String yonghuName;
+			private String studentName;
 			/**
 			* 学生手机号
 			*/
-			private String yonghuPhone;
+			private String studentPhone;
 			/**
 			* 学生身份证号
 			*/
-			private String yonghuIdNumber;
+			private String studentIdCardNo;
 			/**
 			* 学生头像
 			*/
-			private String yonghuPhoto;
+			private String studentAvatarUrl;
 			/**
 			* 电子邮箱
 			*/
-			private String yonghuEmail;
+			private String studentEmail;
 
 	public ExamrecordView() {
 
@@ -97,80 +97,80 @@ public class ExamrecordView extends ExamrecordEntity implements Serializable {
 					/**
 					* 获取： 试卷名称
 					*/
-					public String getExampaperName() {
-						return exampaperName;
+					public String getPaperName() {
+						return paperName;
 					}
 					/**
 					* 设置： 试卷名称
 					*/
-					public void setExampaperName(String exampaperName) {
-						this.exampaperName = exampaperName;
+					public void setPaperName(String paperName) {
+						this.paperName = paperName;
 					}
 
 					/**
 					* 获取： 考试时长(分钟)
 					*/
-					public Integer getExampaperDate() {
-						return exampaperDate;
+					public Integer getPaperDurationMinutes() {
+						return paperDurationMinutes;
 					}
 					/**
 					* 设置： 考试时长(分钟)
 					*/
-					public void setExampaperDate(Integer exampaperDate) {
-						this.exampaperDate = exampaperDate;
+					public void setPaperDurationMinutes(Integer paperDurationMinutes) {
+						this.paperDurationMinutes = paperDurationMinutes;
 					}
 
 					/**
 					* 获取： 试卷总分数
 					*/
-					public Integer getExampaperMyscore() {
-						return exampaperMyscore;
+					public Integer getPaperTotalScore() {
+						return paperTotalScore;
 					}
 					/**
 					* 设置： 试卷总分数
 					*/
-					public void setExampaperMyscore(Integer exampaperMyscore) {
-						this.exampaperMyscore = exampaperMyscore;
+					public void setPaperTotalScore(Integer paperTotalScore) {
+						this.paperTotalScore = paperTotalScore;
 					}
 
 					/**
 					* 获取： 试卷状态
 					*/
-					public Integer getExampaperTypes() {
-						return exampaperTypes;
+					public Integer getPaperStatus() {
+						return paperStatus;
 					}
 					/**
 					* 设置： 试卷状态
 					*/
-					public void setExampaperTypes(Integer exampaperTypes) {
-						this.exampaperTypes = exampaperTypes;
+					public void setPaperStatus(Integer paperStatus) {
+						this.paperStatus = paperStatus;
 					}
 
 
 						/**
 						* 获取： 试卷状态的值
 						*/
-						public String getExampaperValue() {
-							return exampaperValue;
+						public String getPaperStatusLabel() {
+							return paperStatusLabel;
 						}
 						/**
 						* 设置： 试卷状态的值
 						*/
-						public void setExampaperValue(String exampaperValue) {
-							this.exampaperValue = exampaperValue;
+						public void setPaperStatusLabel(String paperStatusLabel) {
+							this.paperStatusLabel = paperStatusLabel;
 						}
 
 					/**
 					* 获取： 逻辑删除（0代表未删除 1代表已删除）
 					*/
-					public Integer getExampaperDelete() {
-						return exampaperDelete;
+					public Integer getPaperIsDeleted() {
+						return paperIsDeleted;
 					}
 					/**
 					* 设置： 逻辑删除（0代表未删除 1代表已删除）
 					*/
-					public void setExampaperDelete(Integer exampaperDelete) {
-						this.exampaperDelete = exampaperDelete;
+					public void setPaperIsDeleted(Integer paperIsDeleted) {
+						this.paperIsDeleted = paperIsDeleted;
 					}
 
 
@@ -206,66 +206,66 @@ public class ExamrecordView extends ExamrecordEntity implements Serializable {
 					/**
 					* 获取： 学生姓名
 					*/
-					public String getYonghuName() {
-						return yonghuName;
+					public String getStudentName() {
+						return studentName;
 					}
 					/**
 					* 设置： 学生姓名
 					*/
-					public void setYonghuName(String yonghuName) {
-						this.yonghuName = yonghuName;
+					public void setStudentName(String studentName) {
+						this.studentName = studentName;
 					}
 
 					/**
 					* 获取： 学生手机号
 					*/
-					public String getYonghuPhone() {
-						return yonghuPhone;
+					public String getStudentPhone() {
+						return studentPhone;
 					}
 					/**
 					* 设置： 学生手机号
 					*/
-					public void setYonghuPhone(String yonghuPhone) {
-						this.yonghuPhone = yonghuPhone;
+					public void setStudentPhone(String studentPhone) {
+						this.studentPhone = studentPhone;
 					}
 
 					/**
 					* 获取： 学生身份证号
 					*/
-					public String getYonghuIdNumber() {
-						return yonghuIdNumber;
+					public String getStudentIdCardNo() {
+						return studentIdCardNo;
 					}
 					/**
 					* 设置： 学生身份证号
 					*/
-					public void setYonghuIdNumber(String yonghuIdNumber) {
-						this.yonghuIdNumber = yonghuIdNumber;
+					public void setStudentIdCardNo(String studentIdCardNo) {
+						this.studentIdCardNo = studentIdCardNo;
 					}
 
 					/**
 					* 获取： 学生头像
 					*/
-					public String getYonghuPhoto() {
-						return yonghuPhoto;
+					public String getStudentAvatarUrl() {
+						return studentAvatarUrl;
 					}
 					/**
 					* 设置： 学生头像
 					*/
-					public void setYonghuPhoto(String yonghuPhoto) {
-						this.yonghuPhoto = yonghuPhoto;
+					public void setStudentAvatarUrl(String studentAvatarUrl) {
+						this.studentAvatarUrl = studentAvatarUrl;
 					}
 
 					/**
 					* 获取： 电子邮箱
 					*/
-					public String getYonghuEmail() {
-						return yonghuEmail;
+					public String getStudentEmail() {
+						return studentEmail;
 					}
 					/**
 					* 设置： 电子邮箱
 					*/
-					public void setYonghuEmail(String yonghuEmail) {
-						this.yonghuEmail = yonghuEmail;
+					public void setStudentEmail(String studentEmail) {
+						this.studentEmail = studentEmail;
 					}
 
 

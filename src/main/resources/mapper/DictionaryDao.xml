@@ -5,13 +5,13 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         a.id as id
-        ,a.dic_code as dicCode
-        ,a.dic_name as dicName
-        ,a.code_index as codeIndex
-        ,a.index_name as indexName
-        ,a.super_id as superId
-        ,a.beizhu as beizhu
-        ,a.create_time as createTime
+        ,a.dict_code as dictCode
+        ,a.dict_name as dictName
+        ,a.item_code as itemCode
+        ,a.item_name as itemName
+        ,a.parent_id as parentId
+        ,a.remark as remark
+        ,a.created_at as createdAt
     </sql>
     <select id="selectListView" parameterType="map" resultType="com.entity.view.DictionaryView" >
         SELECT
@@ -19,7 +19,7 @@
 
 --         级联表的字段
 
-        FROM dictionary  a
+        FROM sys_dict_item  a
 
         <where>
             <if test="params.ids != null">
@@ -28,31 +28,31 @@
                 #{item}
                 </foreach>
             </if>
-            <if test=" params.dicCode != '' and params.dicCode != null and params.dicCode != 'null' ">
-                and a.dic_code  = #{params.dicCode}
+            <if test=" params.dictCode != '' and params.dictCode != null and params.dictCode != 'null' ">
+                and a.dict_code  = #{params.dictCode}
             </if>
-            <if test=" params.dicName != '' and params.dicName != null and params.dicName != 'null' ">
-                and a.dic_name like CONCAT('%',#{params.dicName},'%')
+            <if test=" params.dictName != '' and params.dictName != null and params.dictName != 'null' ">
+                and a.dict_name like CONCAT('%',#{params.dictName},'%')
             </if>
             <if test="params.codeIndexStart != null and params.codeIndexStart != ''">
-                <![CDATA[  and a.code_index >= #{params.codeIndexStart}   ]]>
+                <![CDATA[  and a.item_code >= #{params.codeIndexStart}   ]]>
             </if>
             <if test="params.codeIndexEnd != null and params.codeIndexEnd != ''">
-                <![CDATA[  and a.code_index <= #{params.codeIndexEnd}   ]]>
+                <![CDATA[  and a.item_code <= #{params.codeIndexEnd}   ]]>
             </if>
-             <if test="params.codeIndex != null and params.codeIndex != ''">
-                and a.code_index = #{params.codeIndex}
+             <if test="params.itemCode != null and params.itemCode != ''">
+                and a.item_code = #{params.itemCode}
              </if>
-            <if test=" params.indexName != '' and params.indexName != null and params.indexName != 'null' ">
-                and a.index_name like CONCAT('%',#{params.indexName},'%')
+            <if test=" params.itemName != '' and params.itemName != null and params.itemName != 'null' ">
+                and a.item_name like CONCAT('%',#{params.itemName},'%')
             </if>
-            <if test="params.superId != null and params.superId != ''">
+            <if test="params.parentId != null and params.parentId != ''">
                 and (
-                    a.super_id = #{params.superId}
+                    a.parent_id = #{params.parentId}
                 )
             </if>
-            <if test=" params.beizhu != '' and params.beizhu != null and params.beizhu != 'null' ">
-                and a.beizhu like CONCAT('%',#{params.beizhu},'%')
+            <if test=" params.remark != '' and params.remark != null and params.remark != 'null' ">
+                and a.remark like CONCAT('%',#{params.remark},'%')
             </if>
 
         </where>

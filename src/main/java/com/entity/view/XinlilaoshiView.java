@@ -14,14 +14,14 @@ import java.util.Date;
  * 后端返回视图实体辅助类
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
-@TableName("xinlilaoshi")
+@TableName("counselor")
 public class XinlilaoshiView extends XinlilaoshiEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
 		* 性别的值
 		*/
-		private String sexValue;
+		private String genderLabel;
 
 
 
@@ -43,14 +43,14 @@ public class XinlilaoshiView extends XinlilaoshiEntity implements Serializable {
 			/**
 			* 获取： 性别的值
 			*/
-			public String getSexValue() {
-				return sexValue;
+			public String getGenderLabel() {
+				return genderLabel;
 			}
 			/**
 			* 设置： 性别的值
 			*/
-			public void setSexValue(String sexValue) {
-				this.sexValue = sexValue;
+			public void setGenderLabel(String genderLabel) {
+				this.genderLabel = genderLabel;
 			}
 
 

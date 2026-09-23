@@ -38,12 +38,12 @@ public class DictionaryServletContextListener implements ServletContextListener 
         List<DictionaryEntity> dictionaryEntities = dictionaryService.selectList(new EntityWrapper<DictionaryEntity>());
         Map<String, Map<Integer,String>> map = new HashMap<>();
         for(DictionaryEntity d :dictionaryEntities){
-            Map<Integer, String> m = map.get(d.getDicCode());
+            Map<Integer, String> m = map.get(d.getDictCode());
             if(m ==null || m.isEmpty()){
                 m = new HashMap<>();
             }
-            m.put(d.getCodeIndex(),d.getIndexName());
-            map.put(d.getDicCode(),m);
+            m.put(d.getItemCode(),d.getItemName());
+            map.put(d.getDictCode(),m);
         }
         sce.getServletContext().setAttribute("dictionaryMap", map);
         logger.info("----------字典表初始化完成----------");

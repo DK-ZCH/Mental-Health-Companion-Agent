@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("examredetails")
+@TableName("assessment_answer")
 public class ExamredetailsVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,40 +31,40 @@ public class ExamredetailsVO implements Serializable {
      * 试卷编号
      */
 
-    @TableField(value = "examredetails_uuid_number")
-    private String examredetailsUuidNumber;
+    @TableField(value = "record_no")
+    private String recordNo;
 
 
     /**
      * 学生id
      */
 
-    @TableField(value = "yonghu_id")
-    private Integer yonghuId;
+    @TableField(value = "student_id")
+    private Integer studentId;
 
 
     /**
      * 试题id（外键）
      */
 
-    @TableField(value = "examquestion_id")
-    private Integer examquestionId;
+    @TableField(value = "question_id")
+    private Integer questionId;
 
 
     /**
      * 考生答案
      */
 
-    @TableField(value = "examredetails_myanswer")
-    private String examredetailsMyanswer;
+    @TableField(value = "student_answer")
+    private String studentAnswer;
 
 
     /**
      * 试题得分
      */
 
-    @TableField(value = "examredetails_myscore")
-    private Integer examredetailsMyscore;
+    @TableField(value = "score")
+    private Integer score;
 
 
     /**
@@ -73,8 +73,8 @@ public class ExamredetailsVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -95,8 +95,8 @@ public class ExamredetailsVO implements Serializable {
     /**
 	 * 设置：试卷编号
 	 */
-    public String getExamredetailsUuidNumber() {
-        return examredetailsUuidNumber;
+    public String getRecordNo() {
+        return recordNo;
     }
 
 
@@ -104,14 +104,14 @@ public class ExamredetailsVO implements Serializable {
 	 * 获取：试卷编号
 	 */
 
-    public void setExamredetailsUuidNumber(String examredetailsUuidNumber) {
-        this.examredetailsUuidNumber = examredetailsUuidNumber;
+    public void setRecordNo(String recordNo) {
+        this.recordNo = recordNo;
     }
     /**
 	 * 设置：学生id
 	 */
-    public Integer getYonghuId() {
-        return yonghuId;
+    public Integer getStudentId() {
+        return studentId;
     }
 
 
@@ -119,14 +119,14 @@ public class ExamredetailsVO implements Serializable {
 	 * 获取：学生id
 	 */
 
-    public void setYonghuId(Integer yonghuId) {
-        this.yonghuId = yonghuId;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
     /**
 	 * 设置：试题id（外键）
 	 */
-    public Integer getExamquestionId() {
-        return examquestionId;
+    public Integer getQuestionId() {
+        return questionId;
     }
 
 
@@ -134,14 +134,14 @@ public class ExamredetailsVO implements Serializable {
 	 * 获取：试题id（外键）
 	 */
 
-    public void setExamquestionId(Integer examquestionId) {
-        this.examquestionId = examquestionId;
+    public void setQuestionId(Integer questionId) {
+        this.questionId = questionId;
     }
     /**
 	 * 设置：考生答案
 	 */
-    public String getExamredetailsMyanswer() {
-        return examredetailsMyanswer;
+    public String getStudentAnswer() {
+        return studentAnswer;
     }
 
 
@@ -149,14 +149,14 @@ public class ExamredetailsVO implements Serializable {
 	 * 获取：考生答案
 	 */
 
-    public void setExamredetailsMyanswer(String examredetailsMyanswer) {
-        this.examredetailsMyanswer = examredetailsMyanswer;
+    public void setStudentAnswer(String studentAnswer) {
+        this.studentAnswer = studentAnswer;
     }
     /**
 	 * 设置：试题得分
 	 */
-    public Integer getExamredetailsMyscore() {
-        return examredetailsMyscore;
+    public Integer getScore() {
+        return score;
     }
 
 
@@ -164,14 +164,14 @@ public class ExamredetailsVO implements Serializable {
 	 * 获取：试题得分
 	 */
 
-    public void setExamredetailsMyscore(Integer examredetailsMyscore) {
-        this.examredetailsMyscore = examredetailsMyscore;
+    public void setScore(Integer score) {
+        this.score = score;
     }
     /**
 	 * 设置：创建时间
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -179,8 +179,8 @@ public class ExamredetailsVO implements Serializable {
 	 * 获取：创建时间
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

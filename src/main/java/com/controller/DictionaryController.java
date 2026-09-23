@@ -113,29 +113,29 @@ public class DictionaryController {
             return R.error(511,"永远不会进入");
 
         Wrapper<DictionaryEntity> queryWrapper = new EntityWrapper<DictionaryEntity>()
-            .eq("dic_code", dictionary.getDicCode())
-            .eq("index_name", dictionary.getIndexName())
+            .eq("dict_code", dictionary.getDictCode())
+            .eq("item_name", dictionary.getItemName())
             ;
-        if(dictionary.getDicCode().contains("_erji_types")){
-            queryWrapper.eq("super_id",dictionary.getSuperId());
+        if(dictionary.getDictCode().contains("_erji_types")){
+            queryWrapper.eq("parent_id",dictionary.getParentId());
         }
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         DictionaryEntity dictionaryEntity = dictionaryService.selectOne(queryWrapper);
         if(dictionaryEntity==null){
-            dictionary.setCreateTime(new Date());
+            dictionary.setCreatedAt(new Date());
             dictionaryService.insert(dictionary);
             //字典表新增数据,把数据再重新查出,放入监听器中
             List<DictionaryEntity> dictionaryEntities = dictionaryService.selectList(new EntityWrapper<DictionaryEntity>());
             ServletContext servletContext = request.getServletContext();
             Map<String, Map<Integer,String>> map = new HashMap<>();
             for(DictionaryEntity d :dictionaryEntities){
-                Map<Integer, String> m = map.get(d.getDicCode());
+                Map<Integer, String> m = map.get(d.getDictCode());
                 if(m ==null || m.isEmpty()){
                     m = new HashMap<>();
                 }
-                m.put(d.getCodeIndex(),d.getIndexName());
-                map.put(d.getDicCode(),m);
+                m.put(d.getItemCode(),d.getItemName());
+                map.put(d.getDictCode(),m);
             }
             servletContext.setAttribute("dictionaryMap",map);
             return R.ok();
@@ -157,12 +157,12 @@ public class DictionaryController {
         //根据字段查询是否有相同数据
         Wrapper<DictionaryEntity> queryWrapper = new EntityWrapper<DictionaryEntity>()
             .notIn("id",dictionary.getId())
-            .eq("dic_code", dictionary.getDicCode())
-            .eq("index_name", dictionary.getIndexName())
+            .eq("dict_code", dictionary.getDictCode())
+            .eq("item_name", dictionary.getItemName())
             ;
 
-        if(dictionary.getDicCode().contains("_erji_types")){
-            queryWrapper.eq("super_id",dictionary.getSuperId());
+        if(dictionary.getDictCode().contains("_erji_types")){
+            queryWrapper.eq("parent_id",dictionary.getParentId());
         }
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         DictionaryEntity dictionaryEntity = dictionaryService.selectOne(queryWrapper);
@@ -173,12 +173,12 @@ public class DictionaryController {
             ServletContext servletContext = request.getServletContext();
             Map<String, Map<Integer,String>> map = new HashMap<>();
             for(DictionaryEntity d :dictionaryEntities){
-                Map<Integer, String> m = map.get(d.getDicCode());
+                Map<Integer, String> m = map.get(d.getDictCode());
                 if(m ==null || m.isEmpty()){
                     m = new HashMap<>();
                 }
-                m.put(d.getCodeIndex(),d.getIndexName());
-                map.put(d.getDicCode(),m);
+                m.put(d.getItemCode(),d.getItemName());
+                map.put(d.getDictCode(),m);
             }
             servletContext.setAttribute("dictionaryMap",map);
             return R.ok();
@@ -200,20 +200,20 @@ public class DictionaryController {
     /**
      * 最大值
      */
-    @RequestMapping("/maxCodeIndex")
-    public R maxCodeIndex(@RequestBody DictionaryEntity dictionary){
-        logger.debug("maxCodeIndex:,,Controller:{},,dictionary:{}",this.getClass().getName(),dictionary.toString());
+    @RequestMapping("/maxItemCode")
+    public R maxItemCode(@RequestBody DictionaryEntity dictionary){
+        logger.debug("maxItemCode:,,Controller:{},,dictionary:{}",this.getClass().getName(),dictionary.toString());
         List<String> descs = new ArrayList<>();
-        descs.add("code_index");
+        descs.add("item_code");
         Wrapper<DictionaryEntity> queryWrapper = new EntityWrapper<DictionaryEntity>()
-                .eq("dic_code", dictionary.getDicCode())
+                .eq("dict_code", dictionary.getDictCode())
                 .orderDesc(descs);
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         List<DictionaryEntity> dictionaryEntityList = dictionaryService.selectList(queryWrapper);
         if(dictionaryEntityList != null ){
-            return R.ok().put("maxCodeIndex",dictionaryEntityList.get(0).getCodeIndex()+1);
+            return R.ok().put("maxItemCode",dictionaryEntityList.get(0).getItemCode()+1);
         }else{
-            return R.ok().put("maxCodeIndex",1);
+            return R.ok().put("maxItemCode",1);
         }
     }
 
@@ -223,7 +223,7 @@ public class DictionaryController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<DictionaryEntity> dictionaryList = new ArrayList<>();//上传的东西
@@ -247,13 +247,13 @@ public class DictionaryController {
                         for(List<String> data:dataList){
                             //循环
                             DictionaryEntity dictionaryEntity = new DictionaryEntity();
-//                            dictionaryEntity.setDicCode(data.get(0));                    //字段 要改的
-//                            dictionaryEntity.setDicName(data.get(0));                    //字段名 要改的
-//                            dictionaryEntity.setCodeIndex(Integer.valueOf(data.get(0)));   //编码 要改的
-//                            dictionaryEntity.setIndexName(data.get(0));                    //编码名字 要改的
-//                            dictionaryEntity.setSuperId(Integer.valueOf(data.get(0)));   //父字段id 要改的
-//                            dictionaryEntity.setBeizhu(data.get(0));                    //备注 要改的
-//                            dictionaryEntity.setCreateTime(date);//时间
+//                            dictionaryEntity.setDictCode(data.get(0));                    //字段 要改的
+//                            dictionaryEntity.setDictName(data.get(0));                    //字段名 要改的
+//                            dictionaryEntity.setItemCode(Integer.valueOf(data.get(0)));   //编码 要改的
+//                            dictionaryEntity.setItemName(data.get(0));                    //编码名字 要改的
+//                            dictionaryEntity.setParentId(Integer.valueOf(data.get(0)));   //父字段id 要改的
+//                            dictionaryEntity.setRemark(data.get(0));                    //备注 要改的
+//                            dictionaryEntity.setCreatedAt(date);//时间
                             dictionaryList.add(dictionaryEntity);
 
 

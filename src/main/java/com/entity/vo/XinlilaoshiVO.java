@@ -14,7 +14,7 @@ import java.io.Serializable;
  * 手机端接口返回实体辅助类
  * （主要作用去除一些不必要的字段）
  */
-@TableName("xinlilaoshi")
+@TableName("counselor")
 public class XinlilaoshiVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -47,64 +47,64 @@ public class XinlilaoshiVO implements Serializable {
      * 心理老师姓名
      */
 
-    @TableField(value = "xinlilaoshi_name")
-    private String xinlilaoshiName;
+    @TableField(value = "name")
+    private String name;
 
 
     /**
      * 心理老师手机号
      */
 
-    @TableField(value = "xinlilaoshi_phone")
-    private String xinlilaoshiPhone;
+    @TableField(value = "phone")
+    private String phone;
 
 
     /**
      * 心理老师头像
      */
 
-    @TableField(value = "xinlilaoshi_photo")
-    private String xinlilaoshiPhoto;
+    @TableField(value = "avatar_url")
+    private String avatarUrl;
 
 
     /**
      * 性别
      */
 
-    @TableField(value = "sex_types")
-    private Integer sexTypes;
+    @TableField(value = "gender")
+    private Integer gender;
 
 
     /**
      * 电子邮箱
      */
 
-    @TableField(value = "xinlilaoshi_email")
-    private String xinlilaoshiEmail;
+    @TableField(value = "email")
+    private String email;
 
 
     /**
      * 擅长
      */
 
-    @TableField(value = "xinlilaoshi_shanchang")
-    private String xinlilaoshiShanchang;
+    @TableField(value = "expertise")
+    private String expertise;
 
 
     /**
      * 履历
      */
 
-    @TableField(value = "xinlilaoshi_lvli")
-    private String xinlilaoshiLvli;
+    @TableField(value = "resume")
+    private String resume;
 
 
     /**
      * 心理老师详细介绍
      */
 
-    @TableField(value = "xinlilaoshi_content")
-    private String xinlilaoshiContent;
+    @TableField(value = "introduction")
+    private String introduction;
 
 
     /**
@@ -113,8 +113,8 @@ public class XinlilaoshiVO implements Serializable {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat
 
-    @TableField(value = "create_time")
-    private Date createTime;
+    @TableField(value = "created_at")
+    private Date createdAt;
 
 
     /**
@@ -165,8 +165,8 @@ public class XinlilaoshiVO implements Serializable {
     /**
 	 * 设置：心理老师姓名
 	 */
-    public String getXinlilaoshiName() {
-        return xinlilaoshiName;
+    public String getName() {
+        return name;
     }
 
 
@@ -174,14 +174,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：心理老师姓名
 	 */
 
-    public void setXinlilaoshiName(String xinlilaoshiName) {
-        this.xinlilaoshiName = xinlilaoshiName;
+    public void setName(String name) {
+        this.name = name;
     }
     /**
 	 * 设置：心理老师手机号
 	 */
-    public String getXinlilaoshiPhone() {
-        return xinlilaoshiPhone;
+    public String getPhone() {
+        return phone;
     }
 
 
@@ -189,14 +189,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：心理老师手机号
 	 */
 
-    public void setXinlilaoshiPhone(String xinlilaoshiPhone) {
-        this.xinlilaoshiPhone = xinlilaoshiPhone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
     /**
 	 * 设置：心理老师头像
 	 */
-    public String getXinlilaoshiPhoto() {
-        return xinlilaoshiPhoto;
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
 
 
@@ -204,14 +204,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：心理老师头像
 	 */
 
-    public void setXinlilaoshiPhoto(String xinlilaoshiPhoto) {
-        this.xinlilaoshiPhoto = xinlilaoshiPhoto;
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
     /**
 	 * 设置：性别
 	 */
-    public Integer getSexTypes() {
-        return sexTypes;
+    public Integer getGender() {
+        return gender;
     }
 
 
@@ -219,14 +219,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：性别
 	 */
 
-    public void setSexTypes(Integer sexTypes) {
-        this.sexTypes = sexTypes;
+    public void setGender(Integer gender) {
+        this.gender = gender;
     }
     /**
 	 * 设置：电子邮箱
 	 */
-    public String getXinlilaoshiEmail() {
-        return xinlilaoshiEmail;
+    public String getEmail() {
+        return email;
     }
 
 
@@ -234,14 +234,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：电子邮箱
 	 */
 
-    public void setXinlilaoshiEmail(String xinlilaoshiEmail) {
-        this.xinlilaoshiEmail = xinlilaoshiEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
     /**
 	 * 设置：擅长
 	 */
-    public String getXinlilaoshiShanchang() {
-        return xinlilaoshiShanchang;
+    public String getExpertise() {
+        return expertise;
     }
 
 
@@ -249,14 +249,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：擅长
 	 */
 
-    public void setXinlilaoshiShanchang(String xinlilaoshiShanchang) {
-        this.xinlilaoshiShanchang = xinlilaoshiShanchang;
+    public void setExpertise(String expertise) {
+        this.expertise = expertise;
     }
     /**
 	 * 设置：履历
 	 */
-    public String getXinlilaoshiLvli() {
-        return xinlilaoshiLvli;
+    public String getResume() {
+        return resume;
     }
 
 
@@ -264,14 +264,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：履历
 	 */
 
-    public void setXinlilaoshiLvli(String xinlilaoshiLvli) {
-        this.xinlilaoshiLvli = xinlilaoshiLvli;
+    public void setResume(String resume) {
+        this.resume = resume;
     }
     /**
 	 * 设置：心理老师详细介绍
 	 */
-    public String getXinlilaoshiContent() {
-        return xinlilaoshiContent;
+    public String getIntroduction() {
+        return introduction;
     }
 
 
@@ -279,14 +279,14 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：心理老师详细介绍
 	 */
 
-    public void setXinlilaoshiContent(String xinlilaoshiContent) {
-        this.xinlilaoshiContent = xinlilaoshiContent;
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
     }
     /**
 	 * 设置：创建时间  show1 show2 photoShow
 	 */
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
 
@@ -294,8 +294,8 @@ public class XinlilaoshiVO implements Serializable {
 	 * 获取：创建时间  show1 show2 photoShow
 	 */
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
 }

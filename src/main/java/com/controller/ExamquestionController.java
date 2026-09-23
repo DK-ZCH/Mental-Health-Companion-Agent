@@ -73,9 +73,9 @@ public class ExamquestionController {
         if(false)
             return R.error(511,"永不会进入");
         else if("学生".equals(role))
-            params.put("yonghuId",request.getSession().getAttribute("userId"));
+            params.put("studentId",request.getSession().getAttribute("userId"));
         else if("心理老师".equals(role))
-            params.put("xinlilaoshiId",request.getSession().getAttribute("userId"));
+            params.put("counselorId",request.getSession().getAttribute("userId"));
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -103,10 +103,10 @@ public class ExamquestionController {
             BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
 
                 //级联表
-                ExampaperEntity exampaper = exampaperService.selectById(examquestion.getExampaperId());
+                ExampaperEntity exampaper = exampaperService.selectById(examquestion.getPaperId());
                 if(exampaper != null){
-                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createTime", "insertTime", "updateTime"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExampaperId(exampaper.getId());
+                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createdAt", "insertTime", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
+                    view.setPaperId(exampaper.getId());
                 }
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(view, request);
@@ -129,20 +129,20 @@ public class ExamquestionController {
             return R.error(511,"永远不会进入");
 
         Wrapper<ExamquestionEntity> queryWrapper = new EntityWrapper<ExamquestionEntity>()
-            .eq("exampaper_id", examquestion.getExampaperId())
-            .eq("examquestion_name", examquestion.getExamquestionName())
-            .eq("examquestion_options", examquestion.getExamquestionOptions())
-            .eq("examquestion_score", examquestion.getExamquestionScore())
-            .eq("examquestion_answer", examquestion.getExamquestionAnswer())
-            .eq("examquestion_analysis", examquestion.getExamquestionAnalysis())
-            .eq("examquestion_types", examquestion.getExamquestionTypes())
-            .eq("examquestion_sequence", examquestion.getExamquestionSequence())
+            .eq("paper_id", examquestion.getPaperId())
+            .eq("content", examquestion.getContent())
+            .eq("options", examquestion.getOptions())
+            .eq("score", examquestion.getScore())
+            .eq("answer", examquestion.getAnswer())
+            .eq("analysis", examquestion.getAnalysis())
+            .eq("question_type", examquestion.getQuestionType())
+            .eq("sort_order", examquestion.getSortOrder())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamquestionEntity examquestionEntity = examquestionService.selectOne(queryWrapper);
         if(examquestionEntity==null){
-            examquestion.setCreateTime(new Date());
+            examquestion.setCreatedAt(new Date());
             examquestionService.insert(examquestion);
             return R.ok();
         }else {
@@ -164,14 +164,14 @@ public class ExamquestionController {
         Wrapper<ExamquestionEntity> queryWrapper = new EntityWrapper<ExamquestionEntity>()
             .notIn("id",examquestion.getId())
             .andNew()
-            .eq("exampaper_id", examquestion.getExampaperId())
-            .eq("examquestion_name", examquestion.getExamquestionName())
-            .eq("examquestion_options", examquestion.getExamquestionOptions())
-            .eq("examquestion_score", examquestion.getExamquestionScore())
-            .eq("examquestion_answer", examquestion.getExamquestionAnswer())
-            .eq("examquestion_analysis", examquestion.getExamquestionAnalysis())
-            .eq("examquestion_types", examquestion.getExamquestionTypes())
-            .eq("examquestion_sequence", examquestion.getExamquestionSequence())
+            .eq("paper_id", examquestion.getPaperId())
+            .eq("content", examquestion.getContent())
+            .eq("options", examquestion.getOptions())
+            .eq("score", examquestion.getScore())
+            .eq("answer", examquestion.getAnswer())
+            .eq("analysis", examquestion.getAnalysis())
+            .eq("question_type", examquestion.getQuestionType())
+            .eq("sort_order", examquestion.getSortOrder())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
@@ -201,7 +201,7 @@ public class ExamquestionController {
     @RequestMapping("/batchInsert")
     public R save( String fileName, HttpServletRequest request){
         logger.debug("batchInsert方法:,,Controller:{},,fileName:{}",this.getClass().getName(),fileName);
-        Integer yonghuId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
+        Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             List<ExamquestionEntity> examquestionList = new ArrayList<>();//上传的东西
@@ -225,15 +225,15 @@ public class ExamquestionController {
                         for(List<String> data:dataList){
                             //循环
                             ExamquestionEntity examquestionEntity = new ExamquestionEntity();
-//                            examquestionEntity.setExampaperId(Integer.valueOf(data.get(0)));   //所属试卷id（外键） 要改的
-//                            examquestionEntity.setExamquestionName(data.get(0));                    //试题名称 要改的
-//                            examquestionEntity.setExamquestionOptions(data.get(0));                    //选项，json字符串 要改的
-//                            examquestionEntity.setExamquestionScore(Integer.valueOf(data.get(0)));   //分值 要改的
-//                            examquestionEntity.setExamquestionAnswer(data.get(0));                    //正确答案 要改的
-//                            examquestionEntity.setExamquestionAnalysis(data.get(0));                    //答案解析 要改的
-//                            examquestionEntity.setExamquestionTypes(Integer.valueOf(data.get(0)));   //试题类型 要改的
-//                            examquestionEntity.setExamquestionSequence(Integer.valueOf(data.get(0)));   //试题排序，值越大排越前面 要改的
-//                            examquestionEntity.setCreateTime(date);//时间
+//                            examquestionEntity.setPaperId(Integer.valueOf(data.get(0)));   //所属试卷id（外键） 要改的
+//                            examquestionEntity.setContent(data.get(0));                    //试题名称 要改的
+//                            examquestionEntity.setOptions(data.get(0));                    //选项，json字符串 要改的
+//                            examquestionEntity.setScore(Integer.valueOf(data.get(0)));   //分值 要改的
+//                            examquestionEntity.setAnswer(data.get(0));                    //正确答案 要改的
+//                            examquestionEntity.setAnalysis(data.get(0));                    //答案解析 要改的
+//                            examquestionEntity.setQuestionType(Integer.valueOf(data.get(0)));   //试题类型 要改的
+//                            examquestionEntity.setSortOrder(Integer.valueOf(data.get(0)));   //试题排序，值越大排越前面 要改的
+//                            examquestionEntity.setCreatedAt(date);//时间
                             examquestionList.add(examquestionEntity);
 
 
@@ -292,10 +292,10 @@ public class ExamquestionController {
                 BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
 
                 //级联表
-                    ExampaperEntity exampaper = exampaperService.selectById(examquestion.getExampaperId());
+                    ExampaperEntity exampaper = exampaperService.selectById(examquestion.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setExampaperId(exampaper.getId());
+                    view.setPaperId(exampaper.getId());
                 }
                 //修改对应字典表字段
                 dictionaryService.dictionaryConvert(view, request);
@@ -313,19 +313,19 @@ public class ExamquestionController {
     public R add(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
         Wrapper<ExamquestionEntity> queryWrapper = new EntityWrapper<ExamquestionEntity>()
-            .eq("exampaper_id", examquestion.getExampaperId())
-            .eq("examquestion_name", examquestion.getExamquestionName())
-            .eq("examquestion_options", examquestion.getExamquestionOptions())
-            .eq("examquestion_score", examquestion.getExamquestionScore())
-            .eq("examquestion_answer", examquestion.getExamquestionAnswer())
-            .eq("examquestion_analysis", examquestion.getExamquestionAnalysis())
-            .eq("examquestion_types", examquestion.getExamquestionTypes())
-            .eq("examquestion_sequence", examquestion.getExamquestionSequence())
+            .eq("paper_id", examquestion.getPaperId())
+            .eq("content", examquestion.getContent())
+            .eq("options", examquestion.getOptions())
+            .eq("score", examquestion.getScore())
+            .eq("answer", examquestion.getAnswer())
+            .eq("analysis", examquestion.getAnalysis())
+            .eq("question_type", examquestion.getQuestionType())
+            .eq("sort_order", examquestion.getSortOrder())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamquestionEntity examquestionEntity = examquestionService.selectOne(queryWrapper);
         if(examquestionEntity==null){
-            examquestion.setCreateTime(new Date());
+            examquestion.setCreatedAt(new Date());
         examquestionService.insert(examquestion);
             return R.ok();
         }else {
@@ -344,26 +344,26 @@ public class ExamquestionController {
 
         String role = String.valueOf(request.getSession().getAttribute("role"));
         Wrapper<ExamquestionEntity> queryWrapper = new EntityWrapper<ExamquestionEntity>()
-            .eq("exampaper_id", examquestion.getExampaperId())
-            .eq("examquestion_name", examquestion.getExamquestionName())
-            .eq("examquestion_options", examquestion.getExamquestionOptions())
-            .eq("examquestion_score", examquestion.getExamquestionScore())
-            .eq("examquestion_answer", examquestion.getExamquestionAnswer())
-            .eq("examquestion_analysis", examquestion.getExamquestionAnalysis())
-            .eq("examquestion_types", examquestion.getExamquestionTypes())
-            .eq("examquestion_sequence", examquestion.getExamquestionSequence())
+            .eq("paper_id", examquestion.getPaperId())
+            .eq("content", examquestion.getContent())
+            .eq("options", examquestion.getOptions())
+            .eq("score", examquestion.getScore())
+            .eq("answer", examquestion.getAnswer())
+            .eq("analysis", examquestion.getAnalysis())
+            .eq("question_type", examquestion.getQuestionType())
+            .eq("sort_order", examquestion.getSortOrder())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamquestionEntity examquestionEntity = examquestionService.selectOne(queryWrapper);
         if(examquestionEntity==null){
-            examquestion.setCreateTime(new Date());
+            examquestion.setCreatedAt(new Date());
             boolean b = examquestionService.insert(examquestion);
             if(!b){
                 return R.error();
             }
-            ExampaperEntity exampaper = exampaperService.selectById(examquestion.getExampaperId());
-            exampaper.setExampaperMyscore(exampaper.getExampaperMyscore()+examquestion.getExamquestionScore());
+            ExampaperEntity exampaper = exampaperService.selectById(examquestion.getPaperId());
+            exampaper.setTotalScore(exampaper.getTotalScore()+examquestion.getScore());
             boolean b1 = exampaperService.updateById(exampaper);
             if(!b1){
                 return R.error();
@@ -386,35 +386,35 @@ public class ExamquestionController {
         Wrapper<ExamquestionEntity> queryWrapper = new EntityWrapper<ExamquestionEntity>()
             .notIn("id",examquestion.getId())
             .andNew()
-            .eq("exampaper_id", examquestion.getExampaperId())
-            .eq("examquestion_name", examquestion.getExamquestionName())
-            .eq("examquestion_options", examquestion.getExamquestionOptions())
-            .eq("examquestion_score", examquestion.getExamquestionScore())
-            .eq("examquestion_answer", examquestion.getExamquestionAnswer())
-            .eq("examquestion_analysis", examquestion.getExamquestionAnalysis())
-            .eq("examquestion_types", examquestion.getExamquestionTypes())
-            .eq("examquestion_sequence", examquestion.getExamquestionSequence())
+            .eq("paper_id", examquestion.getPaperId())
+            .eq("content", examquestion.getContent())
+            .eq("options", examquestion.getOptions())
+            .eq("score", examquestion.getScore())
+            .eq("answer", examquestion.getAnswer())
+            .eq("analysis", examquestion.getAnalysis())
+            .eq("question_type", examquestion.getQuestionType())
+            .eq("sort_order", examquestion.getSortOrder())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamquestionEntity examquestionEntity = examquestionService.selectOne(queryWrapper);
         if(examquestionEntity==null){
-            ExampaperEntity exampaper = exampaperService.selectById(examquestion.getExampaperId());
+            ExampaperEntity exampaper = exampaperService.selectById(examquestion.getPaperId());
             ExamquestionEntity examquestion1 = examquestionService.selectById(examquestion.getId());
-            if(examquestion1.getExampaperId() != examquestion.getExampaperId()){
+            if(examquestion1.getPaperId() != examquestion.getPaperId()){
                 //当前表的总分数更新
-                exampaper.setExampaperMyscore(exampaper.getExampaperMyscore()+examquestion.getExamquestionScore());
+                exampaper.setTotalScore(exampaper.getTotalScore()+examquestion.getScore());
                 //之前表的数据更新
-                ExampaperEntity exampaper1 = exampaperService.selectById(examquestion1.getExampaperId());
+                ExampaperEntity exampaper1 = exampaperService.selectById(examquestion1.getPaperId());
                 if(exampaper1 != null){
-                    exampaper1.setExampaperMyscore(exampaper1.getExampaperMyscore()-examquestion.getExamquestionScore());
+                    exampaper1.setTotalScore(exampaper1.getTotalScore()-examquestion.getScore());
                     boolean b2 = exampaperService.updateById(exampaper1);
                     if(!b2){
                         return R.error();
                     }
                 }
-            }else if(examquestion1.getExamquestionScore() != examquestion.getExamquestionScore()){
-                exampaper.setExampaperMyscore((exampaper.getExampaperMyscore()-examquestion1.getExamquestionScore())+examquestion.getExamquestionScore());
+            }else if(examquestion1.getScore() != examquestion.getScore()){
+                exampaper.setTotalScore((exampaper.getTotalScore()-examquestion1.getScore())+examquestion.getScore());
             }
             boolean b1 = exampaperService.updateById(exampaper);
             if(!b1){
@@ -445,10 +445,10 @@ public class ExamquestionController {
 
         for (ExamquestionEntity question:examquestionEntities) {
 
-            if(map.containsKey(question.getExampaperId())){
-                map.put(question.getExampaperId(),map.get(question.getExampaperId())+question.getExamquestionScore());
+            if(map.containsKey(question.getPaperId())){
+                map.put(question.getPaperId(),map.get(question.getPaperId())+question.getScore());
             }else{
-                map.put(question.getExampaperId(),question.getExamquestionScore());
+                map.put(question.getPaperId(),question.getScore());
             }
 
         }
@@ -456,7 +456,7 @@ public class ExamquestionController {
         for (ExampaperEntity paper:exampaper) {
             ExampaperEntity exampaperEntity = new ExampaperEntity();
             exampaperEntity.setId(paper.getId());
-            exampaperEntity.setExampaperMyscore(paper.getExampaperMyscore()-map.get(paper.getId()));
+            exampaperEntity.setTotalScore(paper.getTotalScore()-map.get(paper.getId()));
             exampaperList.add(exampaperEntity);
         }
 
