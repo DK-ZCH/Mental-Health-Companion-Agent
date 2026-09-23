@@ -34,3 +34,11 @@ Thumbs.db
 .codebuddy/
 docs/
 /说明文档.txt
+
+# ===== 旧前端与静态资源（暂不纳入仓库）=====
+# 这些文件仍保留在本地工作区，可正常使用；Phase 3 前端重构后再统一决定是否纳入
+src/main/resources/front/
+src/main/resources/static/
+src/main/resources/img/
+# 注：src/main/resources/admin/ 未加入忽略——其中已有 82 个文件被跟踪
+#     （admin/dist 构建产物与工程配置文件），若整体忽略会形成"半跟踪"状态
