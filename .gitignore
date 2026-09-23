@@ -40,5 +40,10 @@ docs/
 src/main/resources/front/
 src/main/resources/static/
 src/main/resources/img/
-# 注：src/main/resources/admin/ 未加入忽略——其中已有 82 个文件被跟踪
+# 注：src/main/resources/admin/ 未整体忽略——其中已有 82 个文件被跟踪
 #     （admin/dist 构建产物与工程配置文件），若整体忽略会形成"半跟踪"状态
+
+# ===== 管理端源码（暂不纳入仓库）=====
+# admin/dist 构建产物与工程配置文件已在仓库中，此处仅排除源码目录
+src/main/resources/admin/admin/src/
+src/main/resources/admin/admin/vue.config.js
