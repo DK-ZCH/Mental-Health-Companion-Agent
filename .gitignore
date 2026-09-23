@@ -1,0 +1,36 @@
+# ===== 构建产物 =====
+target/
+*.class
+
+# ===== IDE / 编辑器 =====
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+
+# ===== Node / 前端依赖 =====
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ===== 日志与临时文件 =====
+*.log
+logs/
+tmp/
+
+# ===== 操作系统 =====
+.DS_Store
+Thumbs.db
+
+# ===== 必须提交的项目资产（请勿忽略） =====
+# src/main/resources/mental_health_companion_agent.sql   数据库初始化脚本
+# src/main/resources/admin/admin/dist/                   后端直接托管的已构建前端产物（运行必需）
+# src/main/resources/static/upload/                      演示图片等运行必需资源
+
+# ===== 不纳入版本控制 =====
+.codebuddy/
+docs/
+/说明文档.txt
