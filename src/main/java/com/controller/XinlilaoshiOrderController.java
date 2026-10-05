@@ -29,6 +29,7 @@ import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
+import com.security.OwnershipGuard;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -95,6 +96,10 @@ public class XinlilaoshiOrderController {
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         XinlilaoshiOrderEntity xinlilaoshiOrder = xinlilaoshiOrderService.getById(id);
+        // Step 5 批1：归属授权 —— 学生匹配 studentId；老师匹配 counselorId；管理员放行
+        OwnershipGuard.assertOwnership(request, xinlilaoshiOrder,
+                xinlilaoshiOrder == null ? null : xinlilaoshiOrder.getStudentId(),
+                xinlilaoshiOrder == null ? null : xinlilaoshiOrder.getCounselorId());
         if(xinlilaoshiOrder !=null){
             //entity转view
             XinlilaoshiOrderView view = new XinlilaoshiOrderView();

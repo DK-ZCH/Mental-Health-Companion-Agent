@@ -29,6 +29,7 @@ import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
+import com.security.OwnershipGuard;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -93,6 +94,8 @@ public class YonghuController {
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         YonghuEntity yonghu = yonghuService.getById(id);
+        // Step 5 批1：归属授权 —— 学生仅可读自己的资料（记录 id 即学生 id）；管理员放行
+        OwnershipGuard.assertOwnership(request, yonghu, id.intValue(), null);
         if(yonghu !=null){
             //entity转view
             YonghuView view = new YonghuView();

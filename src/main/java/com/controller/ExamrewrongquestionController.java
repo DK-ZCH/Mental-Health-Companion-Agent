@@ -29,6 +29,7 @@ import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
+import com.security.OwnershipGuard;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -99,6 +100,10 @@ public class ExamrewrongquestionController {
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         ExamrewrongquestionEntity examrewrongquestion = examrewrongquestionService.getById(id);
+        // Step 5 批1：归属授权 —— 学生匹配 studentId；管理员放行
+        // 注：assessment_wrong_question 无 counselor_id 字段，教师侧归属规则无 schema 依据，暂维持现状
+        OwnershipGuard.assertOwnership(request, examrewrongquestion,
+                examrewrongquestion == null ? null : examrewrongquestion.getStudentId(), null);
         if(examrewrongquestion !=null){
             //entity转view
             ExamrewrongquestionView view = new ExamrewrongquestionView();

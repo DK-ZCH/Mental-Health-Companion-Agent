@@ -23,6 +23,7 @@ import com.entity.UsersEntity;
 import com.service.TokenService;
 import com.utils.MPUtil;
 import com.utils.PageUtils;
+import com.security.OwnershipGuard;
 import com.utils.R;
 
 /**
@@ -118,7 +119,9 @@ public class UsersController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-    public R info(@PathVariable("id") String id){
+    public R info(@PathVariable("id") String id, HttpServletRequest request){
+        // Step 5 批1：归属授权 —— 管理端账号详情仅管理员可访问（学生/老师一律拒绝）
+        OwnershipGuard.assertAdminOnly(request);
         UsersEntity user = usersService.getById(id);
         return R.ok().put("data", user);
     }

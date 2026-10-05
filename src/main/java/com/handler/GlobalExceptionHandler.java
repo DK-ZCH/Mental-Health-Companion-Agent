@@ -1,6 +1,7 @@
 package com.handler;
 
 import com.entity.EIException;
+import com.security.ForbiddenException;
 import com.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,21 @@ public class GlobalExceptionHandler {
         logger.warn("请求参数错误: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(R.error(HttpStatus.BAD_REQUEST.value(), MSG_BAD_REQUEST));
+    }
+
+    /**
+     * 授权失败 → <b>HTTP 403</b>（Step 5 第二阶段批 1 的<b>新增行为契约</b>）。
+     *
+     * <p>与「未认证」严格区分：未认证由拦截器返回 {@code HTTP 200 + body.code=401}（既有契约，不改）；
+     * 已认证但无权访问则返回 {@code HTTP 403 + code=403}。
+     *
+     * @see com.security.OwnershipGuard
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<R> handleForbidden(ForbiddenException e) {
+        logger.warn("授权失败: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(R.error(HttpStatus.FORBIDDEN.value(), e.getMessage()));
     }
 
     /** 资源不存在 → HTTP 404（原先该响应体被拦截器写成 {@code code=401}） */
