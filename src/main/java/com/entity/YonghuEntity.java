@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.FieldFill;
@@ -152,6 +153,7 @@ public class YonghuEntity<T> implements Serializable {
     /**
 	 * 设置：密码
 	 */
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -191,6 +193,7 @@ public class YonghuEntity<T> implements Serializable {
     /**
 	 * 设置：学生身份证号
 	 */
+    @JsonIgnore
     public String getIdCardNo() {
         return idCardNo;
     }

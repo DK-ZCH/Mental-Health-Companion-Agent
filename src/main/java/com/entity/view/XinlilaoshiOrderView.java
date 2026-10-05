@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 心理咨询预约申请
@@ -184,6 +185,7 @@ public class XinlilaoshiOrderView extends XinlilaoshiOrderEntity implements Seri
 					/**
 					* 获取： 学生身份证号
 					*/
+					@JsonIgnore
 					public String getStudentIdCardNo() {
 						return studentIdCardNo;
 					}

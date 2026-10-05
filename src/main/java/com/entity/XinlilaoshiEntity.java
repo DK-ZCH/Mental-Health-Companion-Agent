@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.beans.BeanUtils;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.FieldFill;
@@ -168,6 +169,7 @@ public class XinlilaoshiEntity<T> implements Serializable {
     /**
 	 * 设置：密码
 	 */
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

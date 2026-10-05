@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 错题表
@@ -379,6 +380,7 @@ public class ExamrewrongquestionView extends ExamrewrongquestionEntity implement
 					/**
 					* 获取： 学生身份证号
 					*/
+					@JsonIgnore
 					public String getStudentIdCardNo() {
 						return studentIdCardNo;
 					}
