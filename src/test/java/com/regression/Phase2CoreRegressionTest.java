@@ -8,14 +8,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
  * Phase 2 / T-2：最小回归测试基线
@@ -35,6 +40,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <p><b>基线数据来源</b>：{@code mental_health_companion_agent} 库的种子数据
  * （见 {@code src/main/resources/mental_health_companion_agent.sql}）。
  * 下列常量即<strong>当前的基线数值</strong>；若日后数据变更导致失败，失败本身就是「数据变了」的记录。
+ *
+ * <p><b>用例分组</b>：1–8 为 T-2 基线；<b>9 为 Step 4 异常契约</b>
+ * （EIException / 400 / 404 / 500 / 405 与 {@code /error} 劫持防回归）。
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -271,6 +279,121 @@ class Phase2CoreRegressionTest {
         // 两者成对，才能证明 401 来自「缺少 Token」而非「接口本身坏掉」。
     }
 
+    // ================== 9. 异常契约（Step 4 第二阶段 A1–A4 的自动化固化） ==================
+    //
+    // 背景：改造前，未捕获异常 / 参数错误 / 404 的响应体被鉴权拦截器改写成 {"code":401}，
+    //       导致「服务器错误」被误报为「未登录」（详见 docs/PHASE2-T4-EXCEPTION-AUDIT.md §4.1）。
+    //
+    // 断言语义：以下用例同时断言【HTTP 状态】与【body.code】，且两者必须精确匹配 ——
+    //       只断言其一，都可能漏掉「HTTP 状态正确但 body 被劫持」这类缺陷（改造前正是这种组合）。
+    //       因此「错误响应体不再是 code=401」已被精确状态码断言覆盖，无需额外的 != 401 断言。
+
+    @Test
+    @DisplayName("9a. EIException 业务异常：HTTP 200 + 异常自带 code + 业务提示")
+    void businessException_returnsOkWithBusinessMessage() throws Exception {
+        // 触发源 1：空文件上传（FileController 显式 throw EIException）
+        //
+        // 注意：/file/upload 在生产环境属「拦截器硬编码白名单」，无 Token 也能访问（已由真实 HTTP 实测确认）。
+        // 但该白名单比较的是 request.getServletPath()，而 MockMvc 不会像真实容器那样填充该字段，
+        // 故测试环境下白名单不生效。这里显式带上 Token —— 本用例要固化的是「EIException 的响应契约」，
+        // 不是「鉴权白名单」，带上 Token 可让用例与运行环境无关。
+        MvcResult emptyUpload = mockMvc.perform(multipart("/file/upload")
+                .file(new MockMultipartFile("file", "empty.txt", "text/plain", new byte[0]))
+                .header("Token", studentToken)).andReturn();
+        assertThat(emptyUpload.getResponse().getStatus())
+                .as("业务异常应保持 HTTP 200 —— 两套前端只在 2xx 上显示 msg，返 4xx 会丢失业务提示")
+                .isEqualTo(200);
+        JsonNode b1 = objectMapper.readTree(emptyUpload.getResponse().getContentAsString());
+        assertThat(b1.path("code").asInt()).as("应返回 EIException 自带 code").isEqualTo(500);
+        assertThat(b1.path("msg").asText()).as("应返回可读业务提示").isEqualTo("上传文件不能为空");
+
+        // 触发源 2：SQLFilter 命中关键词（Query → SQLFilter.sqlInject 抛 EIException）
+        MvcResult keyword = perform("/yonghu/page?page=1&limit=" + PAGE_LIMIT + "&sidx=select", studentToken);
+        assertThat(keyword.getResponse().getStatus()).as("业务异常应保持 HTTP 200").isEqualTo(200);
+        JsonNode b2 = objectMapper.readTree(keyword.getResponse().getContentAsString());
+        assertThat(b2.path("code").asInt()).isEqualTo(500);
+        assertThat(b2.path("msg").asText()).isEqualTo("包含非法字符");
+    }
+
+    @Test
+    @DisplayName("9b. 参数/请求错误 → HTTP 400 + code=400（三个触发源）")
+    void badRequest_returns400() throws Exception {
+        assertBadRequest(perform("/file/download", null), "缺少必填参数");
+
+        assertBadRequest(perform("/yonghu/resetPassword?id=abc", studentToken), "参数类型不符");
+
+        assertBadRequest(perform(post("/yonghu/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{bad json")
+                .header("Token", studentToken)), "请求体不可读（非法 JSON）");
+    }
+
+    @Test
+    @DisplayName("9c. 资源不存在 → HTTP 404 + code=404（改造前是被劫持的 code=401）")
+    void notFound_returns404() throws Exception {
+        MvcResult result = perform("/not-exist-xyz", null);
+
+        assertThat(result.getResponse().getStatus()).as("不存在的路径应返回 HTTP 404").isEqualTo(404);
+
+        JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertThat(body.path("code").asInt())
+                .as("body.code 应为 404 —— 改造前这里是 401（错误体被鉴权拦截器劫持）")
+                .isEqualTo(404);
+        assertThat(body.path("msg").asText()).isEqualTo("请求的资源不存在");
+    }
+
+    @Test
+    @DisplayName("9d. 未捕获异常 → HTTP 500 + code=500 且不泄漏内部细节（两个触发源）")
+    void unhandledException_returns500() throws Exception {
+        assertServerError(
+                perform("/yonghu/page?page=1&limit=" + PAGE_LIMIT + "&sidx=not_exist_col&order=asc", studentToken),
+                "排序列不存在（SQL 异常）");
+
+        assertServerError(
+                perform("/yonghu/page?page=abc&limit=" + PAGE_LIMIT, studentToken),
+                "分页参数非数字");
+    }
+
+    @Test
+    @DisplayName("9e. 标准异常保留自带状态码；/error 不再被鉴权劫持（P0 防回归）")
+    void standardExceptionKeepsStatus_andErrorPathIsNotHijacked() throws Exception {
+        // 405：/users/login 只接受 POST。若兜底处理器一律返回 500，本条会失败。
+        MvcResult methodNotAllowed = perform("/users/login", null);
+        assertThat(methodNotAllowed.getResponse().getStatus())
+                .as("应为 405，而不是被兜底处理器吞成 500")
+                .isEqualTo(405);
+        JsonNode body = objectMapper.readTree(methodNotAllowed.getResponse().getContentAsString());
+        assertThat(body.path("code").asInt())
+                .as("body.code 应跟随 HTTP 状态（405），而不是 401")
+                .isEqualTo(405);
+
+        // P0 防回归：/error 是 Spring Boot 内部错误分派路径，必须被拦截器排除。
+        // 若排除项被移除，这里会拿到鉴权拦截器写的 {"code":401}。
+        JsonNode errorBody = objectMapper.readTree(
+                perform("/error", null).getResponse().getContentAsString());
+        assertThat(errorBody.has("status"))
+                .as("/error 应返回 Spring Boot 默认错误结构（防空跑：若响应体形态变了，本条先失败）")
+                .isTrue();
+        assertThat(errorBody.path("code").asInt(-1))
+                .as("/error 不得返回鉴权拦截器的 code=401（拦截器应已排除该路径）")
+                .isNotEqualTo(401);
+    }
+
+    private void assertBadRequest(MvcResult result, String source) throws Exception {
+        assertThat(result.getResponse().getStatus()).as("%s 应返回 HTTP 400", source).isEqualTo(400);
+        JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertThat(body.path("code").asInt()).as("%s 的 body.code 应为 400", source).isEqualTo(400);
+    }
+
+    private void assertServerError(MvcResult result, String source) throws Exception {
+        assertThat(result.getResponse().getStatus()).as("%s 应返回 HTTP 500", source).isEqualTo(500);
+        JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertThat(body.path("code").asInt()).as("%s 的 body.code 应为 500", source).isEqualTo(500);
+        assertThat(body.path("msg").asText())
+                .as("%s 不应向客户端泄漏内部异常细节", source)
+                .isEqualTo("服务器内部错误，请联系管理员");
+    }
+
     // ================== 工具方法 ==================
 
     private MvcResult perform(String uri, String token) throws Exception {
@@ -278,6 +401,10 @@ class Phase2CoreRegressionTest {
         if (token != null) {
             builder = builder.header("Token", token);
         }
+        return perform(builder);
+    }
+
+    private MvcResult perform(RequestBuilder builder) throws Exception {
         return mockMvc.perform(builder).andReturn();
     }
 
