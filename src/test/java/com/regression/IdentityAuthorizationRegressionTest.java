@@ -1,17 +1,27 @@
 package com.regression;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.entity.TokenEntity;
+import com.entity.XinlilaoshiCollectionEntity;
 import com.entity.XinlilaoshiEntity;
+import com.entity.XinlilaoshiLiuyanEntity;
 import com.entity.YonghuEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.service.TokenService;
+import com.service.XinlilaoshiCollectionService;
+import com.service.XinlilaoshiLiuyanService;
 import com.service.XinlilaoshiService;
 import com.service.YonghuService;
+
+import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -60,6 +70,8 @@ class IdentityAuthorizationRegressionTest {
     private static final int UNAUTHENTICATED_BODY_CODE = 401;
     /** 统一拒绝提示语 */
     private static final String DENY_MSG = "无权访问";
+    /** 学生 a1 在 {@code student} 表中的 id（种子数据） */
+    private static final int STUDENT_A1_ID = 1;
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,6 +82,16 @@ class IdentityAuthorizationRegressionTest {
 
     @Autowired
     private XinlilaoshiService xinlilaoshiService;
+
+    /** 批 3B：写路径归属断言所需 */
+    @Autowired
+    private XinlilaoshiLiuyanService xinlilaoshiLiuyanService;
+
+    @Autowired
+    private XinlilaoshiCollectionService xinlilaoshiCollectionService;
+
+    @Autowired
+    private TokenService tokenService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -246,6 +268,114 @@ class IdentityAuthorizationRegressionTest {
         return entity == null ? null : entity.getPassword();
     }
 
+    // ================== 12–16. 批 3B：写路径归属授权 ==================
+
+    @Test
+    @DisplayName("12. 学生修改【自己】的记录：成功，且客户端伪造的 studentId 被忽略（服务端强制本人）")
+    void studentCanUpdateOwnRecord_andForgedOwnerIsIgnored() throws Exception {
+        // 留言 id2 属 student 1（a1 自己）；请求体里故意伪造 studentId=2
+        assertThat(messageOwner(2)).as("前置条件：留言 id2 应属 student 1").isEqualTo(STUDENT_A1_ID);
+
+        assertAllowed(postJson("/xinlilaoshiLiuyan/update", studentToken, "{\"id\":2,\"studentId\":2}"),
+                "学生修改自己的留言");
+
+        assertThat(messageOwner(2))
+                .as("客户端伪造 studentId=2 必须被忽略：库中归属应仍为当前学生 %d", STUDENT_A1_ID)
+                .isEqualTo(STUDENT_A1_ID);
+    }
+
+    @Test
+    @DisplayName("13. 学生修改【他人】的记录：403，且数据库不变")
+    void studentCannotUpdateOthersRecord() throws Exception {
+        int beforeMessageOwner = messageOwner(1);
+        int beforeFavoriteOwner = favoriteOwner(1);
+        assertThat(beforeMessageOwner).as("前置条件：留言 id1 应属 student 2").isEqualTo(2);
+        assertThat(beforeFavoriteOwner).as("前置条件：收藏 id1 应属 student 3").isEqualTo(3);
+
+        assertDenied(postJson("/xinlilaoshiLiuyan/update", studentToken, "{\"id\":1,\"studentId\":1}"),
+                "学生修改他人留言");
+        assertDenied(postJson("/xinlilaoshiCollection/update", studentToken, "{\"id\":1,\"studentId\":1}"),
+                "学生修改他人收藏");
+
+        assertThat(messageOwner(1)).as("越权请求不得改动他人留言").isEqualTo(beforeMessageOwner);
+        assertThat(favoriteOwner(1)).as("越权请求不得改动他人收藏").isEqualTo(beforeFavoriteOwner);
+    }
+
+    @Test
+    @DisplayName("14. 管理员代目标学生修改：其显式 studentId 被保留（不得被覆盖成管理员自己）")
+    void adminTargetStudentIsPreserved() throws Exception {
+        // 用测试自建记录，避免污染种子数据（跑完即删）
+        XinlilaoshiLiuyanEntity fixture = new XinlilaoshiLiuyanEntity();
+        fixture.setStudentId(STUDENT_A1_ID);
+        fixture.setCounselorId(1);
+        xinlilaoshiLiuyanService.save(fixture);
+        Integer fixtureId = fixture.getId();
+        try {
+            assertAllowed(postJson("/xinlilaoshiLiuyan/update", adminToken,
+                            "{\"id\":" + fixtureId + ",\"studentId\":3}"),
+                    "管理员代表目标学生修改");
+
+            assertThat(messageOwner(fixtureId))
+                    .as("管理员显式指定的目标学生(3)必须被保留 —— 这正是 /update 的注释覆盖不可机械恢复的原因")
+                    .isEqualTo(3);
+        } finally {
+            xinlilaoshiLiuyanService.removeById(fixtureId);
+        }
+    }
+
+    @Test
+    @DisplayName("15. 两个 /add：客户端伪造 studentId → 数据库仍写入 Session 当前学生")
+    void addEndpointsAlwaysStampCurrentStudent() throws Exception {
+        // 学生 a1 伪造 studentId=3 提交留言与收藏（服务端应强制写为 1）
+        assertAllowed(postJson("/xinlilaoshiLiuyan/add", studentToken,
+                "{\"studentId\":3,\"counselorId\":3}"), "伪造归属提交留言");
+        assertAllowed(postJson("/xinlilaoshiCollection/add", studentToken,
+                "{\"studentId\":3,\"counselorId\":3,\"favoriteType\":2}"), "伪造归属提交收藏");
+
+        QueryWrapper<XinlilaoshiLiuyanEntity> messageQuery = new QueryWrapper<XinlilaoshiLiuyanEntity>()
+                .eq("student_id", STUDENT_A1_ID).eq("counselor_id", 3);
+        QueryWrapper<XinlilaoshiCollectionEntity> favoriteQuery = new QueryWrapper<XinlilaoshiCollectionEntity>()
+                .eq("student_id", STUDENT_A1_ID).eq("counselor_id", 3).eq("favorite_type", 2);
+        try {
+            // 种子数据中不存在 (当前学生, 老师3) 的留言/收藏 —— 若伪造生效，这里会查不到记录
+            assertThat(xinlilaoshiLiuyanService.getOne(messageQuery))
+                    .as("留言应以 Session 当前学生 %d 落库（伪造的 studentId=3 被忽略）", STUDENT_A1_ID)
+                    .isNotNull();
+            assertThat(xinlilaoshiCollectionService.getOne(favoriteQuery))
+                    .as("收藏应以 Session 当前学生 %d 落库（伪造的 studentId=3 被忽略）", STUDENT_A1_ID)
+                    .isNotNull();
+        } finally {
+            xinlilaoshiLiuyanService.remove(messageQuery);
+            xinlilaoshiCollectionService.remove(favoriteQuery);
+        }
+    }
+
+    @Test
+    @DisplayName("16. 未知角色：读与写一律默认拒绝（fail-closed，不得默认全量）")
+    void unknownRoleIsDenied() throws Exception {
+        // 真实 token 表驱动的未知角色（跑完即删）；用于证明「未登记角色」不会获得任何权限
+        String unknownToken = "batch3b-unknown-role-token";
+        tokenService.save(new TokenEntity(STUDENT_A1_ID, "a1", "student", "未知角色", unknownToken,
+                new Date(System.currentTimeMillis() + 3_600_000L)));
+        try {
+            assertDenied(postJson("/xinlilaoshiLiuyan/update", unknownToken, "{\"id\":2,\"studentId\":1}"),
+                    "未知角色执行写操作");
+            assertDenied(perform("/xinlilaoshiLiuyan/info/2", unknownToken), "未知角色执行读操作");
+        } finally {
+            tokenService.remove(new QueryWrapper<TokenEntity>().eq("token", unknownToken));
+        }
+    }
+
+    private int messageOwner(int id) {
+        XinlilaoshiLiuyanEntity entity = xinlilaoshiLiuyanService.getById(id);
+        return entity == null ? -1 : entity.getStudentId();
+    }
+
+    private int favoriteOwner(int id) {
+        XinlilaoshiCollectionEntity entity = xinlilaoshiCollectionService.getById(id);
+        return entity == null ? -1 : entity.getStudentId();
+    }
+
     // ================== 工具方法 ==================
 
     private void assertAllowed(MvcResult result, String label) throws Exception {
@@ -274,6 +404,17 @@ class IdentityAuthorizationRegressionTest {
 
     private MvcResult perform(String uri, String token) throws Exception {
         MockHttpServletRequestBuilder builder = get(uri);
+        if (token != null) {
+            builder = builder.header("Token", token);
+        }
+        return mockMvc.perform(builder).andReturn();
+    }
+
+    /** 发 JSON POST（写路径用例用） */
+    private MvcResult postJson(String uri, String token, String json) throws Exception {
+        MockHttpServletRequestBuilder builder = post(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json);
         if (token != null) {
             builder = builder.header("Token", token);
         }

@@ -4,6 +4,9 @@ import com.interceptor.AuthorizationInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 对象归属授权守卫（Phase 2 / Step 5 第二阶段 <b>批 1</b>）。
  *
@@ -39,6 +42,8 @@ public final class OwnershipGuard {
     public static final String ROLE_ADMIN = "管理员";
     public static final String ROLE_STUDENT = "学生";
     public static final String ROLE_COUNSELOR = "心理老师";
+
+    private static final Logger logger = LoggerFactory.getLogger(OwnershipGuard.class);
 
     private OwnershipGuard() {
     }
@@ -114,6 +119,138 @@ public final class OwnershipGuard {
             return;
         }
         deny();
+    }
+
+    // ================== 写路径（Step 5 批 3B） ==================
+
+    /**
+     * 写路径允许管理员**代表目标用户**执行的【具名业务操作】。
+     *
+     * <p><b>为什么必须这样设计</b>：管理员确实会代表目标学生写数据 ——
+     * 证据是管理端表单里的目标学生选择器
+     * （{@code <el-select v-model="ruleForm.studentId" placeholder="请选择学生">}，
+     * 见 {@code examrecord/add-or-update.vue:65} 等，取证于 {@code PHASE2-T5B3A-WRITE-PATH-AUDIT.md}）。
+     *
+     * <p>但这**不能**退化成「管理员可以写任何数据」的万能绕过。因此这里要求调用方
+     * **显式声明操作名**：未登记的操作拿不到授权，新增管理端写入口必须在此显式登记。
+     * 表达的是「管理员被明确授权执行【该具名业务操作】」，
+     * 而不是「{@code if (role == 管理员) return true;}」。
+     */
+    public enum AdminWriteOperation {
+        /** 管理端编辑咨询预约（管理员可选择目标学生） */
+        UPDATE_APPOINTMENT("编辑咨询预约"),
+        /** 管理端编辑咨询留言 */
+        UPDATE_MESSAGE("编辑咨询留言"),
+        /** 管理端编辑咨询收藏 */
+        UPDATE_FAVORITE("编辑咨询收藏"),
+        /** 管理端编辑测评记录 */
+        UPDATE_ASSESSMENT_RECORD("编辑测评记录"),
+        /** 管理端编辑答题明细 */
+        UPDATE_ASSESSMENT_DETAIL("编辑答题明细"),
+        /** 管理端编辑错题 */
+        UPDATE_WRONG_QUESTION("编辑错题"),
+        /**
+         * 用户端提交咨询留言。
+         * 批 3A 取证：**未发现管理端调用**；此处登记仅为「保持现状、不破坏既有能力」，
+         * 不等于已确认管理端需要该权限 —— 若后续确认无此需求，应收紧为拒绝。
+         */
+        ADD_MESSAGE("提交咨询留言"),
+        /** 用户端提交咨询收藏（同上，未发现管理端调用） */
+        ADD_FAVORITE("提交咨询收藏");
+
+        private final String label;
+
+        AdminWriteOperation(String label) {
+            this.label = label;
+        }
+
+        /** 用于审计日志与错误提示的可读名 */
+        public String label() {
+            return label;
+        }
+    }
+
+    /**
+     * 写路径·目标记录**可写性**判定（{@code /update} 使用）。
+     *
+     * <p>与读路径的 {@link #assertOwnership} 规则<b>刻意不同</b>：教师侧的写授权规则
+     * <b>尚无证据</b>（批 3A 结论），且已明确**并入批 4** —— 故此处对心理老师
+     * <b>保持现状（放行、不收紧）</b>，避免「为修安全问题凭空创造业务规则」。
+     *
+     * <table border="1">
+     *   <caption>写路径目标可写性</caption>
+     *   <tr><th>角色</th><th>判定</th></tr>
+     *   <tr><td>{@code 管理员}</td><td>放行（但记录必须存在）</td></tr>
+     *   <tr><td>{@code 学生}</td><td>目标记录的 {@code studentId} 必须等于当前用户，否则拒绝</td></tr>
+     *   <tr><td>{@code 心理老师}</td><td><b>保持现状放行</b>（写授权规则 → 批 4）</td></tr>
+     *   <tr><td>其他 / null</td><td><b>拒绝</b>（fail-closed）</td></tr>
+     * </table>
+     *
+     * @param target 已按 id 查出的**现有记录**；为 {@code null} 表示记录不存在 → 一律拒绝
+     */
+    public static void assertWritableTarget(HttpServletRequest request, Object target,
+                                            Integer ownerStudentId, Integer ownerCounselorId) {
+        String role = currentRole(request);
+        Integer currentUserId = currentUserId(request);
+
+        if (ROLE_ADMIN.equals(role)) {
+            if (target == null) {
+                deny();
+            }
+            return;
+        }
+        if (ROLE_STUDENT.equals(role)) {
+            if (target != null && currentUserId != null && currentUserId.equals(ownerStudentId)) {
+                return;
+            }
+            deny();
+        }
+        if (ROLE_COUNSELOR.equals(role)) {
+            // 批 3B：教师侧写授权待批 4 取证 → 保持现状（不收紧、不拒绝）
+            return;
+        }
+        deny();
+    }
+
+    /**
+     * 写路径·解析本次写入**应落地的归属用户 id**。
+     *
+     * <p>语义（服务端说了算，而不是「客户端提交什么就是什么」）：
+     * <ul>
+     *   <li><b>学生</b> → 一律强制为**当前用户**：客户端伪造的 {@code studentId} 被忽略
+     *       （安全前提：目标记录的可写性已由 {@link #assertWritableTarget} 判定）</li>
+     *   <li><b>管理员</b> → 必须声明**具名操作**（{@link AdminWriteOperation}）方可代表目标用户；
+     *       保留其显式目标（未提交则返回 {@code null}，表示不动该字段）</li>
+     *   <li><b>心理老师</b> → 保持现状（写授权规则 → 批 4）</li>
+     *   <li><b>其他 / null</b> → 拒绝（fail-closed）</li>
+     * </ul>
+     */
+    public static Integer resolveWriteOwner(HttpServletRequest request,
+                                            AdminWriteOperation operation,
+                                            Integer submittedOwnerId) {
+        String role = currentRole(request);
+
+        if (ROLE_STUDENT.equals(role)) {
+            Integer currentUserId = currentUserId(request);
+            if (currentUserId == null) {
+                deny();
+            }
+            return currentUserId;
+        }
+        if (ROLE_ADMIN.equals(role)) {
+            if (operation == null) {
+                deny();
+            }
+            logger.info("写路径授权：管理员以具名操作[{}]代表目标用户 {} 执行写入",
+                    operation.label(), submittedOwnerId);
+            return submittedOwnerId;
+        }
+        if (ROLE_COUNSELOR.equals(role)) {
+            // 批 3B：教师侧保持现状（登记批 4）
+            return submittedOwnerId;
+        }
+        deny();
+        return null; // 不可达（deny 抛异常）
     }
 
     /** 当前登录用户 id（来自 Session；未登录时由拦截器保证不会走到这里） */

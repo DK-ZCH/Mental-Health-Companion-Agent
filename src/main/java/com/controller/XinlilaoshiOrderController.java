@@ -154,13 +154,17 @@ public class XinlilaoshiOrderController {
     public R update(@RequestBody XinlilaoshiOrderEntity xinlilaoshiOrder, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,xinlilaoshiOrder:{}",this.getClass().getName(),xinlilaoshiOrder.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
-//        if(false)
-//            return R.error(511,"永远不会进入");
-//        else if("心理老师".equals(role))
-//            xinlilaoshiOrder.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
-//        else if("学生".equals(role))
-//            xinlilaoshiOrder.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+        // Step 5 批3B：写路径归属授权（此前整个 role 分支被注释 → /update 完全采信客户端实体）
+        // ① 目标记录必须可写：学生仅限自己的记录（否则 403）；管理员放行；心理老师暂保持现状（→ 批 4）
+        XinlilaoshiOrderEntity existing = xinlilaoshiOrder.getId() == null ? null
+                : xinlilaoshiOrderService.getById(xinlilaoshiOrder.getId());
+        OwnershipGuard.assertWritableTarget(request, existing,
+                existing == null ? null : existing.getStudentId(),
+                existing == null ? null : existing.getCounselorId());
+        // ② 归属由服务端决定：学生强制本人（客户端伪造的 studentId 被忽略）；管理员保留其显式目标
+        //    注：counselorId 属 C 类「页面选择的目标老师」，本批保留客户端值（批 4 一并处理）
+        xinlilaoshiOrder.setStudentId(OwnershipGuard.resolveWriteOwner(request,
+                OwnershipGuard.AdminWriteOperation.UPDATE_APPOINTMENT, xinlilaoshiOrder.getStudentId()));
         //根据字段查询是否有相同数据
         QueryWrapper<XinlilaoshiOrderEntity> queryWrapper = new QueryWrapper<XinlilaoshiOrderEntity>()
             .eq("id",0)

@@ -167,11 +167,15 @@ public class ExamredetailsController {
     public R update(@RequestBody ExamredetailsEntity examredetails, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,examredetails:{}",this.getClass().getName(),examredetails.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
-//        if(false)
-//            return R.error(511,"永远不会进入");
-//        else if("学生".equals(role))
-//            examredetails.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+        // Step 5 批3B：写路径归属授权（此前整个 role 分支被注释 → /update 完全采信客户端实体）
+        // ① 目标记录必须可写：学生仅限自己的记录（否则 403）；管理员放行；心理老师暂保持现状（→ 批 4）
+        ExamredetailsEntity existing = examredetails.getId() == null ? null
+                : examredetailsService.getById(examredetails.getId());
+        OwnershipGuard.assertWritableTarget(request, existing,
+                existing == null ? null : existing.getStudentId(), null);
+        // ② 归属由服务端决定：学生强制本人（客户端伪造的 studentId 被忽略）；管理员保留其显式目标
+        examredetails.setStudentId(OwnershipGuard.resolveWriteOwner(request,
+                OwnershipGuard.AdminWriteOperation.UPDATE_ASSESSMENT_DETAIL, examredetails.getStudentId()));
         //根据字段查询是否有相同数据
         QueryWrapper<ExamredetailsEntity> queryWrapper = new QueryWrapper<ExamredetailsEntity>()
             .notIn("id",examredetails.getId()).and(w -> w
