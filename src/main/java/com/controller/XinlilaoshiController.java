@@ -29,6 +29,7 @@ import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
+import com.security.OwnershipGuard;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -322,7 +323,9 @@ public class XinlilaoshiController {
      * 重置密码
      */
     @GetMapping(value = "/resetPassword")
-    public R resetPassword(Integer  id){
+    public R resetPassword(Integer  id, HttpServletRequest request){
+        // Step 5 批2：归属授权 —— 管理端「重置密码」按钮的调用目标（xinlilaoshi/list.vue:750）→ 限管理员
+        OwnershipGuard.assertAdminOnly(request);
         XinlilaoshiEntity xinlilaoshi = new XinlilaoshiEntity();
         xinlilaoshi.setPassword("123456");
         xinlilaoshi.setId(id);

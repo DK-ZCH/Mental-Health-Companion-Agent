@@ -347,7 +347,10 @@ public class YonghuController {
      * 重置密码
      */
     @GetMapping(value = "/resetPassword")
-    public R resetPassword(Integer  id){
+    public R resetPassword(Integer  id, HttpServletRequest request){
+        // Step 5 批2：归属授权 —— 该接口是管理端「重置密码」按钮的调用目标（yonghu/list.vue:738），
+        // 属合法管理功能 → 限管理员；学生/老师调用一律 403（原先任一登录学生可重置他人密码 = 账户接管）
+        OwnershipGuard.assertAdminOnly(request);
         YonghuEntity yonghu = new YonghuEntity();
         yonghu.setPassword("123456");
         yonghu.setId(id);
