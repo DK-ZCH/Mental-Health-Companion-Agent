@@ -78,6 +78,32 @@ class Phase2CoreRegressionTest {
     };
 
     /**
+     * 受保护接口清单（无 {@code @IgnoreAuth}，且不在拦截器硬编码白名单中）。
+     *
+     * <p>用于断言「无 Token → 拒绝访问」。<b>注意当前实现形态</b>：
+     * {@code AuthorizationInterceptor} 只把 {@code {"code":401,"msg":"请先登录"}} 写进响应体，
+     * <b>并不设置 HTTP 状态码</b>，所以实测是 <b>HTTP 200 + body {@code code=401}</b>。
+     *
+     * <p>因此这里<b>只断言 body 的 {@code code}</b>、<b>刻意不断言 HTTP 状态</b> ——
+     * 将来若把状态码修正为标准的 401，本测试不会被误伤。
+     *
+     * <p>另：{@code /yonghu/list}、{@code /exampaper/list}、{@code /dictionary/page} 属免鉴权路径，
+     * 是否收紧属**待决策 D2**（匿名 /list 是否收敛），故本测试<b>不对它们做任何断言</b>。
+     */
+    private static final String[] TOKEN_PROTECTED_ENDPOINTS = {
+            "/yonghu/page?page=1&limit=" + PAGE_LIMIT,
+            "/yonghu/info/1",
+            "/users/page?page=1&limit=" + PAGE_LIMIT,
+            "/users/list",
+            "/xinlilaoshi/page?page=1&limit=" + PAGE_LIMIT,
+            "/exampaper/page?page=1&limit=" + PAGE_LIMIT,
+            "/tongzhi/page?page=1&limit=" + PAGE_LIMIT,
+            "/examrecord/page?page=1&limit=" + PAGE_LIMIT,
+            "/examredetails/page?page=1&limit=" + PAGE_LIMIT,
+            "/xinlilaoshiOrder/page?page=1&limit=" + PAGE_LIMIT
+    };
+
+    /**
      * 需要检查「不得出现敏感字段」的分页接口清单。
      * 其中后 6 个是**关联字段泄露**的来源（{@code studentIdCardNo} 等），Step 3 已修复。
      */
@@ -223,6 +249,26 @@ class Phase2CoreRegressionTest {
                     .as("端点 %s 应保持 404（不得因测试/开发需要而恢复）", uri)
                     .isEqualTo(404);
         }
+    }
+
+    // ================== 8. 鉴权 ==================
+
+    @Test
+    @DisplayName("8. 鉴权：无 Token 访问受保护接口被拒绝（body code=401）")
+    void protectedEndpoints_withoutToken_areRejected() throws Exception {
+        for (String uri : TOKEN_PROTECTED_ENDPOINTS) {
+            MvcResult result = perform(uri, null);
+            JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+
+            assertThat(body.path("code").asInt())
+                    .as("无 Token 访问 %s 应被拒绝（body.code=401）", uri)
+                    .isEqualTo(401);
+            assertThat(body.path("msg").asText())
+                    .as("无 Token 访问 %s 应提示「请先登录」", uri)
+                    .contains("请先登录");
+        }
+        // 配套对照：同一批接口在【带 Token】时可通过 —— 已由用例 2/3/4/5/6a 覆盖。
+        // 两者成对，才能证明 401 来自「缺少 Token」而非「接口本身坏掉」。
     }
 
     // ================== 工具方法 ==================
