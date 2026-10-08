@@ -268,8 +268,12 @@ public final class OwnershipGuard {
      * 若只判「id 相等」，一个 id 恰好相同的老师就能改学生资料（反之亦然）——这是跨角色串位。
      *
      * <p><b>本方法闭合的真实风险</b>：改造前 {@code /yonghu/update}、{@code /xinlilaoshi/update}
-     * 无任何授权且客户端实体被整体采信 → <b>任一登录账号（含老师）可改他人资料、含 {@code password} 字段</b>
-     * → 与批 2「重置密码限管理员」的目标冲突（等于绕开批 2）。批 3A 曾因缺业务规则而暂缓，Q2 已给出规则。
+     * 无任何授权且客户端实体被整体采信 → <b>任一登录账号（含老师）可提交他人 id 篡改其可绑定资料字段</b>
+     * （{@code name} / {@code phone} / {@code email} / {@code avatarUrl} 等）= <b>对象级授权缺失（IDOR）</b>。
+     *
+     * <p><b>措辞更正（2026-10-08 复核）</b>：{@code password} 因 {@code getPassword()} 标注
+     * {@code @JsonIgnore} 而<b>不会从 JSON 绑定</b>（见 ADR-0001），故该路径<b>改不了密码</b>，
+     * 也**不构成对批 2「重置密码限管理员」的绕过** —— 原表述已更正。
      *
      * @param selfRole 该模块允许「自助」的角色（如 {@code /yonghu/update} → 学生）
      * @param existing 已按 id 查出的现有记录；为 {@code null}（记录不存在）→ 一律拒绝

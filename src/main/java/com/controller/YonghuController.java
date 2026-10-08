@@ -145,10 +145,14 @@ public class YonghuController {
         logger.debug("update方法:,,Controller:{},,yonghu:{}",this.getClass().getName(),yonghu.toString());
 
         // Step 5 批4-B：资料更新授权（业务规则 Q2）—— 管理员放行（管理端编辑）/ 学生仅限【本人】/ 老师与其他拒绝
-        // 闭合「任一登录账号可改他人资料（含 password 字段）」的越权路径，与批 2「重置密码限管理员」保持一致
+        // 闭合的越权路径：改造前无任何授权校验，任一登录账号都可提交他人 id 并篡改其【可绑定】资料字段
+        //   （name / phone / email / avatarUrl 等 = 对象级授权缺失 IDOR）。
+        // 复核更正（2026-10-08）：password 因 getPassword() 标注 @JsonIgnore【不会从 JSON 绑定】，
+        //   不属本路径可改字段，故「可改他人密码」「绕开批 2」的原表述不准确 → 见 ADR-0001 与 PHASE2-T5B4B-REPORT.md §5.3。
         YonghuEntity existing = yonghu.getId() == null ? null : yonghuService.getById(yonghu.getId());
         OwnershipGuard.assertSelfOrAdmin(request, OwnershipGuard.ROLE_STUDENT, yonghu.getId(), existing);
-        // Q2：学号（username）、性别（gender）、身份证号（idCardNo）属固定身份信息 → 自助更新时由服务端恢复库中现值
+        // Q2：学号（username）、性别（gender）可绑定，故必须由服务端恢复库中现值；
+        //     idCardNo 已是 @JsonIgnore（本就不绑定），这里的恢复属【纵深防御】——依据 ADR-0001（非 Q2 命名字段）。
         //     （管理员路径保持现状，不削减其编辑能力）
         if (OwnershipGuard.ROLE_STUDENT.equals(OwnershipGuard.currentRole(request))) {
             yonghu.setUsername(existing.getUsername());
