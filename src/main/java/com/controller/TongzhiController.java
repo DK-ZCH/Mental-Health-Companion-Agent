@@ -112,7 +112,7 @@ public class TongzhiController {
     public R save(@RequestBody TongzhiEntity tongzhi, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,tongzhi:{}",this.getClass().getName(),tongzhi.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
         if(false)
             return R.error(511,"永远不会进入");
 
@@ -140,7 +140,7 @@ public class TongzhiController {
     public R update(@RequestBody TongzhiEntity tongzhi, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,tongzhi:{}",this.getClass().getName(),tongzhi.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据

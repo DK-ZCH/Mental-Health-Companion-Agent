@@ -120,7 +120,7 @@ public class ExamquestionController {
     public R save(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
         if(false)
             return R.error(511,"永远不会进入");
 
@@ -153,7 +153,7 @@ public class ExamquestionController {
     public R update(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
@@ -337,7 +337,7 @@ public class ExamquestionController {
     public R saveExamquestion(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
         QueryWrapper<ExamquestionEntity> queryWrapper = new QueryWrapper<ExamquestionEntity>()
             .eq("paper_id", examquestion.getPaperId())
             .eq("content", examquestion.getContent())
@@ -376,7 +376,7 @@ public class ExamquestionController {
     public R updateExamquestion(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
         //根据字段查询是否有相同数据
         QueryWrapper<ExamquestionEntity> queryWrapper = new QueryWrapper<ExamquestionEntity>()
             .notIn("id",examquestion.getId()).and(w -> w

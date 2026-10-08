@@ -113,7 +113,7 @@ public class ExampaperController {
     public R save(@RequestBody ExampaperEntity exampaper, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,exampaper:{}",this.getClass().getName(),exampaper.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
         if(false)
             return R.error(511,"永远不会进入");
 
@@ -144,7 +144,7 @@ public class ExampaperController {
     public R update(@RequestBody ExampaperEntity exampaper, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,exampaper:{}",this.getClass().getName(),exampaper.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据

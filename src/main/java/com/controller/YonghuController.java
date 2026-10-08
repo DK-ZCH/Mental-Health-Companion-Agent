@@ -113,7 +113,7 @@ public class YonghuController {
     public R save(@RequestBody YonghuEntity yonghu, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,yonghu:{}",this.getClass().getName(),yonghu.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
         if(false)
             return R.error(511,"永远不会进入");
 

@@ -111,7 +111,7 @@ public class XinlilaoshiController {
     public R save(@RequestBody XinlilaoshiEntity xinlilaoshi, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+
         if(false)
             return R.error(511,"永远不会进入");
 
