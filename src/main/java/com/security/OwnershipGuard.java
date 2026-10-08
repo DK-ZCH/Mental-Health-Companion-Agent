@@ -253,6 +253,46 @@ public final class OwnershipGuard {
         return null; // 不可达（deny 抛异常）
     }
 
+    /**
+     * 自助资料更新授权（Step 5 批 4-B，业务规则来自需求方答复 Q2）。
+     *
+     * <table border="1">
+     *   <caption>资料更新授权</caption>
+     *   <tr><th>角色</th><th>判定</th></tr>
+     *   <tr><td>{@code 管理员}</td><td><b>放行</b>（管理端编辑用户资料，B 类；保持现状）</td></tr>
+     *   <tr><td>{@code selfRole}（该模块对应的自助角色）</td><td>目标必须<b>是本人</b>（{@code targetId == 当前用户}），否则拒绝</td></tr>
+     *   <tr><td>其他（含<b>跨角色</b>：老师改学生资料等）</td><td><b>拒绝</b></td></tr>
+     * </table>
+     *
+     * <p><b>为什么必须角色匹配</b>：{@code yonghu.id} 与 {@code xinlilaoshi.id} 是两张表的独立 id 空间，
+     * 若只判「id 相等」，一个 id 恰好相同的老师就能改学生资料（反之亦然）——这是跨角色串位。
+     *
+     * <p><b>本方法闭合的真实风险</b>：改造前 {@code /yonghu/update}、{@code /xinlilaoshi/update}
+     * 无任何授权且客户端实体被整体采信 → <b>任一登录账号（含老师）可改他人资料、含 {@code password} 字段</b>
+     * → 与批 2「重置密码限管理员」的目标冲突（等于绕开批 2）。批 3A 曾因缺业务规则而暂缓，Q2 已给出规则。
+     *
+     * @param selfRole 该模块允许「自助」的角色（如 {@code /yonghu/update} → 学生）
+     * @param existing 已按 id 查出的现有记录；为 {@code null}（记录不存在）→ 一律拒绝
+     */
+    public static void assertSelfOrAdmin(HttpServletRequest request, String selfRole,
+                                         Integer targetId, Object existing) {
+        if (existing == null) {
+            deny();
+        }
+        String role = currentRole(request);
+        if (ROLE_ADMIN.equals(role)) {
+            return;
+        }
+        if (selfRole != null && selfRole.equals(role)) {
+            Integer currentUserId = currentUserId(request);
+            if (currentUserId != null && currentUserId.equals(targetId)) {
+                return;
+            }
+            deny();
+        }
+        deny();
+    }
+
     /** 当前登录用户 id（来自 Session；未登录时由拦截器保证不会走到这里） */
     public static Integer currentUserId(HttpServletRequest request) {
         Object v = request.getSession().getAttribute("userId");

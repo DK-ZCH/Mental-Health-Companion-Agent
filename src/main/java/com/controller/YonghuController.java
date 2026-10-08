@@ -144,9 +144,17 @@ public class YonghuController {
     public R update(@RequestBody YonghuEntity yonghu, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,yonghu:{}",this.getClass().getName(),yonghu.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
-//        if(false)
-//            return R.error(511,"永远不会进入");
+        // Step 5 批4-B：资料更新授权（业务规则 Q2）—— 管理员放行（管理端编辑）/ 学生仅限【本人】/ 老师与其他拒绝
+        // 闭合「任一登录账号可改他人资料（含 password 字段）」的越权路径，与批 2「重置密码限管理员」保持一致
+        YonghuEntity existing = yonghu.getId() == null ? null : yonghuService.getById(yonghu.getId());
+        OwnershipGuard.assertSelfOrAdmin(request, OwnershipGuard.ROLE_STUDENT, yonghu.getId(), existing);
+        // Q2：学号（username）、性别（gender）、身份证号（idCardNo）属固定身份信息 → 自助更新时由服务端恢复库中现值
+        //     （管理员路径保持现状，不削减其编辑能力）
+        if (OwnershipGuard.ROLE_STUDENT.equals(OwnershipGuard.currentRole(request))) {
+            yonghu.setUsername(existing.getUsername());
+            yonghu.setGender(existing.getGender());
+            yonghu.setIdCardNo(existing.getIdCardNo());
+        }
         //根据字段查询是否有相同数据
         QueryWrapper<YonghuEntity> queryWrapper = new QueryWrapper<YonghuEntity>()
             .notIn("id",yonghu.getId()).and(w -> w

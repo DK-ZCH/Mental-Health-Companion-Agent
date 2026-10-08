@@ -140,9 +140,16 @@ public class XinlilaoshiController {
     public R update(@RequestBody XinlilaoshiEntity xinlilaoshi, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
-//        if(false)
-//            return R.error(511,"永远不会进入");
+        // Step 5 批4-B：资料更新授权（业务规则 Q2）—— 管理员放行（管理端编辑）/ 心理老师仅限【本人】/ 学生与其他拒绝
+        // Q1 取证结论：老师对业务数据没有写入口（回复留言由管理员在管理端完成），故老师不可改他人资料
+        XinlilaoshiEntity existing = xinlilaoshi.getId() == null ? null : xinlilaoshiService.getById(xinlilaoshi.getId());
+        OwnershipGuard.assertSelfOrAdmin(request, OwnershipGuard.ROLE_COUNSELOR, xinlilaoshi.getId(), existing);
+        // Q2：工号（username）、性别（gender）属固定身份信息 → 自助更新时由服务端恢复库中现值；
+        //     expertise / resume / introduction（个人描述）等非固定信息允许本人修改
+        if (OwnershipGuard.ROLE_COUNSELOR.equals(OwnershipGuard.currentRole(request))) {
+            xinlilaoshi.setUsername(existing.getUsername());
+            xinlilaoshi.setGender(existing.getGender());
+        }
         //根据字段查询是否有相同数据
         QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
             .notIn("id",xinlilaoshi.getId()).and(w -> w

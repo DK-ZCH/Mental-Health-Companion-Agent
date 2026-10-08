@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
- * Phase 2 / Step 5 第二阶段 <b>批 1 + 批 2</b>：身份授权回归。
+ * Phase 2 / Step 5 第二阶段：身份授权回归（批 1 + 批 2 + 批 3B + 批 4-A/4-B + D7）。
  *
  * <p>批 1 = 8 个 {@code /info/{id}} 的归属校验（用例 1–8）；
  * 批 2 = 密码重置越权 {@code /resetPassword?id=}（用例 9–11）。
@@ -447,6 +447,79 @@ class IdentityAuthorizationRegressionTest {
                 .as("对照：/yonghu/resetPass 属「忘记密码」流程，按 D3 保持存在")
                 .isNotEqualTo(404);
         assertThat(usersPassword("admin")).as("对照请求也不得改动任何数据").isEqualTo(before);
+    }
+
+    // ================== 21–24. 批 4-B：自助资料更新（业务规则 Q2） ==================
+
+    @Test
+    @DisplayName("21. 学生改【自己】资料：成功；学号/性别/身份证号等固定字段被服务端恢复")
+    void studentSelfProfileUpdate_preservesImmutableFields() throws Exception {
+        YonghuEntity before = yonghuService.getById(STUDENT_A1_ID);
+        assertThat(before.getUsername()).as("前置：学号应存在（防空跑）").isNotNull();
+        assertThat(before.getGender()).as("前置：性别应存在（防空跑）").isNotNull();
+
+        assertAllowed(postJson("/yonghu/update", studentToken,
+                "{\"id\":" + STUDENT_A1_ID + ",\"name\":\"" + before.getName()
+                        + "\",\"username\":\"HACKED-NO\",\"gender\":9,\"idCardNo\":\"HACKED-ID-NO\"}"),
+                "学生修改自己的资料");
+
+        YonghuEntity after = yonghuService.getById(STUDENT_A1_ID);
+        assertThat(after.getUsername()).as("学号不得被自助修改").isEqualTo(before.getUsername());
+        assertThat(after.getGender()).as("性别不得被自助修改").isEqualTo(before.getGender());
+        assertThat(after.getIdCardNo()).as("身份证号不得被自助修改").isEqualTo(before.getIdCardNo());
+    }
+
+    @Test
+    @DisplayName("22. 学生改【他人】资料：403，且目标记录（含密码）完全未变")
+    void studentCannotUpdateOthersProfile() throws Exception {
+        YonghuEntity before = yonghuService.getById(2);
+
+        assertDenied(postJson("/yonghu/update", studentToken,
+                        "{\"id\":2,\"username\":\"HACKED-2\",\"password\":\"hacked-pass\"}"),
+                "学生修改他人资料");
+
+        YonghuEntity after = yonghuService.getById(2);
+        assertThat(after.getUsername()).as("他人学号不得被改动").isEqualTo(before.getUsername());
+        assertThat(after.getPassword()).as("他人密码不得被改动（改造前此路径可绕过批 2 的密码保护）")
+                .isEqualTo(before.getPassword());
+    }
+
+    @Test
+    @DisplayName("23. 老师：改自己资料可成功（描述等非固定信息），改学生资料 403；工号/性别被恢复")
+    void counselorSelfOnly_andCannotTouchStudentProfile() throws Exception {
+        XinlilaoshiEntity before = xinlilaoshiService.getById(1);
+        assertThat(before.getUsername()).as("前置：工号应存在（防空跑）").isNotNull();
+
+        // 老师改【自己】：可改（含 expertise/resume/introduction 等非固定信息）
+        assertAllowed(postJson("/xinlilaoshi/update", counselorToken,
+                "{\"id\":1,\"name\":\"" + before.getName() + "\",\"resume\":\""
+                        + before.getResume() + "\",\"username\":\"HACKED-3\",\"gender\":9}"),
+                "老师修改自己的资料");
+
+        XinlilaoshiEntity after = xinlilaoshiService.getById(1);
+        assertThat(after.getUsername()).as("工号不得被自助修改").isEqualTo(before.getUsername());
+        assertThat(after.getGender()).as("性别不得被自助修改").isEqualTo(before.getGender());
+
+        // 老师改【学生】资料：拒绝（Q1 取证：老师对业务数据没有写入口，回复留言由管理员在管理端完成）
+        YonghuEntity studentBefore = yonghuService.getById(1);
+        assertDenied(postJson("/yonghu/update", counselorToken,
+                        "{\"id\":1,\"password\":\"hacked-by-counselor\"}"),
+                "老师修改学生资料");
+        assertThat(yonghuService.getById(1).getPassword())
+                .as("学生密码不得被老师改动").isEqualTo(studentBefore.getPassword());
+    }
+
+    @Test
+    @DisplayName("24. 管理员改学生资料：仍可执行（保持管理端既有编辑能力）")
+    void adminCanStillEditStudentProfile() throws Exception {
+        YonghuEntity before = yonghuService.getById(2);
+
+        assertAllowed(postJson("/yonghu/update", adminToken,
+                "{\"id\":2,\"name\":\"" + before.getName() + "\"}"), "管理员编辑学生资料");
+
+        YonghuEntity after = yonghuService.getById(2);
+        assertThat(after.getUsername()).as("管理员路径保持现状：未提交的字段不应变化")
+                .isEqualTo(before.getUsername());
     }
 
     private String usersPassword(String username) {
