@@ -72,6 +72,8 @@ class IdentityAuthorizationRegressionTest {
     private static final String DENY_MSG = "无权访问";
     /** 学生 a1 在 {@code student} 表中的 id（种子数据） */
     private static final int STUDENT_A1_ID = 1;
+    /** 心理老师 a1 在 {@code counselor} 表中的 id（种子数据） */
+    private static final int COUNSELOR_A1_ID = 1;
 
     @Autowired
     private MockMvc mockMvc;
@@ -361,6 +363,57 @@ class IdentityAuthorizationRegressionTest {
             assertDenied(postJson("/xinlilaoshiLiuyan/update", unknownToken, "{\"id\":2,\"studentId\":1}"),
                     "未知角色执行写操作");
             assertDenied(perform("/xinlilaoshiLiuyan/info/2", unknownToken), "未知角色执行读操作");
+        } finally {
+            tokenService.remove(new QueryWrapper<TokenEntity>().eq("token", unknownToken));
+        }
+    }
+
+    // ================== 17–19. 批 4：读范围收敛（DataScope fail-closed） ==================
+
+    @Test
+    @DisplayName("17. 学生伪造 studentId 查询 page：仍只返回自己的记录（矩阵 3）")
+    void studentPageScopeCannotBeForged() throws Exception {
+        JsonNode body = getJson("/xinlilaoshiLiuyan/page?page=1&limit=10&studentId=2", studentToken);
+        assertThat(body.path("code").asInt()).as("列表查询应成功").isZero();
+
+        JsonNode data = body.path("data");
+        assertThat(data.path("total").asInt())
+                .as("学生 a1 的留言应为 2 条（其余属他人）—— 同时防空跑")
+                .isEqualTo(2);
+        for (JsonNode row : data.path("list")) {
+            assertThat(row.path("studentId").asInt())
+                    .as("伪造 studentId=2 不得放大读范围：返回行必须属于当前学生 %d", STUDENT_A1_ID)
+                    .isEqualTo(STUDENT_A1_ID);
+        }
+    }
+
+    @Test
+    @DisplayName("18. 心理老师查询 page：只返回自己服务范围内的记录（矩阵 11）")
+    void counselorPageIsScopedToSelf() throws Exception {
+        JsonNode body = getJson("/xinlilaoshiLiuyan/page?page=1&limit=20", counselorToken);
+        assertThat(body.path("code").asInt()).as("列表查询应成功").isZero();
+
+        JsonNode data = body.path("data");
+        assertThat(data.path("total").asInt())
+                .as("前置：老师 a1 应有可见留言（防空跑）")
+                .isGreaterThan(0);
+        for (JsonNode row : data.path("list")) {
+            assertThat(row.path("counselorId").asInt())
+                    .as("老师侧读范围应收敛到 counselorId=%d", COUNSELOR_A1_ID)
+                    .isEqualTo(COUNSELOR_A1_ID);
+        }
+    }
+
+    @Test
+    @DisplayName("19. 未知角色的 page：403（矩阵 12 —— 不得默认全量）")
+    void unknownRolePageIsDenied() throws Exception {
+        String unknownToken = "batch4-unknown-role-token";
+        tokenService.save(new TokenEntity(STUDENT_A1_ID, "a1", "student", "未知角色", unknownToken,
+                new Date(System.currentTimeMillis() + 3_600_000L)));
+        try {
+            // 改造前：未知角色会跳过全部分支 → 不加任何过滤 → 返回全量（fail-open 缺口）
+            assertDenied(perform("/xinlilaoshiLiuyan/page?page=1&limit=10", unknownToken),
+                    "未知角色查询列表");
         } finally {
             tokenService.remove(new QueryWrapper<TokenEntity>().eq("token", unknownToken));
         }
