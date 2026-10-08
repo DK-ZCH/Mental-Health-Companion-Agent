@@ -30,6 +30,7 @@ import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
+import com.security.CurrentUserProvider;
 import com.security.DataScope;
 import com.utils.R;
 import com.alibaba.fastjson.*;
@@ -131,7 +132,7 @@ public class ExamrecordController {
     public R save(@RequestBody ExamrecordEntity examrecord, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,examrecord:{}",this.getClass().getName(),examrecord.toString());
 
-        String role = String.valueOf(request.getSession().getAttribute("role"));
+        String role = CurrentUserProvider.currentRole(request);
         if(false)
             return R.error(511,"永远不会进入");
         else if("学生".equals(role))

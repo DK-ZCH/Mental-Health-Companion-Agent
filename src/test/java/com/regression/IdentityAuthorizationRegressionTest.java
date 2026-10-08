@@ -13,6 +13,7 @@ import com.service.TokenService;
 import com.service.UsersService;
 import com.service.XinlilaoshiCollectionService;
 import com.service.XinlilaoshiLiuyanService;
+import com.security.CurrentUserProvider;
 import com.service.XinlilaoshiService;
 import com.service.YonghuService;
 
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -520,6 +522,33 @@ class IdentityAuthorizationRegressionTest {
         YonghuEntity after = yonghuService.getById(2);
         assertThat(after.getUsername()).as("管理员路径保持现状：未提交的字段不应变化")
                 .isEqualTo(before.getUsername());
+    }
+
+    // ================== 25. 批 5 / A1：身份读取收敛的契约控制 ==================
+    //
+    // 审阅指出的覆盖缺口：既有 38 项回归**只覆盖正常登录路径**，无法证明「role 缺失」时的行为。
+    // 本用例即针对该缺口的回归控制：若有人让 currentRole() 返回字符串 "null"、抛异常、
+    // 或改变取值域，本用例必须失败。
+
+    @Test
+    @DisplayName("25. A1：currentRole 契约 —— role 缺失时返回真正的 null（不得返回字符串 \"null\"）")
+    void currentRoleContractOnMissingRole() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        assertThat(CurrentUserProvider.currentRole(request))
+                .as("Session 无 role 时必须返回真正的 null —— 这是逐条确认后的语义收敛，不是机械替换的副产品")
+                .isNull();
+
+        request.getSession().setAttribute("role", "学生");
+        assertThat(CurrentUserProvider.currentRole(request)).as("正常角色原样返回").isEqualTo("学生");
+
+        request.getSession().setAttribute("role", 123);
+        assertThat(CurrentUserProvider.currentRole(request))
+                .as("非字符串取值按既有 String.valueOf 语义转字符串（行为不变）")
+                .isEqualTo("123");
+
+        request.getSession().removeAttribute("role");
+        assertThat(CurrentUserProvider.currentRole(request)).as("移除后仍返回 null").isNull();
     }
 
     private String usersPassword(String username) {
