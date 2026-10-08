@@ -30,6 +30,7 @@ import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
+import com.security.DataScope;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -68,13 +69,8 @@ public class XinlilaoshiOrderController {
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("page方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
-        String role = String.valueOf(request.getSession().getAttribute("role"));
-        if(false)
-            return R.error(511,"永不会进入");
-        else if("学生".equals(role))
-            params.put("studentId",request.getSession().getAttribute("userId"));
-        else if("心理老师".equals(role))
-            params.put("counselorId",request.getSession().getAttribute("userId"));
+        // Step 5 批4：读范围收敛（原 if/else-if 角色链）—— 未知角色由「不加过滤 → 全量」改为 fail-closed
+        DataScope.apply(request, params, "studentId", "counselorId");
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }

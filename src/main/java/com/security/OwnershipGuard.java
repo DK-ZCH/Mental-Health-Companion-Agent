@@ -265,7 +265,12 @@ public final class OwnershipGuard {
         return v == null ? null : String.valueOf(v);
     }
 
-    private static void deny() {
+    /**
+     * 统一拒绝（抛 {@link ForbiddenException} → 由 {@code GlobalExceptionHandler} 转 {@code HTTP 403 + code=403}）。
+     *
+     * <p>包内可见，供同包安全原语（如 {@code DataScope}）复用，避免每个原语各写一套拒绝形态。
+     */
+    static void deny() {
         throw new ForbiddenException();
     }
 }
