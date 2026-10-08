@@ -2,6 +2,7 @@ package com.regression;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.TokenEntity;
+import com.entity.UsersEntity;
 import com.entity.XinlilaoshiCollectionEntity;
 import com.entity.XinlilaoshiEntity;
 import com.entity.XinlilaoshiLiuyanEntity;
@@ -9,6 +10,7 @@ import com.entity.YonghuEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.TokenService;
+import com.service.UsersService;
 import com.service.XinlilaoshiCollectionService;
 import com.service.XinlilaoshiLiuyanService;
 import com.service.XinlilaoshiService;
@@ -94,6 +96,10 @@ class IdentityAuthorizationRegressionTest {
 
     @Autowired
     private TokenService tokenService;
+
+    /** D7：断言被下线的管理端账号重置端点确实不再可调用 */
+    @Autowired
+    private UsersService usersService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -417,6 +423,35 @@ class IdentityAuthorizationRegressionTest {
         } finally {
             tokenService.remove(new QueryWrapper<TokenEntity>().eq("token", unknownToken));
         }
+    }
+
+    @Test
+    @DisplayName("20. D7：匿名密码重置端点 /users/resetPass 已下线（404，且不产生任何密码变更）")
+    void adminAccountAnonymousResetEndpointIsRemoved() throws Exception {
+        String before = usersPassword("admin");
+        assertThat(before).as("前置：admin 账号应存在").isNotNull();
+
+        MvcResult result = perform("/users/resetPass?username=admin", null);
+        assertThat(result.getResponse().getStatus())
+                .as("该端点已下线，应为 404（而不是 200 或 403）")
+                .isEqualTo(404);
+
+        assertThat(usersPassword("admin"))
+                .as("请求不得产生任何密码变更 —— 证明端点确实不再存在，而不只是改了返回码")
+                .isEqualTo(before);
+
+        // 对照：同名「忘记密码」端点（用户端）按 D3 保持不变 →
+        //      证明上面的 404 是「该路径被删除」，而非「所有 /resetPass 都 404」或全局 404 行为
+        MvcResult contrast = perform("/yonghu/resetPass?username=not-exist-user-xyz", null);
+        assertThat(contrast.getResponse().getStatus())
+                .as("对照：/yonghu/resetPass 属「忘记密码」流程，按 D3 保持存在")
+                .isNotEqualTo(404);
+        assertThat(usersPassword("admin")).as("对照请求也不得改动任何数据").isEqualTo(before);
+    }
+
+    private String usersPassword(String username) {
+        UsersEntity user = usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", username));
+        return user == null ? null : user.getPassword();
     }
 
     private int messageOwner(int id) {

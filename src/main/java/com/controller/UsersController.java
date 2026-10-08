@@ -80,20 +80,15 @@ public class UsersController {
 		return R.ok("退出成功");
 	}
 	
-	/**
-     * 密码重置
-     */
-    @IgnoreAuth
-	@RequestMapping(value = "/resetPass")
-    public R resetPass(String username, HttpServletRequest request){
-    	UsersEntity user = usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", username));
-    	if(user==null) {
-    		return R.error("账号不存在");
-    	}
-    	user.setPassword("123456");
-        usersService.update(user,null);
-        return R.ok("密码已重置为：123456");
-    }
+	// ── Step 5 / D7（独立安全小批次）：已【下线】匿名密码重置端点 {@code /users/resetPass} ──
+	// 下线依据（批 3A §6 调用面核查，全部为零）：
+	//   Java：仅本方法这一处定义，无内部调用；用户端 0；管理端 src 0；管理端 dist 0；
+	//         无 scripts/bin/deploy/docker 目录引用；配置 0；业务说明 0。
+	// 风险定性：该端点为 @IgnoreAuth（免鉴权）+ 传入 username 即可把密码重置为 123456，
+	//         而 users 表是【管理端账号】表 → 匿名即可重置管理员密码（账户接管）。
+	// 影响面：管理端「重置密码」按钮走的是 /yonghu/resetPassword、/xinlilaoshi/resetPassword
+	//         （批 2 已限管理员），与本端点无关；用户/老师端的「忘记密码」走各自的 /resetPass（按 D3 不动）。
+	// 回归：见 IdentityAuthorizationRegressionTest「D7」用例 —— 断言该路径返回 404。
 	
 	/**
      * 列表
