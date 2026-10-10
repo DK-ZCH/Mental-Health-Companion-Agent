@@ -5,14 +5,14 @@ import com.entity.TokenEntity;
 import com.entity.UsersEntity;
 import com.entity.XinlilaoshiCollectionEntity;
 import com.entity.XinlilaoshiEntity;
-import com.entity.XinlilaoshiLiuyanEntity;
+import com.entity.CounselorMessageEntity;
 import com.entity.YonghuEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.TokenService;
 import com.service.UsersService;
 import com.service.XinlilaoshiCollectionService;
-import com.service.XinlilaoshiLiuyanService;
+import com.service.CounselorMessageService;
 import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
 import com.service.XinlilaoshiService;
@@ -94,7 +94,7 @@ class IdentityAuthorizationRegressionTest {
 
     /** 批 3B：写路径归属断言所需 */
     @Autowired
-    private XinlilaoshiLiuyanService xinlilaoshiLiuyanService;
+    private CounselorMessageService xinlilaoshiLiuyanService;
 
     @Autowired
     private XinlilaoshiCollectionService xinlilaoshiCollectionService;
@@ -318,7 +318,7 @@ class IdentityAuthorizationRegressionTest {
     @DisplayName("14. 管理员代目标学生修改：其显式 studentId 被保留（不得被覆盖成管理员自己）")
     void adminTargetStudentIsPreserved() throws Exception {
         // 用测试自建记录，避免污染种子数据（跑完即删）
-        XinlilaoshiLiuyanEntity fixture = new XinlilaoshiLiuyanEntity();
+        CounselorMessageEntity fixture = new CounselorMessageEntity();
         fixture.setStudentId(STUDENT_A1_ID);
         fixture.setCounselorId(1);
         xinlilaoshiLiuyanService.save(fixture);
@@ -345,7 +345,7 @@ class IdentityAuthorizationRegressionTest {
         assertAllowed(postJson("/xinlilaoshiCollection/add", studentToken,
                 "{\"studentId\":3,\"counselorId\":3,\"favoriteType\":2}"), "伪造归属提交收藏");
 
-        QueryWrapper<XinlilaoshiLiuyanEntity> messageQuery = new QueryWrapper<XinlilaoshiLiuyanEntity>()
+        QueryWrapper<CounselorMessageEntity> messageQuery = new QueryWrapper<CounselorMessageEntity>()
                 .eq("student_id", STUDENT_A1_ID).eq("counselor_id", 3);
         QueryWrapper<XinlilaoshiCollectionEntity> favoriteQuery = new QueryWrapper<XinlilaoshiCollectionEntity>()
                 .eq("student_id", STUDENT_A1_ID).eq("counselor_id", 3).eq("favorite_type", 2);
@@ -596,7 +596,7 @@ class IdentityAuthorizationRegressionTest {
     }
 
     private int messageOwner(int id) {
-        XinlilaoshiLiuyanEntity entity = xinlilaoshiLiuyanService.getById(id);
+        CounselorMessageEntity entity = xinlilaoshiLiuyanService.getById(id);
         return entity == null ? -1 : entity.getStudentId();
     }
 

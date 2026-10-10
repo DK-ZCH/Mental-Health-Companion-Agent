@@ -44,11 +44,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/xinlilaoshiLiuyan")
-public class XinlilaoshiLiuyanController {
-    private static final Logger logger = LoggerFactory.getLogger(XinlilaoshiLiuyanController.class);
+public class CounselorMessageController {
+    private static final Logger logger = LoggerFactory.getLogger(CounselorMessageController.class);
 
     @Autowired
-    private XinlilaoshiLiuyanService xinlilaoshiLiuyanService;
+    private CounselorMessageService xinlilaoshiLiuyanService;
 
 
     @Autowired
@@ -78,8 +78,8 @@ public class XinlilaoshiLiuyanController {
         PageUtils page = xinlilaoshiLiuyanService.queryPage(params);
 
         //字典表数据转换
-        List<XinlilaoshiLiuyanView> list =(List<XinlilaoshiLiuyanView>)page.getList();
-        for(XinlilaoshiLiuyanView c:list){
+        List<CounselorMessageView> list =(List<CounselorMessageView>)page.getList();
+        for(CounselorMessageView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -92,14 +92,14 @@ public class XinlilaoshiLiuyanController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiLiuyanEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.getById(id);
+        CounselorMessageEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.getById(id);
         // Step 5 批1：归属授权 —— 学生匹配 studentId；老师匹配 counselorId；管理员放行
         OwnershipGuard.assertOwnership(request, xinlilaoshiLiuyan,
                 xinlilaoshiLiuyan == null ? null : xinlilaoshiLiuyan.getStudentId(),
                 xinlilaoshiLiuyan == null ? null : xinlilaoshiLiuyan.getCounselorId());
         if(xinlilaoshiLiuyan !=null){
             //entity转view
-            XinlilaoshiLiuyanView view = new XinlilaoshiLiuyanView();
+            CounselorMessageView view = new CounselorMessageView();
             BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
@@ -127,7 +127,7 @@ public class XinlilaoshiLiuyanController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody XinlilaoshiLiuyanEntity xinlilaoshiLiuyan, HttpServletRequest request){
+    public R save(@RequestBody CounselorMessageEntity xinlilaoshiLiuyan, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,xinlilaoshiLiuyan:{}",this.getClass().getName(),xinlilaoshiLiuyan.toString());
 
         String role = CurrentUserProvider.currentRole(request);
@@ -148,12 +148,12 @@ public class XinlilaoshiLiuyanController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody XinlilaoshiLiuyanEntity xinlilaoshiLiuyan, HttpServletRequest request){
+    public R update(@RequestBody CounselorMessageEntity xinlilaoshiLiuyan, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,xinlilaoshiLiuyan:{}",this.getClass().getName(),xinlilaoshiLiuyan.toString());
 
         // Step 5 批3B：写路径归属授权（此前整个 role 分支被注释 → /update 完全采信客户端实体）
         // ① 目标记录必须可写：学生仅限自己的记录（否则 403）；管理员放行；心理老师暂保持现状（→ 批 4）
-        XinlilaoshiLiuyanEntity existing = xinlilaoshiLiuyan.getId() == null ? null
+        CounselorMessageEntity existing = xinlilaoshiLiuyan.getId() == null ? null
                 : xinlilaoshiLiuyanService.getById(xinlilaoshiLiuyan.getId());
         OwnershipGuard.assertWritableTarget(request, existing,
                 existing == null ? null : existing.getStudentId(),
@@ -163,12 +163,12 @@ public class XinlilaoshiLiuyanController {
         xinlilaoshiLiuyan.setStudentId(OwnershipGuard.resolveWriteOwner(request,
                 OwnershipGuard.AdminWriteOperation.UPDATE_MESSAGE, xinlilaoshiLiuyan.getStudentId()));
         //根据字段查询是否有相同数据
-        QueryWrapper<XinlilaoshiLiuyanEntity> queryWrapper = new QueryWrapper<XinlilaoshiLiuyanEntity>()
+        QueryWrapper<CounselorMessageEntity> queryWrapper = new QueryWrapper<CounselorMessageEntity>()
             .eq("id",0)
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiLiuyanEntity xinlilaoshiLiuyanEntity = xinlilaoshiLiuyanService.getOne(queryWrapper);
+        CounselorMessageEntity xinlilaoshiLiuyanEntity = xinlilaoshiLiuyanService.getOne(queryWrapper);
         xinlilaoshiLiuyan.setRepliedAt(new Date());
         if(xinlilaoshiLiuyanEntity==null){
             xinlilaoshiLiuyanService.updateById(xinlilaoshiLiuyan);//根据id更新
@@ -198,7 +198,7 @@ public class XinlilaoshiLiuyanController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<XinlilaoshiLiuyanEntity> xinlilaoshiLiuyanList = new ArrayList<>();//上传的东西
+            List<CounselorMessageEntity> xinlilaoshiLiuyanList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -218,7 +218,7 @@ public class XinlilaoshiLiuyanController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            XinlilaoshiLiuyanEntity xinlilaoshiLiuyanEntity = new XinlilaoshiLiuyanEntity();
+                            CounselorMessageEntity xinlilaoshiLiuyanEntity = new CounselorMessageEntity();
 //                            xinlilaoshiLiuyanEntity.setCounselorId(Integer.valueOf(data.get(0)));   //心理老师 要改的
 //                            xinlilaoshiLiuyanEntity.setStudentId(Integer.valueOf(data.get(0)));   //学生 要改的
 //                            xinlilaoshiLiuyanEntity.setContent(data.get(0));                    //留言内容 要改的
@@ -263,8 +263,8 @@ public class XinlilaoshiLiuyanController {
         PageUtils page = xinlilaoshiLiuyanService.queryPage(params);
 
         //字典表数据转换
-        List<XinlilaoshiLiuyanView> list =(List<XinlilaoshiLiuyanView>)page.getList();
-        for(XinlilaoshiLiuyanView c:list)
+        List<CounselorMessageView> list =(List<CounselorMessageView>)page.getList();
+        for(CounselorMessageView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -275,12 +275,12 @@ public class XinlilaoshiLiuyanController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiLiuyanEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.getById(id);
+        CounselorMessageEntity xinlilaoshiLiuyan = xinlilaoshiLiuyanService.getById(id);
             if(xinlilaoshiLiuyan !=null){
 
 
                 //entity转view
-                XinlilaoshiLiuyanView view = new XinlilaoshiLiuyanView();
+                CounselorMessageView view = new CounselorMessageView();
                 BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
@@ -308,7 +308,7 @@ public class XinlilaoshiLiuyanController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody XinlilaoshiLiuyanEntity xinlilaoshiLiuyan, HttpServletRequest request){
+    public R add(@RequestBody CounselorMessageEntity xinlilaoshiLiuyan, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,xinlilaoshiLiuyan:{}",this.getClass().getName(),xinlilaoshiLiuyan.toString());
         // Step 5 批3B：归属由服务端决定 —— 学生强制本人（客户端伪造的 studentId 被忽略）
         xinlilaoshiLiuyan.setStudentId(OwnershipGuard.resolveWriteOwner(request,

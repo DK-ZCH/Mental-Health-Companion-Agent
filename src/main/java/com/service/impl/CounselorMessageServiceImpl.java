@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.XinlilaoshiLiuyanDao;
-import com.entity.XinlilaoshiLiuyanEntity;
-import com.service.XinlilaoshiLiuyanService;
-import com.entity.view.XinlilaoshiLiuyanView;
+import com.dao.CounselorMessageDao;
+import com.entity.CounselorMessageEntity;
+import com.service.CounselorMessageService;
+import com.entity.view.CounselorMessageView;
 
 /**
  * 心理老师留言 服务实现类
  */
 @Service("xinlilaoshiLiuyanService")
 @Transactional
-public class XinlilaoshiLiuyanServiceImpl extends ServiceImpl<XinlilaoshiLiuyanDao, XinlilaoshiLiuyanEntity> implements XinlilaoshiLiuyanService {
+public class CounselorMessageServiceImpl extends ServiceImpl<CounselorMessageDao, CounselorMessageEntity> implements CounselorMessageService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class XinlilaoshiLiuyanServiceImpl extends ServiceImpl<XinlilaoshiLiuyanD
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<XinlilaoshiLiuyanView> page =new Query<XinlilaoshiLiuyanView>(params).getPage();
+        Page<CounselorMessageView> page =new Query<CounselorMessageView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }
