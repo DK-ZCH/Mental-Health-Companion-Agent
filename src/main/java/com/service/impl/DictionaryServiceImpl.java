@@ -50,8 +50,8 @@ public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary
         // 心理老师收藏类型
         DICT_CODE.put("CounselorFavorite.favoriteType", "counselor_favorite_type");
         // 预约时间段与预约状态
-        DICT_CODE.put("XinlilaoshiOrder.timeSlot", "time_slot");
-        DICT_CODE.put("XinlilaoshiOrder.status", "appointment_status");
+        DICT_CODE.put("CounselingAppointment.timeSlot", "time_slot");
+        DICT_CODE.put("CounselingAppointment.status", "appointment_status");
     }
 
     @Override

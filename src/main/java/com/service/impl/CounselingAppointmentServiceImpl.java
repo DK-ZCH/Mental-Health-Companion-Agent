@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.XinlilaoshiOrderDao;
-import com.entity.XinlilaoshiOrderEntity;
-import com.service.XinlilaoshiOrderService;
-import com.entity.view.XinlilaoshiOrderView;
+import com.dao.CounselingAppointmentDao;
+import com.entity.CounselingAppointmentEntity;
+import com.service.CounselingAppointmentService;
+import com.entity.view.CounselingAppointmentView;
 
 /**
  * 心理咨询预约申请 服务实现类
  */
 @Service("xinlilaoshiOrderService")
 @Transactional
-public class XinlilaoshiOrderServiceImpl extends ServiceImpl<XinlilaoshiOrderDao, XinlilaoshiOrderEntity> implements XinlilaoshiOrderService {
+public class CounselingAppointmentServiceImpl extends ServiceImpl<CounselingAppointmentDao, CounselingAppointmentEntity> implements CounselingAppointmentService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class XinlilaoshiOrderServiceImpl extends ServiceImpl<XinlilaoshiOrderDao
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<XinlilaoshiOrderView> page =new Query<XinlilaoshiOrderView>(params).getPage();
+        Page<CounselingAppointmentView> page =new Query<CounselingAppointmentView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }

@@ -2,14 +2,14 @@ package com.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.utils.PageUtils;
-import com.entity.XinlilaoshiOrderEntity;
+import com.entity.CounselingAppointmentEntity;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 心理咨询预约申请 服务类
  */
-public interface XinlilaoshiOrderService extends IService<XinlilaoshiOrderEntity> {
+public interface CounselingAppointmentService extends IService<CounselingAppointmentEntity> {
 
     /**
     * @param params 查询参数

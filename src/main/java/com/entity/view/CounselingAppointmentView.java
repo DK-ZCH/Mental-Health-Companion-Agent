@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.XinlilaoshiOrderEntity;
+import com.entity.CounselingAppointmentEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("counseling_appointment")
-public class XinlilaoshiOrderView extends XinlilaoshiOrderEntity implements Serializable {
+public class CounselingAppointmentView extends CounselingAppointmentEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
@@ -82,11 +82,11 @@ public class XinlilaoshiOrderView extends XinlilaoshiOrderEntity implements Seri
 			*/
 			private String counselorIntroduction;
 
-	public XinlilaoshiOrderView() {
+	public CounselingAppointmentView() {
 
 	}
 
-	public XinlilaoshiOrderView(XinlilaoshiOrderEntity xinlilaoshiOrderEntity) {
+	public CounselingAppointmentView(CounselingAppointmentEntity xinlilaoshiOrderEntity) {
 		BeanUtils.copyProperties(xinlilaoshiOrderEntity, this);
 	}
 
