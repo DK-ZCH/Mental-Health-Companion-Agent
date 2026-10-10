@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * 学生
  */
 @TableName("admin_user")
-public class UsersEntity implements Serializable {
+public class AdminUserEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@TableId(type = IdType.AUTO)

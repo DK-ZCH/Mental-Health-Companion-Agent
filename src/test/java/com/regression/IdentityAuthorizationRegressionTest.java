@@ -2,7 +2,7 @@ package com.regression;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.TokenEntity;
-import com.entity.UsersEntity;
+import com.entity.AdminUserEntity;
 import com.entity.CounselorFavoriteEntity;
 import com.entity.CounselorEntity;
 import com.entity.CounselorMessageEntity;
@@ -10,7 +10,7 @@ import com.entity.StudentEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.TokenService;
-import com.service.UsersService;
+import com.service.AdminUserService;
 import com.service.CounselorFavoriteService;
 import com.service.CounselorMessageService;
 import com.security.CurrentUserProvider;
@@ -104,7 +104,7 @@ class IdentityAuthorizationRegressionTest {
 
     /** D7：断言被下线的管理端账号重置端点确实不再可调用 */
     @Autowired
-    private UsersService usersService;
+    private AdminUserService usersService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -591,7 +591,7 @@ class IdentityAuthorizationRegressionTest {
     }
 
     private String usersPassword(String username) {
-        UsersEntity user = usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", username));
+        AdminUserEntity user = usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", username));
         return user == null ? null : user.getPassword();
     }
 

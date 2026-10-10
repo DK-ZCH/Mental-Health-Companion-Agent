@@ -7,7 +7,7 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import com.service.UsersService;
+import com.service.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.annotation.IgnoreAuth;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.entity.UsersEntity;
+import com.entity.AdminUserEntity;
 import com.service.TokenService;
 import com.utils.MPUtil;
 import com.utils.PageUtils;
@@ -32,10 +32,10 @@ import com.utils.R;
  */
 @RequestMapping("users")
 @RestController
-public class UsersController {
+public class AdminUserController {
 	
 	@Autowired
-	private UsersService usersService;
+	private AdminUserService usersService;
 	
 	@Autowired
 	private TokenService tokenService;
@@ -46,7 +46,7 @@ public class UsersController {
 	@IgnoreAuth
 	@PostMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
-		UsersEntity user = usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", username));
+		AdminUserEntity user = usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", username));
 		if(user==null || !user.getPassword().equals(password)) {
 			return R.error("账号或密码不正确");
 		}
@@ -63,9 +63,9 @@ public class UsersController {
 	 */
 	@IgnoreAuth
 	@PostMapping(value = "/register")
-	public R register(@RequestBody UsersEntity user){
+	public R register(@RequestBody AdminUserEntity user){
 //    	ValidatorUtils.validateEntity(user);
-    	if(usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", user.getUsername())) !=null) {
+    	if(usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", user.getUsername())) !=null) {
     		return R.error("学生已存在");
     	}
         usersService.save(user);
@@ -95,8 +95,8 @@ public class UsersController {
      * 列表
      */
     @RequestMapping("/page")
-    public R page(@RequestParam Map<String, Object> params,UsersEntity user){
-        QueryWrapper<UsersEntity> ew = new QueryWrapper<UsersEntity>();
+    public R page(@RequestParam Map<String, Object> params,AdminUserEntity user){
+        QueryWrapper<AdminUserEntity> ew = new QueryWrapper<AdminUserEntity>();
     	PageUtils page = usersService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.allLike(ew, user), params), params));
         return R.ok().put("data", page);
     }
@@ -105,8 +105,8 @@ public class UsersController {
      * 列表
      */
     @RequestMapping("/list")
-    public R list( UsersEntity user){
-       	QueryWrapper<UsersEntity> ew = new QueryWrapper<UsersEntity>();
+    public R list( AdminUserEntity user){
+       	QueryWrapper<AdminUserEntity> ew = new QueryWrapper<AdminUserEntity>();
       	ew.allEq(MPUtil.allEQMapPre( user, "user")); 
         return R.ok().put("data", usersService.selectListView(ew));
     }
@@ -118,7 +118,7 @@ public class UsersController {
     public R info(@PathVariable("id") String id, HttpServletRequest request){
         // Step 5 批1：归属授权 —— 管理端账号详情仅管理员可访问（学生/老师一律拒绝）
         OwnershipGuard.assertAdminOnly(request);
-        UsersEntity user = usersService.getById(id);
+        AdminUserEntity user = usersService.getById(id);
         return R.ok().put("data", user);
     }
     
@@ -128,7 +128,7 @@ public class UsersController {
     @RequestMapping("/session")
     public R getCurrUser(HttpServletRequest request){
     	Integer id = CurrentUserProvider.currentUserIdOrNull(request);
-        UsersEntity user = usersService.getById(id);
+        AdminUserEntity user = usersService.getById(id);
         return R.ok().put("data", user);
     }
 
@@ -136,9 +136,9 @@ public class UsersController {
      * 保存
      */
     @PostMapping("/save")
-    public R save(@RequestBody UsersEntity user){
+    public R save(@RequestBody AdminUserEntity user){
 //    	ValidatorUtils.validateEntity(user);
-    	if(usersService.getOne(new QueryWrapper<UsersEntity>().eq("username", user.getUsername())) !=null) {
+    	if(usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", user.getUsername())) !=null) {
     		return R.error("学生已存在");
     	}
     	user.setPassword("123456");
@@ -150,7 +150,7 @@ public class UsersController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody UsersEntity user){
+    public R update(@RequestBody AdminUserEntity user){
 //        ValidatorUtils.validateEntity(user);
         usersService.updateById(user);//全部更新
         return R.ok();

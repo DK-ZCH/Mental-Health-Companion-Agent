@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.entity.UsersEntity;
+import com.entity.AdminUserEntity;
 import com.utils.PageUtils;
 
 
@@ -15,11 +15,11 @@ import com.utils.PageUtils;
  * @author yangliyuan
  * @date 2019年10月10日 上午9:18:20
  */
-public interface UsersService extends IService<UsersEntity> {
+public interface AdminUserService extends IService<AdminUserEntity> {
  	PageUtils queryPage(Map<String, Object> params);
     
-   	List<UsersEntity> selectListView(QueryWrapper<UsersEntity> wrapper);
+   	List<AdminUserEntity> selectListView(QueryWrapper<AdminUserEntity> wrapper);
    	
-   	PageUtils queryPage(Map<String, Object> params, QueryWrapper<UsersEntity> wrapper);
+   	PageUtils queryPage(Map<String, Object> params, QueryWrapper<AdminUserEntity> wrapper);
 	   	
 }
