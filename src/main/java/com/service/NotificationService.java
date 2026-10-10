@@ -2,14 +2,14 @@ package com.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.utils.PageUtils;
-import com.entity.TongzhiEntity;
+import com.entity.NotificationEntity;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 通知 服务类
  */
-public interface TongzhiService extends IService<TongzhiEntity> {
+public interface NotificationService extends IService<NotificationEntity> {
 
     /**
     * @param params 查询参数

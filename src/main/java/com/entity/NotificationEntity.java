@@ -27,15 +27,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
  * @email
  */
 @TableName("notification")
-public class TongzhiEntity<T> implements Serializable {
+public class NotificationEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-	public TongzhiEntity() {
+	public NotificationEntity() {
 
 	}
 
-	public TongzhiEntity(T t) {
+	public NotificationEntity(T t) {
 		BeanUtils.copyProperties(t, this);
 	}
 
@@ -195,7 +195,7 @@ public class TongzhiEntity<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Tongzhi{" +
+        return "Notification{" +
             "id=" + id +
             ", title=" + title +
             ", coverUrl=" + coverUrl +

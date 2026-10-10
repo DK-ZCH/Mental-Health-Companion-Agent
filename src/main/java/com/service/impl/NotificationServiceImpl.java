@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.TongzhiDao;
-import com.entity.TongzhiEntity;
-import com.service.TongzhiService;
-import com.entity.view.TongzhiView;
+import com.dao.NotificationDao;
+import com.entity.NotificationEntity;
+import com.service.NotificationService;
+import com.entity.view.NotificationView;
 
 /**
  * 通知 服务实现类
  */
 @Service("tongzhiService")
 @Transactional
-public class TongzhiServiceImpl extends ServiceImpl<TongzhiDao, TongzhiEntity> implements TongzhiService {
+public class NotificationServiceImpl extends ServiceImpl<NotificationDao, NotificationEntity> implements NotificationService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class TongzhiServiceImpl extends ServiceImpl<TongzhiDao, TongzhiEntity> i
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<TongzhiView> page =new Query<TongzhiView>(params).getPage();
+        Page<NotificationView> page =new Query<NotificationView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }

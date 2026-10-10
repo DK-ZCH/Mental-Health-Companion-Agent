@@ -42,11 +42,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/tongzhi")
-public class TongzhiController {
-    private static final Logger logger = LoggerFactory.getLogger(TongzhiController.class);
+public class NotificationController {
+    private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 
     @Autowired
-    private TongzhiService tongzhiService;
+    private NotificationService tongzhiService;
 
 
     @Autowired
@@ -76,8 +76,8 @@ public class TongzhiController {
         PageUtils page = tongzhiService.queryPage(params);
 
         //字典表数据转换
-        List<TongzhiView> list =(List<TongzhiView>)page.getList();
-        for(TongzhiView c:list){
+        List<NotificationView> list =(List<NotificationView>)page.getList();
+        for(NotificationView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -90,10 +90,10 @@ public class TongzhiController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        TongzhiEntity tongzhi = tongzhiService.getById(id);
+        NotificationEntity tongzhi = tongzhiService.getById(id);
         if(tongzhi !=null){
             //entity转view
-            TongzhiView view = new TongzhiView();
+            NotificationView view = new NotificationView();
             BeanUtils.copyProperties( tongzhi , view );//把实体数据重构到view中
 
             //修改对应字典表字段
@@ -109,20 +109,20 @@ public class TongzhiController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody TongzhiEntity tongzhi, HttpServletRequest request){
+    public R save(@RequestBody NotificationEntity tongzhi, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,tongzhi:{}",this.getClass().getName(),tongzhi.toString());
 
 
         if(false)
             return R.error(511,"永远不会进入");
 
-        QueryWrapper<TongzhiEntity> queryWrapper = new QueryWrapper<TongzhiEntity>()
+        QueryWrapper<NotificationEntity> queryWrapper = new QueryWrapper<NotificationEntity>()
             .eq("title", tongzhi.getTitle())
             .eq("category", tongzhi.getCategory())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        TongzhiEntity tongzhiEntity = tongzhiService.getOne(queryWrapper);
+        NotificationEntity tongzhiEntity = tongzhiService.getOne(queryWrapper);
         if(tongzhiEntity==null){
             tongzhi.setPublishedAt(new Date());
             tongzhi.setCreatedAt(new Date());
@@ -137,21 +137,21 @@ public class TongzhiController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody TongzhiEntity tongzhi, HttpServletRequest request){
+    public R update(@RequestBody NotificationEntity tongzhi, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,tongzhi:{}",this.getClass().getName(),tongzhi.toString());
 
 
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        QueryWrapper<TongzhiEntity> queryWrapper = new QueryWrapper<TongzhiEntity>()
+        QueryWrapper<NotificationEntity> queryWrapper = new QueryWrapper<NotificationEntity>()
             .notIn("id",tongzhi.getId()).and(w -> w
             .eq("title", tongzhi.getTitle())
             .eq("category", tongzhi.getCategory())
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        TongzhiEntity tongzhiEntity = tongzhiService.getOne(queryWrapper);
+        NotificationEntity tongzhiEntity = tongzhiService.getOne(queryWrapper);
         if("".equals(tongzhi.getCoverUrl()) || "null".equals(tongzhi.getCoverUrl())){
                 tongzhi.setCoverUrl(null);
         }
@@ -183,7 +183,7 @@ public class TongzhiController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<TongzhiEntity> tongzhiList = new ArrayList<>();//上传的东西
+            List<NotificationEntity> tongzhiList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -203,7 +203,7 @@ public class TongzhiController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            TongzhiEntity tongzhiEntity = new TongzhiEntity();
+                            NotificationEntity tongzhiEntity = new NotificationEntity();
 //                            tongzhiEntity.setTitle(data.get(0));                    //通知名称 要改的
 //                            tongzhiEntity.setCoverUrl("");//详情和图片
 //                            tongzhiEntity.setCategory(Integer.valueOf(data.get(0)));   //通知类型 要改的
@@ -247,8 +247,8 @@ public class TongzhiController {
         PageUtils page = tongzhiService.queryPage(params);
 
         //字典表数据转换
-        List<TongzhiView> list =(List<TongzhiView>)page.getList();
-        for(TongzhiView c:list)
+        List<NotificationView> list =(List<NotificationView>)page.getList();
+        for(NotificationView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -259,12 +259,12 @@ public class TongzhiController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        TongzhiEntity tongzhi = tongzhiService.getById(id);
+        NotificationEntity tongzhi = tongzhiService.getById(id);
             if(tongzhi !=null){
 
 
                 //entity转view
-                TongzhiView view = new TongzhiView();
+                NotificationView view = new NotificationView();
                 BeanUtils.copyProperties( tongzhi , view );//把实体数据重构到view中
 
                 //修改对应字典表字段
@@ -280,14 +280,14 @@ public class TongzhiController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody TongzhiEntity tongzhi, HttpServletRequest request){
+    public R add(@RequestBody NotificationEntity tongzhi, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,tongzhi:{}",this.getClass().getName(),tongzhi.toString());
-        QueryWrapper<TongzhiEntity> queryWrapper = new QueryWrapper<TongzhiEntity>()
+        QueryWrapper<NotificationEntity> queryWrapper = new QueryWrapper<NotificationEntity>()
             .eq("title", tongzhi.getTitle())
             .eq("category", tongzhi.getCategory())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        TongzhiEntity tongzhiEntity = tongzhiService.getOne(queryWrapper);
+        NotificationEntity tongzhiEntity = tongzhiService.getOne(queryWrapper);
         if(tongzhiEntity==null){
             tongzhi.setPublishedAt(new Date());
             tongzhi.setCreatedAt(new Date());

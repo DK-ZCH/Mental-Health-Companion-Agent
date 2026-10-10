@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.TongzhiEntity;
+import com.entity.NotificationEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -15,7 +15,7 @@ import java.util.Date;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("notification")
-public class TongzhiView extends TongzhiEntity implements Serializable {
+public class NotificationView extends NotificationEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
@@ -25,11 +25,11 @@ public class TongzhiView extends TongzhiEntity implements Serializable {
 
 
 
-	public TongzhiView() {
+	public NotificationView() {
 
 	}
 
-	public TongzhiView(TongzhiEntity tongzhiEntity) {
+	public NotificationView(NotificationEntity tongzhiEntity) {
 		BeanUtils.copyProperties(tongzhiEntity, this);
 	}
 

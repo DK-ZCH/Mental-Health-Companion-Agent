@@ -44,7 +44,9 @@ public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary
         // 知识分类
         DICT_CODE.put("Jiankangzhishi.category", "knowledge_category");
         // 通知分类
-        DICT_CODE.put("Tongzhi.category", "notification_category");
+        // ⚠️ 键必须与【实体类简单名】一致：dictionaryConvert 在运行期按 declaring class 的
+        //    简单名（去掉 Entity 后缀）拼 key → 改实体类名必须同步改这里，否则翻译会静默失效
+        DICT_CODE.put("Notification.category", "notification_category");
         // 心理老师收藏类型
         DICT_CODE.put("XinlilaoshiCollection.favoriteType", "counselor_favorite_type");
         // 预约时间段与预约状态
