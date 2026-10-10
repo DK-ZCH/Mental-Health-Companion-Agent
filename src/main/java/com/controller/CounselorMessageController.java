@@ -58,7 +58,7 @@ public class CounselorMessageController {
 
     //级联表service
     @Autowired
-    private YonghuService yonghuService;
+    private StudentService yonghuService;
     @Autowired
     private XinlilaoshiService xinlilaoshiService;
 
@@ -103,7 +103,7 @@ public class CounselorMessageController {
             BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
-                YonghuEntity yonghu = yonghuService.getById(xinlilaoshiLiuyan.getStudentId());
+                StudentEntity yonghu = yonghuService.getById(xinlilaoshiLiuyan.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createdAt", "sentAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setStudentId(yonghu.getId());
@@ -284,7 +284,7 @@ public class CounselorMessageController {
                 BeanUtils.copyProperties( xinlilaoshiLiuyan , view );//把实体数据重构到view中
 
                 //级联表
-                    YonghuEntity yonghu = yonghuService.getById(xinlilaoshiLiuyan.getStudentId());
+                    StudentEntity yonghu = yonghuService.getById(xinlilaoshiLiuyan.getStudentId());
                 if(yonghu != null){
                     BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setStudentId(yonghu.getId());

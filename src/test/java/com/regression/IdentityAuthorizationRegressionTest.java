@@ -6,7 +6,7 @@ import com.entity.UsersEntity;
 import com.entity.CounselorFavoriteEntity;
 import com.entity.XinlilaoshiEntity;
 import com.entity.CounselorMessageEntity;
-import com.entity.YonghuEntity;
+import com.entity.StudentEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.TokenService;
@@ -16,7 +16,7 @@ import com.service.CounselorMessageService;
 import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
 import com.service.XinlilaoshiService;
-import com.service.YonghuService;
+import com.service.StudentService;
 
 import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +87,7 @@ class IdentityAuthorizationRegressionTest {
 
     /** 用于「密码前后快照」比对（零新增依赖 —— 复用已有 Service 读取实体） */
     @Autowired
-    private YonghuService yonghuService;
+    private StudentService yonghuService;
 
     @Autowired
     private XinlilaoshiService xinlilaoshiService;
@@ -271,7 +271,7 @@ class IdentityAuthorizationRegressionTest {
 
     /** 读取学生当前密码（作为「前后快照」） */
     private String studentPassword(int id) {
-        YonghuEntity entity = yonghuService.getById(id);
+        StudentEntity entity = yonghuService.getById(id);
         return entity == null ? null : entity.getPassword();
     }
 
@@ -459,7 +459,7 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("21. 学生改【自己】资料：成功；学号/性别/身份证号等固定字段被服务端恢复")
     void studentSelfProfileUpdate_preservesImmutableFields() throws Exception {
-        YonghuEntity before = yonghuService.getById(STUDENT_A1_ID);
+        StudentEntity before = yonghuService.getById(STUDENT_A1_ID);
         assertThat(before.getUsername()).as("前置：学号应存在（防空跑）").isNotNull();
         assertThat(before.getGender()).as("前置：性别应存在（防空跑）").isNotNull();
 
@@ -468,7 +468,7 @@ class IdentityAuthorizationRegressionTest {
                         + "\",\"username\":\"HACKED-NO\",\"gender\":9,\"idCardNo\":\"HACKED-ID-NO\"}"),
                 "学生修改自己的资料");
 
-        YonghuEntity after = yonghuService.getById(STUDENT_A1_ID);
+        StudentEntity after = yonghuService.getById(STUDENT_A1_ID);
         assertThat(after.getUsername()).as("学号不得被自助修改").isEqualTo(before.getUsername());
         assertThat(after.getGender()).as("性别不得被自助修改").isEqualTo(before.getGender());
         assertThat(after.getIdCardNo()).as("身份证号不得被自助修改").isEqualTo(before.getIdCardNo());
@@ -477,13 +477,13 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("22. 学生改【他人】资料：403，且目标记录（含密码）完全未变")
     void studentCannotUpdateOthersProfile() throws Exception {
-        YonghuEntity before = yonghuService.getById(2);
+        StudentEntity before = yonghuService.getById(2);
 
         assertDenied(postJson("/yonghu/update", studentToken,
                         "{\"id\":2,\"username\":\"HACKED-2\",\"password\":\"hacked-pass\"}"),
                 "学生修改他人资料");
 
-        YonghuEntity after = yonghuService.getById(2);
+        StudentEntity after = yonghuService.getById(2);
         assertThat(after.getUsername()).as("他人学号不得被改动").isEqualTo(before.getUsername());
         assertThat(after.getPassword()).as("他人密码不得被改动（改造前此路径可绕过批 2 的密码保护）")
                 .isEqualTo(before.getPassword());
@@ -506,7 +506,7 @@ class IdentityAuthorizationRegressionTest {
         assertThat(after.getGender()).as("性别不得被自助修改").isEqualTo(before.getGender());
 
         // 老师改【学生】资料：拒绝（Q1 取证：老师对业务数据没有写入口，回复留言由管理员在管理端完成）
-        YonghuEntity studentBefore = yonghuService.getById(1);
+        StudentEntity studentBefore = yonghuService.getById(1);
         assertDenied(postJson("/yonghu/update", counselorToken,
                         "{\"id\":1,\"password\":\"hacked-by-counselor\"}"),
                 "老师修改学生资料");
@@ -517,12 +517,12 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("24. 管理员改学生资料：仍可执行（保持管理端既有编辑能力）")
     void adminCanStillEditStudentProfile() throws Exception {
-        YonghuEntity before = yonghuService.getById(2);
+        StudentEntity before = yonghuService.getById(2);
 
         assertAllowed(postJson("/yonghu/update", adminToken,
                 "{\"id\":2,\"name\":\"" + before.getName() + "\"}"), "管理员编辑学生资料");
 
-        YonghuEntity after = yonghuService.getById(2);
+        StudentEntity after = yonghuService.getById(2);
         assertThat(after.getUsername()).as("管理员路径保持现状：未提交的字段不应变化")
                 .isEqualTo(before.getUsername());
     }

@@ -57,7 +57,7 @@ public class KnowledgeArticleController {
     //级联表service
 
     @Autowired
-    private YonghuService yonghuService;
+    private StudentService yonghuService;
     @Autowired
     private XinlilaoshiService xinlilaoshiService;
 

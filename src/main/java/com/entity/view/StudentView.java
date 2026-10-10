@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.YonghuEntity;
+import com.entity.StudentEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -15,7 +15,7 @@ import java.util.Date;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("student")
-public class YonghuView extends YonghuEntity implements Serializable {
+public class StudentView extends StudentEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
@@ -25,11 +25,11 @@ public class YonghuView extends YonghuEntity implements Serializable {
 
 
 
-	public YonghuView() {
+	public StudentView() {
 
 	}
 
-	public YonghuView(YonghuEntity yonghuEntity) {
+	public StudentView(StudentEntity yonghuEntity) {
 		BeanUtils.copyProperties(yonghuEntity, this);
 	}
 
