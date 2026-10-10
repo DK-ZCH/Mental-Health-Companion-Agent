@@ -18,7 +18,7 @@ import com.entity.view.SysDictItemView;
 /**
  * 字典 服务实现类
  */
-@Service("dictionaryService")
+@Service("sysDictItemService")
 @Transactional
 public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemDao, SysDictItemEntity> implements SysDictItemService {
 

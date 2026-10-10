@@ -20,7 +20,7 @@ import com.entity.view.KnowledgeArticleView;
 /**
  * 健康知识 服务实现类
  */
-@Service("jiankangzhishiService")
+@Service("knowledgeArticleService")
 @Transactional
 public class KnowledgeArticleServiceImpl extends ServiceImpl<KnowledgeArticleDao, KnowledgeArticleEntity> implements KnowledgeArticleService {
 

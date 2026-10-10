@@ -26,7 +26,7 @@ import com.utils.Query;
  * token
  * @author
  */
-@Service("tokenService")
+@Service("authTokenService")
 public class AuthTokenServiceImpl extends ServiceImpl<AuthTokenDao, AuthTokenEntity> implements AuthTokenService {
 
 	@Override

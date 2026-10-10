@@ -20,7 +20,7 @@ import com.entity.view.AssessmentWrongQuestionView;
 /**
  * 错题表 服务实现类
  */
-@Service("examrewrongquestionService")
+@Service("assessmentWrongQuestionService")
 @Transactional
 public class AssessmentWrongQuestionServiceImpl extends ServiceImpl<AssessmentWrongQuestionDao, AssessmentWrongQuestionEntity> implements AssessmentWrongQuestionService {
 

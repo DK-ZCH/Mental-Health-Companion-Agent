@@ -20,7 +20,7 @@ import com.entity.view.StudentView;
 /**
  * 学生 服务实现类
  */
-@Service("yonghuService")
+@Service("studentService")
 @Transactional
 public class StudentServiceImpl extends ServiceImpl<StudentDao, StudentEntity> implements StudentService {
 

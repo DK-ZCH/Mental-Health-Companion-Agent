@@ -20,7 +20,7 @@ import com.entity.view.AssessmentRecordView;
 /**
  * 考试记录表 服务实现类
  */
-@Service("examrecordService")
+@Service("assessmentRecordService")
 @Transactional
 public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordDao, AssessmentRecordEntity> implements AssessmentRecordService {
 

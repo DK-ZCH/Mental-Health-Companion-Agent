@@ -20,7 +20,7 @@ import com.entity.view.CounselorFavoriteView;
 /**
  * 心理老师收藏 服务实现类
  */
-@Service("xinlilaoshiCollectionService")
+@Service("counselorFavoriteService")
 @Transactional
 public class CounselorFavoriteServiceImpl extends ServiceImpl<CounselorFavoriteDao, CounselorFavoriteEntity> implements CounselorFavoriteService {
 

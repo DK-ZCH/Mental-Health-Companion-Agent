@@ -20,7 +20,7 @@ import com.entity.view.NotificationView;
 /**
  * 通知 服务实现类
  */
-@Service("tongzhiService")
+@Service("notificationService")
 @Transactional
 public class NotificationServiceImpl extends ServiceImpl<NotificationDao, NotificationEntity> implements NotificationService {
 

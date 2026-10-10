@@ -22,7 +22,7 @@ import com.utils.Query;
  * 系统学生
  * @author
  */
-@Service("userService")
+@Service("adminUserService")
 public class AdminUserServiceImpl extends ServiceImpl<AdminUserDao, AdminUserEntity> implements AdminUserService {
 
 	@Override

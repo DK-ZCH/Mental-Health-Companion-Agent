@@ -20,7 +20,7 @@ import com.entity.view.CounselingAppointmentView;
 /**
  * 心理咨询预约申请 服务实现类
  */
-@Service("xinlilaoshiOrderService")
+@Service("counselingAppointmentService")
 @Transactional
 public class CounselingAppointmentServiceImpl extends ServiceImpl<CounselingAppointmentDao, CounselingAppointmentEntity> implements CounselingAppointmentService {
 

@@ -20,7 +20,7 @@ import com.entity.view.CounselorView;
 /**
  * 心理老师 服务实现类
  */
-@Service("xinlilaoshiService")
+@Service("counselorService")
 @Transactional
 public class CounselorServiceImpl extends ServiceImpl<CounselorDao, CounselorEntity> implements CounselorService {
 

@@ -21,7 +21,7 @@ import com.utils.Query;
  * @author yangliyuan
  * @date 2019年10月10日 上午9:17:59
  */
-@Service("configService")
+@Service("sysConfigService")
 public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEntity> implements SysConfigService {
 	@Override
 	public PageUtils queryPage(Map<String, Object> params) {

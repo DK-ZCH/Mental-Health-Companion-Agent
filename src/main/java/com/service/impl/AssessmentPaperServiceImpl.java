@@ -20,7 +20,7 @@ import com.entity.view.AssessmentPaperView;
 /**
  * 试卷表 服务实现类
  */
-@Service("exampaperService")
+@Service("assessmentPaperService")
 @Transactional
 public class AssessmentPaperServiceImpl extends ServiceImpl<AssessmentPaperDao, AssessmentPaperEntity> implements AssessmentPaperService {
 

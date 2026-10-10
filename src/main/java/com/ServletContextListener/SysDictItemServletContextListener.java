@@ -34,7 +34,7 @@ public class SysDictItemServletContextListener implements ServletContextListener
         ApplicationContext appContext = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
 
         logger.info("----------字典表初始化开始----------");
-        SysDictItemService dictionaryService = (SysDictItemService)appContext.getBean("dictionaryService");
+        SysDictItemService dictionaryService = (SysDictItemService)appContext.getBean("sysDictItemService");
         List<SysDictItemEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<SysDictItemEntity>());
         Map<String, Map<Integer,String>> map = new HashMap<>();
         for(SysDictItemEntity d :dictionaryEntities){
