@@ -10,14 +10,14 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 @SpringBootApplication
 @ServletComponentScan(value = "com.ServletContextListener")
 @MapperScan(basePackages = {"com.dao"})
-public class xinlijiankangxitongApplication extends SpringBootServletInitializer{
+public class MentalHealthCompanionApplication extends SpringBootServletInitializer{
 
 	public static void main(String[] args) {
-		SpringApplication.run(xinlijiankangxitongApplication.class, args);
+		SpringApplication.run(MentalHealthCompanionApplication.class, args);
 	}
 	
 	@Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder applicationBuilder) {
-        return applicationBuilder.sources(xinlijiankangxitongApplication.class);
+        return applicationBuilder.sources(MentalHealthCompanionApplication.class);
     }
 }
