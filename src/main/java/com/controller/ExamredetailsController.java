@@ -365,7 +365,7 @@ public class ExamredetailsController {
     @Autowired
     private ExamrecordService examrecordService;
     @Autowired
-    private ExamrewrongquestionService examrewrongquestionService;
+    private AssessmentWrongQuestionService examrewrongquestionService;
 
     /**
      * 后端保存
@@ -392,7 +392,7 @@ public class ExamredetailsController {
                 return R.error();
             }
         }else{
-            ExamrewrongquestionEntity examrewrongquestion = new ExamrewrongquestionEntity();
+            AssessmentWrongQuestionEntity examrewrongquestion = new AssessmentWrongQuestionEntity();
             examrewrongquestion.setCreatedAt(new Date());
             examrewrongquestion.setAnsweredAt(new Date());
             examrewrongquestion.setStudentId(examredetails.getStudentId());
@@ -417,7 +417,7 @@ public class ExamredetailsController {
         //记录需要新增的考题详情数据信息
         ArrayList<ExamredetailsEntity> examredetailsArrayList = new ArrayList<>();
         //记录需要新增的错题本数据信息
-        ArrayList<ExamrewrongquestionEntity> examrewrongquestionArrayList = new ArrayList<>();
+        ArrayList<AssessmentWrongQuestionEntity> examrewrongquestionArrayList = new ArrayList<>();
         //获得当前登录学生的id
         Integer studentId = CurrentUserProvider.requireCurrentUserId(request);
         //是否在新examredetailsArrayList中增加数据状态（默认为0，）为0时不添加 为1时添加
@@ -462,7 +462,7 @@ public class ExamredetailsController {
                 examredetailsArrayList.add(examredetailsEntity);
 
                 //错题表添加数据
-                ExamrewrongquestionEntity examrewrongquestion = new ExamrewrongquestionEntity();
+                AssessmentWrongQuestionEntity examrewrongquestion = new AssessmentWrongQuestionEntity();
                 examrewrongquestion.setCreatedAt(new Date());
                 examrewrongquestion.setAnsweredAt(new Date());
                 examrewrongquestion.setStudentId(studentId);

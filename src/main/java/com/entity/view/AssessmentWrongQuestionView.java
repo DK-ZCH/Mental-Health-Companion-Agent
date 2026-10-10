@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.ExamrewrongquestionEntity;
+import com.entity.AssessmentWrongQuestionEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("assessment_wrong_question")
-public class ExamrewrongquestionView extends ExamrewrongquestionEntity implements Serializable {
+public class AssessmentWrongQuestionView extends AssessmentWrongQuestionEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
@@ -104,11 +104,11 @@ public class ExamrewrongquestionView extends ExamrewrongquestionEntity implement
 			*/
 			private String studentEmail;
 
-	public ExamrewrongquestionView() {
+	public AssessmentWrongQuestionView() {
 
 	}
 
-	public ExamrewrongquestionView(ExamrewrongquestionEntity examrewrongquestionEntity) {
+	public AssessmentWrongQuestionView(AssessmentWrongQuestionEntity examrewrongquestionEntity) {
 		BeanUtils.copyProperties(examrewrongquestionEntity, this);
 	}
 

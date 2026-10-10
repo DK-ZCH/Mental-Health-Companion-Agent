@@ -2,14 +2,14 @@ package com.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.utils.PageUtils;
-import com.entity.ExamrewrongquestionEntity;
+import com.entity.AssessmentWrongQuestionEntity;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 错题表 服务类
  */
-public interface ExamrewrongquestionService extends IService<ExamrewrongquestionEntity> {
+public interface AssessmentWrongQuestionService extends IService<AssessmentWrongQuestionEntity> {
 
     /**
     * @param params 查询参数

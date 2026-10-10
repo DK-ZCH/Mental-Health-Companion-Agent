@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.ExamrewrongquestionDao;
-import com.entity.ExamrewrongquestionEntity;
-import com.service.ExamrewrongquestionService;
-import com.entity.view.ExamrewrongquestionView;
+import com.dao.AssessmentWrongQuestionDao;
+import com.entity.AssessmentWrongQuestionEntity;
+import com.service.AssessmentWrongQuestionService;
+import com.entity.view.AssessmentWrongQuestionView;
 
 /**
  * 错题表 服务实现类
  */
 @Service("examrewrongquestionService")
 @Transactional
-public class ExamrewrongquestionServiceImpl extends ServiceImpl<ExamrewrongquestionDao, ExamrewrongquestionEntity> implements ExamrewrongquestionService {
+public class AssessmentWrongQuestionServiceImpl extends ServiceImpl<AssessmentWrongQuestionDao, AssessmentWrongQuestionEntity> implements AssessmentWrongQuestionService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class ExamrewrongquestionServiceImpl extends ServiceImpl<Examrewrongquest
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<ExamrewrongquestionView> page =new Query<ExamrewrongquestionView>(params).getPage();
+        Page<AssessmentWrongQuestionView> page =new Query<AssessmentWrongQuestionView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }

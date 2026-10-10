@@ -44,11 +44,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/examrewrongquestion")
-public class ExamrewrongquestionController {
-    private static final Logger logger = LoggerFactory.getLogger(ExamrewrongquestionController.class);
+public class AssessmentWrongQuestionController {
+    private static final Logger logger = LoggerFactory.getLogger(AssessmentWrongQuestionController.class);
 
     @Autowired
-    private ExamrewrongquestionService examrewrongquestionService;
+    private AssessmentWrongQuestionService examrewrongquestionService;
 
 
     @Autowired
@@ -82,8 +82,8 @@ public class ExamrewrongquestionController {
         PageUtils page = examrewrongquestionService.queryPage(params);
 
         //字典表数据转换
-        List<ExamrewrongquestionView> list =(List<ExamrewrongquestionView>)page.getList();
-        for(ExamrewrongquestionView c:list){
+        List<AssessmentWrongQuestionView> list =(List<AssessmentWrongQuestionView>)page.getList();
+        for(AssessmentWrongQuestionView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -96,14 +96,14 @@ public class ExamrewrongquestionController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExamrewrongquestionEntity examrewrongquestion = examrewrongquestionService.getById(id);
+        AssessmentWrongQuestionEntity examrewrongquestion = examrewrongquestionService.getById(id);
         // Step 5 批1：归属授权 —— 学生匹配 studentId；管理员放行
         // 注：assessment_wrong_question 无 counselor_id 字段，教师侧归属规则无 schema 依据，暂维持现状
         OwnershipGuard.assertOwnership(request, examrewrongquestion,
                 examrewrongquestion == null ? null : examrewrongquestion.getStudentId(), null);
         if(examrewrongquestion !=null){
             //entity转view
-            ExamrewrongquestionView view = new ExamrewrongquestionView();
+            AssessmentWrongQuestionView view = new AssessmentWrongQuestionView();
             BeanUtils.copyProperties( examrewrongquestion , view );//把实体数据重构到view中
 
                 //级联表
@@ -137,7 +137,7 @@ public class ExamrewrongquestionController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody ExamrewrongquestionEntity examrewrongquestion, HttpServletRequest request){
+    public R save(@RequestBody AssessmentWrongQuestionEntity examrewrongquestion, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,examrewrongquestion:{}",this.getClass().getName(),examrewrongquestion.toString());
 
         String role = CurrentUserProvider.currentRole(request);
@@ -146,7 +146,7 @@ public class ExamrewrongquestionController {
         else if("学生".equals(role))
             examrewrongquestion.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
-        QueryWrapper<ExamrewrongquestionEntity> queryWrapper = new QueryWrapper<ExamrewrongquestionEntity>()
+        QueryWrapper<AssessmentWrongQuestionEntity> queryWrapper = new QueryWrapper<AssessmentWrongQuestionEntity>()
             .eq("student_id", examrewrongquestion.getStudentId())
             .eq("paper_id", examrewrongquestion.getPaperId())
             .eq("question_id", examrewrongquestion.getQuestionId())
@@ -154,7 +154,7 @@ public class ExamrewrongquestionController {
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamrewrongquestionEntity examrewrongquestionEntity = examrewrongquestionService.getOne(queryWrapper);
+        AssessmentWrongQuestionEntity examrewrongquestionEntity = examrewrongquestionService.getOne(queryWrapper);
         if(examrewrongquestionEntity==null){
             examrewrongquestion.setAnsweredAt(new Date());
             examrewrongquestion.setCreatedAt(new Date());
@@ -169,12 +169,12 @@ public class ExamrewrongquestionController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody ExamrewrongquestionEntity examrewrongquestion, HttpServletRequest request){
+    public R update(@RequestBody AssessmentWrongQuestionEntity examrewrongquestion, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,examrewrongquestion:{}",this.getClass().getName(),examrewrongquestion.toString());
 
         // Step 5 批3B：写路径归属授权（此前整个 role 分支被注释 → /update 完全采信客户端实体）
         // ① 目标记录必须可写：学生仅限自己的记录（否则 403）；管理员放行；心理老师暂保持现状（→ 批 4）
-        ExamrewrongquestionEntity existing = examrewrongquestion.getId() == null ? null
+        AssessmentWrongQuestionEntity existing = examrewrongquestion.getId() == null ? null
                 : examrewrongquestionService.getById(examrewrongquestion.getId());
         OwnershipGuard.assertWritableTarget(request, existing,
                 existing == null ? null : existing.getStudentId(), null);
@@ -182,7 +182,7 @@ public class ExamrewrongquestionController {
         examrewrongquestion.setStudentId(OwnershipGuard.resolveWriteOwner(request,
                 OwnershipGuard.AdminWriteOperation.UPDATE_WRONG_QUESTION, examrewrongquestion.getStudentId()));
         //根据字段查询是否有相同数据
-        QueryWrapper<ExamrewrongquestionEntity> queryWrapper = new QueryWrapper<ExamrewrongquestionEntity>()
+        QueryWrapper<AssessmentWrongQuestionEntity> queryWrapper = new QueryWrapper<AssessmentWrongQuestionEntity>()
             .notIn("id",examrewrongquestion.getId()).and(w -> w
             .eq("student_id", examrewrongquestion.getStudentId())
             .eq("paper_id", examrewrongquestion.getPaperId())
@@ -191,7 +191,7 @@ public class ExamrewrongquestionController {
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamrewrongquestionEntity examrewrongquestionEntity = examrewrongquestionService.getOne(queryWrapper);
+        AssessmentWrongQuestionEntity examrewrongquestionEntity = examrewrongquestionService.getOne(queryWrapper);
         if(examrewrongquestionEntity==null){
             examrewrongquestionService.updateById(examrewrongquestion);//根据id更新
             return R.ok();
@@ -220,7 +220,7 @@ public class ExamrewrongquestionController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<ExamrewrongquestionEntity> examrewrongquestionList = new ArrayList<>();//上传的东西
+            List<AssessmentWrongQuestionEntity> examrewrongquestionList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -240,7 +240,7 @@ public class ExamrewrongquestionController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            ExamrewrongquestionEntity examrewrongquestionEntity = new ExamrewrongquestionEntity();
+                            AssessmentWrongQuestionEntity examrewrongquestionEntity = new AssessmentWrongQuestionEntity();
 //                            examrewrongquestionEntity.setStudentId(Integer.valueOf(data.get(0)));   //学生id 要改的
 //                            examrewrongquestionEntity.setPaperId(Integer.valueOf(data.get(0)));   //试卷（外键） 要改的
 //                            examrewrongquestionEntity.setQuestionId(Integer.valueOf(data.get(0)));   //试题id（外键） 要改的
@@ -284,8 +284,8 @@ public class ExamrewrongquestionController {
         PageUtils page = examrewrongquestionService.queryPage(params);
 
         //字典表数据转换
-        List<ExamrewrongquestionView> list =(List<ExamrewrongquestionView>)page.getList();
-        for(ExamrewrongquestionView c:list)
+        List<AssessmentWrongQuestionView> list =(List<AssessmentWrongQuestionView>)page.getList();
+        for(AssessmentWrongQuestionView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -296,12 +296,12 @@ public class ExamrewrongquestionController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExamrewrongquestionEntity examrewrongquestion = examrewrongquestionService.getById(id);
+        AssessmentWrongQuestionEntity examrewrongquestion = examrewrongquestionService.getById(id);
             if(examrewrongquestion !=null){
 
 
                 //entity转view
-                ExamrewrongquestionView view = new ExamrewrongquestionView();
+                AssessmentWrongQuestionView view = new AssessmentWrongQuestionView();
                 BeanUtils.copyProperties( examrewrongquestion , view );//把实体数据重构到view中
 
                 //级联表
@@ -335,16 +335,16 @@ public class ExamrewrongquestionController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody ExamrewrongquestionEntity examrewrongquestion, HttpServletRequest request){
+    public R add(@RequestBody AssessmentWrongQuestionEntity examrewrongquestion, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,examrewrongquestion:{}",this.getClass().getName(),examrewrongquestion.toString());
-        QueryWrapper<ExamrewrongquestionEntity> queryWrapper = new QueryWrapper<ExamrewrongquestionEntity>()
+        QueryWrapper<AssessmentWrongQuestionEntity> queryWrapper = new QueryWrapper<AssessmentWrongQuestionEntity>()
             .eq("student_id", examrewrongquestion.getStudentId())
             .eq("paper_id", examrewrongquestion.getPaperId())
             .eq("question_id", examrewrongquestion.getQuestionId())
             .eq("student_answer", examrewrongquestion.getStudentAnswer())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamrewrongquestionEntity examrewrongquestionEntity = examrewrongquestionService.getOne(queryWrapper);
+        AssessmentWrongQuestionEntity examrewrongquestionEntity = examrewrongquestionService.getOne(queryWrapper);
         if(examrewrongquestionEntity==null){
             examrewrongquestion.setAnsweredAt(new Date());
             examrewrongquestion.setCreatedAt(new Date());
