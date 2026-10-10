@@ -27,15 +27,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
  * @email
  */
 @TableName("knowledge_article")
-public class JiankangzhishiEntity<T> implements Serializable {
+public class KnowledgeArticleEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-	public JiankangzhishiEntity() {
+	public KnowledgeArticleEntity() {
 
 	}
 
-	public JiankangzhishiEntity(T t) {
+	public KnowledgeArticleEntity(T t) {
 		BeanUtils.copyProperties(t, this);
 	}
 
@@ -195,7 +195,7 @@ public class JiankangzhishiEntity<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Jiankangzhishi{" +
+        return "KnowledgeArticle{" +
             "id=" + id +
             ", title=" + title +
             ", coverUrl=" + coverUrl +

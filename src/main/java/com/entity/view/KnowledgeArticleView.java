@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.JiankangzhishiEntity;
+import com.entity.KnowledgeArticleEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -15,7 +15,7 @@ import java.util.Date;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("knowledge_article")
-public class JiankangzhishiView extends JiankangzhishiEntity implements Serializable {
+public class KnowledgeArticleView extends KnowledgeArticleEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
@@ -25,11 +25,11 @@ public class JiankangzhishiView extends JiankangzhishiEntity implements Serializ
 
 
 
-	public JiankangzhishiView() {
+	public KnowledgeArticleView() {
 
 	}
 
-	public JiankangzhishiView(JiankangzhishiEntity jiankangzhishiEntity) {
+	public KnowledgeArticleView(KnowledgeArticleEntity jiankangzhishiEntity) {
 		BeanUtils.copyProperties(jiankangzhishiEntity, this);
 	}
 

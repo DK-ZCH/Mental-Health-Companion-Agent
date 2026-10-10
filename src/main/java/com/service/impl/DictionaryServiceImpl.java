@@ -42,7 +42,7 @@ public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary
         // 测评题目类型
         DICT_CODE.put("Examquestion.questionType", "question_type");
         // 知识分类
-        DICT_CODE.put("Jiankangzhishi.category", "knowledge_category");
+        DICT_CODE.put("KnowledgeArticle.category", "knowledge_category");
         // 通知分类
         // ⚠️ 键必须与【实体类简单名】一致：dictionaryConvert 在运行期按 declaring class 的
         //    简单名（去掉 Entity 后缀）拼 key → 改实体类名必须同步改这里，否则翻译会静默失效

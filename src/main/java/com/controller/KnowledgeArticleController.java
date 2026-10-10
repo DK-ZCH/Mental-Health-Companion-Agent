@@ -42,11 +42,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/jiankangzhishi")
-public class JiankangzhishiController {
-    private static final Logger logger = LoggerFactory.getLogger(JiankangzhishiController.class);
+public class KnowledgeArticleController {
+    private static final Logger logger = LoggerFactory.getLogger(KnowledgeArticleController.class);
 
     @Autowired
-    private JiankangzhishiService jiankangzhishiService;
+    private KnowledgeArticleService jiankangzhishiService;
 
 
     @Autowired
@@ -76,8 +76,8 @@ public class JiankangzhishiController {
         PageUtils page = jiankangzhishiService.queryPage(params);
 
         //字典表数据转换
-        List<JiankangzhishiView> list =(List<JiankangzhishiView>)page.getList();
-        for(JiankangzhishiView c:list){
+        List<KnowledgeArticleView> list =(List<KnowledgeArticleView>)page.getList();
+        for(KnowledgeArticleView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -90,10 +90,10 @@ public class JiankangzhishiController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        JiankangzhishiEntity jiankangzhishi = jiankangzhishiService.getById(id);
+        KnowledgeArticleEntity jiankangzhishi = jiankangzhishiService.getById(id);
         if(jiankangzhishi !=null){
             //entity转view
-            JiankangzhishiView view = new JiankangzhishiView();
+            KnowledgeArticleView view = new KnowledgeArticleView();
             BeanUtils.copyProperties( jiankangzhishi , view );//把实体数据重构到view中
 
             //修改对应字典表字段
@@ -109,20 +109,20 @@ public class JiankangzhishiController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody JiankangzhishiEntity jiankangzhishi, HttpServletRequest request){
+    public R save(@RequestBody KnowledgeArticleEntity jiankangzhishi, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,jiankangzhishi:{}",this.getClass().getName(),jiankangzhishi.toString());
 
 
         if(false)
             return R.error(511,"永远不会进入");
 
-        QueryWrapper<JiankangzhishiEntity> queryWrapper = new QueryWrapper<JiankangzhishiEntity>()
+        QueryWrapper<KnowledgeArticleEntity> queryWrapper = new QueryWrapper<KnowledgeArticleEntity>()
             .eq("title", jiankangzhishi.getTitle())
             .eq("category", jiankangzhishi.getCategory())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
+        KnowledgeArticleEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
         if(jiankangzhishiEntity==null){
             jiankangzhishi.setPublishedAt(new Date());
             jiankangzhishi.setCreatedAt(new Date());
@@ -137,21 +137,21 @@ public class JiankangzhishiController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody JiankangzhishiEntity jiankangzhishi, HttpServletRequest request){
+    public R update(@RequestBody KnowledgeArticleEntity jiankangzhishi, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,jiankangzhishi:{}",this.getClass().getName(),jiankangzhishi.toString());
 
 
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        QueryWrapper<JiankangzhishiEntity> queryWrapper = new QueryWrapper<JiankangzhishiEntity>()
+        QueryWrapper<KnowledgeArticleEntity> queryWrapper = new QueryWrapper<KnowledgeArticleEntity>()
             .notIn("id",jiankangzhishi.getId()).and(w -> w
             .eq("title", jiankangzhishi.getTitle())
             .eq("category", jiankangzhishi.getCategory())
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
+        KnowledgeArticleEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
         if("".equals(jiankangzhishi.getCoverUrl()) || "null".equals(jiankangzhishi.getCoverUrl())){
                 jiankangzhishi.setCoverUrl(null);
         }
@@ -183,7 +183,7 @@ public class JiankangzhishiController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<JiankangzhishiEntity> jiankangzhishiList = new ArrayList<>();//上传的东西
+            List<KnowledgeArticleEntity> jiankangzhishiList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -203,7 +203,7 @@ public class JiankangzhishiController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            JiankangzhishiEntity jiankangzhishiEntity = new JiankangzhishiEntity();
+                            KnowledgeArticleEntity jiankangzhishiEntity = new KnowledgeArticleEntity();
 //                            jiankangzhishiEntity.setTitle(data.get(0));                    //健康知识名称 要改的
 //                            jiankangzhishiEntity.setCoverUrl("");//详情和图片
 //                            jiankangzhishiEntity.setCategory(Integer.valueOf(data.get(0)));   //健康知识类型 要改的
@@ -247,8 +247,8 @@ public class JiankangzhishiController {
         PageUtils page = jiankangzhishiService.queryPage(params);
 
         //字典表数据转换
-        List<JiankangzhishiView> list =(List<JiankangzhishiView>)page.getList();
-        for(JiankangzhishiView c:list)
+        List<KnowledgeArticleView> list =(List<KnowledgeArticleView>)page.getList();
+        for(KnowledgeArticleView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -259,12 +259,12 @@ public class JiankangzhishiController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        JiankangzhishiEntity jiankangzhishi = jiankangzhishiService.getById(id);
+        KnowledgeArticleEntity jiankangzhishi = jiankangzhishiService.getById(id);
             if(jiankangzhishi !=null){
 
 
                 //entity转view
-                JiankangzhishiView view = new JiankangzhishiView();
+                KnowledgeArticleView view = new KnowledgeArticleView();
                 BeanUtils.copyProperties( jiankangzhishi , view );//把实体数据重构到view中
 
                 //修改对应字典表字段
@@ -280,14 +280,14 @@ public class JiankangzhishiController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody JiankangzhishiEntity jiankangzhishi, HttpServletRequest request){
+    public R add(@RequestBody KnowledgeArticleEntity jiankangzhishi, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,jiankangzhishi:{}",this.getClass().getName(),jiankangzhishi.toString());
-        QueryWrapper<JiankangzhishiEntity> queryWrapper = new QueryWrapper<JiankangzhishiEntity>()
+        QueryWrapper<KnowledgeArticleEntity> queryWrapper = new QueryWrapper<KnowledgeArticleEntity>()
             .eq("title", jiankangzhishi.getTitle())
             .eq("category", jiankangzhishi.getCategory())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        JiankangzhishiEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
+        KnowledgeArticleEntity jiankangzhishiEntity = jiankangzhishiService.getOne(queryWrapper);
         if(jiankangzhishiEntity==null){
             jiankangzhishi.setPublishedAt(new Date());
             jiankangzhishi.setCreatedAt(new Date());

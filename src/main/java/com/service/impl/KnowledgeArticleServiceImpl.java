@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.JiankangzhishiDao;
-import com.entity.JiankangzhishiEntity;
-import com.service.JiankangzhishiService;
-import com.entity.view.JiankangzhishiView;
+import com.dao.KnowledgeArticleDao;
+import com.entity.KnowledgeArticleEntity;
+import com.service.KnowledgeArticleService;
+import com.entity.view.KnowledgeArticleView;
 
 /**
  * 健康知识 服务实现类
  */
 @Service("jiankangzhishiService")
 @Transactional
-public class JiankangzhishiServiceImpl extends ServiceImpl<JiankangzhishiDao, JiankangzhishiEntity> implements JiankangzhishiService {
+public class KnowledgeArticleServiceImpl extends ServiceImpl<KnowledgeArticleDao, KnowledgeArticleEntity> implements KnowledgeArticleService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class JiankangzhishiServiceImpl extends ServiceImpl<JiankangzhishiDao, Ji
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<JiankangzhishiView> page =new Query<JiankangzhishiView>(params).getPage();
+        Page<KnowledgeArticleView> page =new Query<KnowledgeArticleView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }
