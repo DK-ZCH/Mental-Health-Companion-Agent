@@ -12,7 +12,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 * 类说明 : 系统配置
 */
 @TableName("sys_config")
-public class ConfigEntity implements Serializable{
+public class SysConfigEntity implements Serializable{
 private static final long serialVersionUID = 1L;
 	
 	@TableId(type = IdType.AUTO)

@@ -4,7 +4,7 @@ package com.service;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.entity.ConfigEntity;
+import com.entity.SysConfigEntity;
 import com.utils.PageUtils;
 
 
@@ -13,6 +13,6 @@ import com.utils.PageUtils;
  * @author yangliyuan
  * @date 2019年10月10日 上午9:18:20
  */
-public interface ConfigService extends IService<ConfigEntity> {
+public interface SysConfigService extends IService<SysConfigEntity> {
 	PageUtils queryPage(Map<String, Object> params);
 }

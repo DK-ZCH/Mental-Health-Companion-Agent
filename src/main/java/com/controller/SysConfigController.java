@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.annotation.IgnoreAuth;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.entity.ConfigEntity;
-import com.service.ConfigService;
+import com.entity.SysConfigEntity;
+import com.service.SysConfigService;
 import com.utils.PageUtils;
 import com.utils.R;
 import com.utils.ValidatorUtils;
@@ -26,17 +26,17 @@ import com.utils.ValidatorUtils;
  */
 @RequestMapping("config")
 @RestController
-public class ConfigController{
+public class SysConfigController{
 	
 	@Autowired
-	private ConfigService configService;
+	private SysConfigService configService;
 
 	/**
      * 列表
      */
     @RequestMapping("/page")
-    public R page(@RequestParam Map<String, Object> params,ConfigEntity config){
-        QueryWrapper<ConfigEntity> ew = new QueryWrapper<ConfigEntity>();
+    public R page(@RequestParam Map<String, Object> params,SysConfigEntity config){
+        QueryWrapper<SysConfigEntity> ew = new QueryWrapper<SysConfigEntity>();
     	PageUtils page = configService.queryPage(params);
         return R.ok().put("data", page);
     }
@@ -46,8 +46,8 @@ public class ConfigController{
      */
     @IgnoreAuth
     @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params,ConfigEntity config){
-        QueryWrapper<ConfigEntity> ew = new QueryWrapper<ConfigEntity>();
+    public R list(@RequestParam Map<String, Object> params,SysConfigEntity config){
+        QueryWrapper<SysConfigEntity> ew = new QueryWrapper<SysConfigEntity>();
     	PageUtils page = configService.queryPage(params);
         return R.ok().put("data", page);
     }
@@ -57,7 +57,7 @@ public class ConfigController{
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") String id){
-        ConfigEntity config = configService.getById(id);
+        SysConfigEntity config = configService.getById(id);
         return R.ok().put("data", config);
     }
     
@@ -67,7 +67,7 @@ public class ConfigController{
     @IgnoreAuth
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") String id){
-        ConfigEntity config = configService.getById(id);
+        SysConfigEntity config = configService.getById(id);
         return R.ok().put("data", config);
     }
     
@@ -76,7 +76,7 @@ public class ConfigController{
      */
     @RequestMapping("/info")
     public R infoByName(@RequestParam String name){
-        ConfigEntity config = configService.getOne(new QueryWrapper<ConfigEntity>().eq("config_key", "faceFile"));
+        SysConfigEntity config = configService.getOne(new QueryWrapper<SysConfigEntity>().eq("config_key", "faceFile"));
         return R.ok().put("data", config);
     }
     
@@ -84,7 +84,7 @@ public class ConfigController{
      * 保存
      */
     @PostMapping("/save")
-    public R save(@RequestBody ConfigEntity config){
+    public R save(@RequestBody SysConfigEntity config){
 //    	ValidatorUtils.validateEntity(config);
     	configService.save(config);
         return R.ok();
@@ -94,7 +94,7 @@ public class ConfigController{
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody ConfigEntity config){
+    public R update(@RequestBody SysConfigEntity config){
 //        ValidatorUtils.validateEntity(config);
         configService.updateById(config);//全部更新
         return R.ok();
