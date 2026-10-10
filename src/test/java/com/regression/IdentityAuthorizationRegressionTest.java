@@ -590,6 +590,26 @@ class IdentityAuthorizationRegressionTest {
                 .isNull();
     }
 
+    @Test
+    @DisplayName("21. 管理端账号 分页/列表：仅管理员可访问（Step 5b-A）")
+    void adminUserListIsAdminOnly() throws Exception {
+        // 正面：管理员可访问 —— 防空跑，同时证明下面的 403 来自「角色不符」而非接口坏掉
+        assertAllowed(perform("/users/page?page=1&limit=5", adminToken), "管理员访问管理端账号分页");
+        // 注：/users/list 对【管理员】返回 500 —— 这是【既有故障】，与本批授权改动无关（已实证）：
+        //     · 服务端异常为 BadSqlGrammarException：AdminUserDao.xml 中别名是 u，而控制器传 "user" 前缀
+        //     · git 对比 HEAD 证明方法体一字未改（本批只加了 HttpServletRequest 参数与通过性守卫）
+        //     · 该端点【无任何真实 API 调用方】：学生端 0 处；管理端唯一命中是 router-static.js 的
+        //       模块导入路径 '@/views/modules/users/list'（不是 API 调用）⇒ 故从未被发现
+        //     故本用例只断言「非管理员被拒」（守卫在方法体之前生效，不受该故障影响），
+        //     该 500 已登记为独立观察项，不在本批顺手修改。
+
+        // 反面：学生 / 心理老师一律拒绝（与 /users/info/{id} 同策略）
+        assertDenied(perform("/users/page?page=1&limit=5", studentToken), "学生访问管理端账号分页");
+        assertDenied(perform("/users/list", studentToken), "学生访问管理端账号列表");
+        assertDenied(perform("/users/page?page=1&limit=5", counselorToken), "心理老师访问管理端账号分页");
+        assertDenied(perform("/users/list", counselorToken), "心理老师访问管理端账号列表");
+    }
+
     private String usersPassword(String username) {
         AdminUserEntity user = usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", username));
         return user == null ? null : user.getPassword();

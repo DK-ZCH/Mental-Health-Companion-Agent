@@ -95,7 +95,10 @@ public class AdminUserController {
      * 列表
      */
     @RequestMapping("/page")
-    public R page(@RequestParam Map<String, Object> params,AdminUserEntity user){
+    public R page(@RequestParam Map<String, Object> params,AdminUserEntity user, HttpServletRequest request){
+        // Step 5b-A：管理端账号列表仅管理员可访问（学生/老师一律拒绝）—— 与 /info/{id} 同策略
+        // 取证依据：学生端 front/ 不调用 users/*；仅管理端 users/list.vue 调用
+        OwnershipGuard.assertAdminOnly(request);
         QueryWrapper<AdminUserEntity> ew = new QueryWrapper<AdminUserEntity>();
     	PageUtils page = usersService.queryPage(params, MPUtil.sort(MPUtil.between(MPUtil.allLike(ew, user), params), params));
         return R.ok().put("data", page);
@@ -105,7 +108,9 @@ public class AdminUserController {
      * 列表
      */
     @RequestMapping("/list")
-    public R list( AdminUserEntity user){
+    public R list( AdminUserEntity user, HttpServletRequest request){
+        // Step 5b-A：同上 —— 管理端账号列表仅管理员可访问
+        OwnershipGuard.assertAdminOnly(request);
        	QueryWrapper<AdminUserEntity> ew = new QueryWrapper<AdminUserEntity>();
       	ew.allEq(MPUtil.allEQMapPre( user, "user")); 
         return R.ok().put("data", usersService.selectListView(ew));
