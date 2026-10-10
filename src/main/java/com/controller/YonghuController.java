@@ -31,6 +31,7 @@ import com.service.*;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
 import com.security.DataScope;
+import com.security.CurrentUserProvider;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -392,7 +393,7 @@ public class YonghuController {
     */
     @RequestMapping("/session")
     public R getCurrYonghu(HttpServletRequest request){
-        Integer id = (Integer)request.getSession().getAttribute("userId");
+        Integer id = CurrentUserProvider.currentUserIdOrNull(request);
         YonghuEntity yonghu = yonghuService.getById(id);
         if(yonghu !=null){
             //entity转view

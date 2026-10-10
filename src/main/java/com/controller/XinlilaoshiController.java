@@ -31,6 +31,7 @@ import com.service.*;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
 import com.security.DataScope;
+import com.security.CurrentUserProvider;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -362,7 +363,7 @@ public class XinlilaoshiController {
     */
     @RequestMapping("/session")
     public R getCurrXinlilaoshi(HttpServletRequest request){
-        Integer id = (Integer)request.getSession().getAttribute("userId");
+        Integer id = CurrentUserProvider.currentUserIdOrNull(request);
         XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(id);
         if(xinlilaoshi !=null){
             //entity转view

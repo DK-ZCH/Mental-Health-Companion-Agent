@@ -24,6 +24,7 @@ import com.service.TokenService;
 import com.utils.MPUtil;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
+import com.security.CurrentUserProvider;
 import com.utils.R;
 
 /**
@@ -126,7 +127,7 @@ public class UsersController {
      */
     @RequestMapping("/session")
     public R getCurrUser(HttpServletRequest request){
-    	Integer id = (Integer)request.getSession().getAttribute("userId");
+    	Integer id = CurrentUserProvider.currentUserIdOrNull(request);
         UsersEntity user = usersService.getById(id);
         return R.ok().put("data", user);
     }
