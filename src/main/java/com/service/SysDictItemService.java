@@ -2,14 +2,14 @@ package com.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.utils.PageUtils;
-import com.entity.DictionaryEntity;
+import com.entity.SysDictItemEntity;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 字典 服务类
  */
-public interface DictionaryService extends IService<DictionaryEntity> {
+public interface SysDictItemService extends IService<SysDictItemEntity> {
 
     /**
     * @param params 查询参数

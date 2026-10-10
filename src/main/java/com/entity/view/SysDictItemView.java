@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.DictionaryEntity;
+import com.entity.SysDictItemEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -15,17 +15,17 @@ import java.util.Date;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("sys_dict_item")
-public class DictionaryView extends DictionaryEntity implements Serializable {
+public class SysDictItemView extends SysDictItemEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
 
 
-	public DictionaryView() {
+	public SysDictItemView() {
 
 	}
 
-	public DictionaryView(DictionaryEntity dictionaryEntity) {
+	public SysDictItemView(SysDictItemEntity dictionaryEntity) {
 		BeanUtils.copyProperties(dictionaryEntity, this);
 	}
 

@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <p><b>形态</b>：{@code @SpringBootTest} + {@code @AutoConfigureMockMvc}（方案 A）。
  * 不启动真实端口，但走完整 MVC + 拦截器链，<strong>不对任何环节做 mock</strong>。
  *
- * <p><b>前置条件</b>：需要可用 MySQL —— {@code DictionaryServletContextListener}（{@code @WebListener}）
+ * <p><b>前置条件</b>：需要可用 MySQL —— {@code SysDictItemServletContextListener}（{@code @WebListener}）
  * 在 context 初始化时会查询 {@code sys_dict_item} 表，DB 不可用则上下文启动失败。
  *
  * <p><b>基线数据来源</b>：{@code mental_health_companion_agent} 库的种子数据
@@ -385,13 +385,13 @@ class Phase2CoreRegressionTest {
      * 字典翻译对【实体类简单名】存在隐性依赖，且**失败时是静默的**
      * （{@code categoryLabel} 退化为 null，而接口仍返回 200 + code=0）。
      *
-     * <p>{@code DictionaryServiceImpl.dictionaryConvert()} 在运行期按此规则拼 key：
+     * <p>{@code SysDictItemServiceImpl.dictionaryConvert()} 在运行期按此规则拼 key：
      * <pre>declaringClass.getSimpleName() 去掉 "Entity" 后缀 + "." + 字段名</pre>
      * （{@code NotificationEntity.category} → {@code "Notification.category"}）后查 {@code DICT_CODE}。
      * 「重命名实体类却漏改字典键」（或反之）**无法靠编译发现** —— 本用例把它变成测试可捕获的问题。
      *
      * <p><b>为什么不直接断言接口返回的 categoryLabel</b>：该字段由 {@code dictionaryMap} 回填，
-     * 而 {@code dictionaryMap} 是 {@code DictionaryServletContextListener}（{@code @WebListener}）
+     * 而 {@code dictionaryMap} 是 {@code SysDictItemServletContextListener}（{@code @WebListener}）
      * 写进 ServletContext 的；{@code @SpringBootTest}(MOCK) 不初始化 WebListener → 直接断言会**因环境而假失败**
      * （已实测：label 恒为 null，与重命名无关）。故此处固化【key 推导规则】这一不变式，
      * 端到端行为另由真实容器验证覆盖。
@@ -407,7 +407,7 @@ class Phase2CoreRegressionTest {
         }
         String key = owner + "." + categoryField.getName();
 
-        var dictCodeField = com.service.impl.DictionaryServiceImpl.class.getDeclaredField("DICT_CODE");
+        var dictCodeField = com.service.impl.SysDictItemServiceImpl.class.getDeclaredField("DICT_CODE");
         dictCodeField.setAccessible(true);
         @SuppressWarnings("unchecked")
         Map<String, String> dictCode = (Map<String, String>) dictCodeField.get(null);

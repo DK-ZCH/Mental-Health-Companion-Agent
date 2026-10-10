@@ -10,17 +10,17 @@ import com.utils.PageUtils;
 import com.utils.Query;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.DictionaryDao;
-import com.entity.DictionaryEntity;
-import com.service.DictionaryService;
-import com.entity.view.DictionaryView;
+import com.dao.SysDictItemDao;
+import com.entity.SysDictItemEntity;
+import com.service.SysDictItemService;
+import com.entity.view.SysDictItemView;
 
 /**
  * 字典 服务实现类
  */
 @Service("dictionaryService")
 @Transactional
-public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, DictionaryEntity> implements DictionaryService {
+public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemDao, SysDictItemEntity> implements SysDictItemService {
 
     /**
      * 显式字典映射：编码字段 -> 字典编码。
@@ -60,7 +60,7 @@ public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<DictionaryView> page = new Query<DictionaryView>(params).getPage();
+        Page<SysDictItemView> page = new Query<SysDictItemView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }

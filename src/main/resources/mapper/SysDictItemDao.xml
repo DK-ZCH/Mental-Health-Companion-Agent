@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dao.DictionaryDao">
+<mapper namespace="com.dao.SysDictItemDao">
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
@@ -13,7 +13,7 @@
         ,a.remark as remark
         ,a.created_at as createdAt
     </sql>
-    <select id="selectListView" parameterType="map" resultType="com.entity.view.DictionaryView" >
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.SysDictItemView" >
         SELECT
         <include refid="Base_Column_List" />
 

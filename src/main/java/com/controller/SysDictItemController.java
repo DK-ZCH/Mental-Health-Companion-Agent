@@ -15,7 +15,7 @@ import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
 
-import com.service.DictionaryService;
+import com.service.SysDictItemService;
 import org.apache.commons.lang3.StringUtils;
 import com.annotation.IgnoreAuth;
 import org.slf4j.Logger;
@@ -41,11 +41,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/dictionary")
-public class DictionaryController {
-    private static final Logger logger = LoggerFactory.getLogger(DictionaryController.class);
+public class SysDictItemController {
+    private static final Logger logger = LoggerFactory.getLogger(SysDictItemController.class);
 
     @Autowired
-    private DictionaryService dictionaryService;
+    private SysDictItemService dictionaryService;
 
 
     @Autowired
@@ -72,8 +72,8 @@ public class DictionaryController {
         PageUtils page = dictionaryService.queryPage(params);
 
         //字典表数据转换
-        List<DictionaryView> list =(List<DictionaryView>)page.getList();
-        for(DictionaryView c:list){
+        List<SysDictItemView> list =(List<SysDictItemView>)page.getList();
+        for(SysDictItemView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -86,10 +86,10 @@ public class DictionaryController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        DictionaryEntity dictionary = dictionaryService.getById(id);
+        SysDictItemEntity dictionary = dictionaryService.getById(id);
         if(dictionary !=null){
             //entity转view
-            DictionaryView view = new DictionaryView();
+            SysDictItemView view = new SysDictItemView();
             BeanUtils.copyProperties( dictionary , view );//把实体数据重构到view中
 
             //修改对应字典表字段
@@ -105,14 +105,14 @@ public class DictionaryController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody DictionaryEntity dictionary, HttpServletRequest request){
+    public R save(@RequestBody SysDictItemEntity dictionary, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,dictionary:{}",this.getClass().getName(),dictionary.toString());
 
 
         if(false)
             return R.error(511,"永远不会进入");
 
-        QueryWrapper<DictionaryEntity> queryWrapper = new QueryWrapper<DictionaryEntity>()
+        QueryWrapper<SysDictItemEntity> queryWrapper = new QueryWrapper<SysDictItemEntity>()
             .eq("dict_code", dictionary.getDictCode())
             .eq("item_name", dictionary.getItemName())
             ;
@@ -121,15 +121,15 @@ public class DictionaryController {
         }
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        DictionaryEntity dictionaryEntity = dictionaryService.getOne(queryWrapper);
+        SysDictItemEntity dictionaryEntity = dictionaryService.getOne(queryWrapper);
         if(dictionaryEntity==null){
             dictionary.setCreatedAt(new Date());
             dictionaryService.save(dictionary);
             //字典表新增数据,把数据再重新查出,放入监听器中
-            List<DictionaryEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<DictionaryEntity>());
+            List<SysDictItemEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<SysDictItemEntity>());
             ServletContext servletContext = request.getServletContext();
             Map<String, Map<Integer,String>> map = new HashMap<>();
-            for(DictionaryEntity d :dictionaryEntities){
+            for(SysDictItemEntity d :dictionaryEntities){
                 Map<Integer, String> m = map.get(d.getDictCode());
                 if(m ==null || m.isEmpty()){
                     m = new HashMap<>();
@@ -148,14 +148,14 @@ public class DictionaryController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody DictionaryEntity dictionary, HttpServletRequest request){
+    public R update(@RequestBody SysDictItemEntity dictionary, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,dictionary:{}",this.getClass().getName(),dictionary.toString());
 
 
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        QueryWrapper<DictionaryEntity> queryWrapper = new QueryWrapper<DictionaryEntity>()
+        QueryWrapper<SysDictItemEntity> queryWrapper = new QueryWrapper<SysDictItemEntity>()
             .notIn("id",dictionary.getId())
             .eq("dict_code", dictionary.getDictCode())
             .eq("item_name", dictionary.getItemName())
@@ -165,14 +165,14 @@ public class DictionaryController {
             queryWrapper.eq("parent_id",dictionary.getParentId());
         }
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        DictionaryEntity dictionaryEntity = dictionaryService.getOne(queryWrapper);
+        SysDictItemEntity dictionaryEntity = dictionaryService.getOne(queryWrapper);
         if(dictionaryEntity==null){
             dictionaryService.updateById(dictionary);//根据id更新
             //如果字典表修改数据的话,把数据再重新查出,放入监听器中
-            List<DictionaryEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<DictionaryEntity>());
+            List<SysDictItemEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<SysDictItemEntity>());
             ServletContext servletContext = request.getServletContext();
             Map<String, Map<Integer,String>> map = new HashMap<>();
-            for(DictionaryEntity d :dictionaryEntities){
+            for(SysDictItemEntity d :dictionaryEntities){
                 Map<Integer, String> m = map.get(d.getDictCode());
                 if(m ==null || m.isEmpty()){
                     m = new HashMap<>();
@@ -201,15 +201,15 @@ public class DictionaryController {
      * 最大值
      */
     @RequestMapping("/maxItemCode")
-    public R maxItemCode(@RequestBody DictionaryEntity dictionary){
+    public R maxItemCode(@RequestBody SysDictItemEntity dictionary){
         logger.debug("maxItemCode:,,Controller:{},,dictionary:{}",this.getClass().getName(),dictionary.toString());
         List<String> descs = new ArrayList<>();
         descs.add("item_code");
-        QueryWrapper<DictionaryEntity> queryWrapper = new QueryWrapper<DictionaryEntity>()
+        QueryWrapper<SysDictItemEntity> queryWrapper = new QueryWrapper<SysDictItemEntity>()
                 .eq("dict_code", dictionary.getDictCode())
                 .orderByDesc(descs);
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        List<DictionaryEntity> dictionaryEntityList = dictionaryService.list(queryWrapper);
+        List<SysDictItemEntity> dictionaryEntityList = dictionaryService.list(queryWrapper);
         if(dictionaryEntityList != null ){
             return R.ok().put("maxItemCode",dictionaryEntityList.get(0).getItemCode()+1);
         }else{
@@ -226,7 +226,7 @@ public class DictionaryController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<DictionaryEntity> dictionaryList = new ArrayList<>();//上传的东西
+            List<SysDictItemEntity> dictionaryList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -246,7 +246,7 @@ public class DictionaryController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            DictionaryEntity dictionaryEntity = new DictionaryEntity();
+                            SysDictItemEntity dictionaryEntity = new SysDictItemEntity();
 //                            dictionaryEntity.setDictCode(data.get(0));                    //字段 要改的
 //                            dictionaryEntity.setDictName(data.get(0));                    //字段名 要改的
 //                            dictionaryEntity.setItemCode(Integer.valueOf(data.get(0)));   //编码 要改的

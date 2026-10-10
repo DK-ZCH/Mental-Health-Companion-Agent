@@ -27,15 +27,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
  * @email
  */
 @TableName("sys_dict_item")
-public class DictionaryEntity<T> implements Serializable {
+public class SysDictItemEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-	public DictionaryEntity() {
+	public SysDictItemEntity() {
 
 	}
 
-	public DictionaryEntity(T t) {
+	public SysDictItemEntity(T t) {
 		BeanUtils.copyProperties(t, this);
 	}
 
@@ -214,7 +214,7 @@ public class DictionaryEntity<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Dictionary{" +
+        return "SysDictItem{" +
             "id=" + id +
             ", dictCode=" + dictCode +
             ", dictName=" + dictName +

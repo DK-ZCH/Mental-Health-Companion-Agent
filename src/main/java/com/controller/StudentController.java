@@ -15,7 +15,7 @@ import com.service.TokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
 
-import com.service.DictionaryService;
+import com.service.SysDictItemService;
 import org.apache.commons.lang3.StringUtils;
 import com.annotation.IgnoreAuth;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class StudentController {
     @Autowired
     private TokenService tokenService;
     @Autowired
-    private DictionaryService dictionaryService;
+    private SysDictItemService dictionaryService;
 
     //级联表service
 

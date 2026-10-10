@@ -1,8 +1,8 @@
 package com.ServletContextListener;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.entity.DictionaryEntity;
-import com.service.DictionaryService;
+import com.entity.SysDictItemEntity;
+import com.service.SysDictItemService;
 import com.thread.MyThreadMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,9 @@ import java.util.Map;
  * 字典初始化监视器  用的是服务器监听,每次项目启动,都会调用这个类
  */
 @WebListener
-public class DictionaryServletContextListener implements ServletContextListener {
+public class SysDictItemServletContextListener implements ServletContextListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(DictionaryServletContextListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(SysDictItemServletContextListener.class);
     private MyThreadMethod myThreadMethod;
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
@@ -34,10 +34,10 @@ public class DictionaryServletContextListener implements ServletContextListener 
         ApplicationContext appContext = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
 
         logger.info("----------字典表初始化开始----------");
-        DictionaryService dictionaryService = (DictionaryService)appContext.getBean("dictionaryService");
-        List<DictionaryEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<DictionaryEntity>());
+        SysDictItemService dictionaryService = (SysDictItemService)appContext.getBean("dictionaryService");
+        List<SysDictItemEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<SysDictItemEntity>());
         Map<String, Map<Integer,String>> map = new HashMap<>();
-        for(DictionaryEntity d :dictionaryEntities){
+        for(SysDictItemEntity d :dictionaryEntities){
             Map<Integer, String> m = map.get(d.getDictCode());
             if(m ==null || m.isEmpty()){
                 m = new HashMap<>();
