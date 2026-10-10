@@ -22,7 +22,7 @@ import com.utils.Query;
  * @date 2019年10月10日 上午9:17:59
  */
 @Service("configService")
-public class SysSysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEntity> implements SysConfigService {
+public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEntity> implements SysConfigService {
 	@Override
 	public PageUtils queryPage(Map<String, Object> params) {
 		Page<SysConfigEntity> page = this.page(
