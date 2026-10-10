@@ -34,9 +34,10 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * <p>⚠️ 未以「38 项回归通过」作为等价性依据 —— 该回归网**不覆盖 role 缺失路径**。
  *
- * <p><b>依赖关系</b>：本类只依赖 {@link OwnershipGuard}（同包），
- * <b>不依赖任何 Controller</b>（无反向依赖）。当前 {@code currentRole} 委托给守卫的既有实现以避免
- * 身份读取出现第二份实现；本步边界禁止改动守卫，故未反向调整依赖方向（留待后续步骤）。
+ * <p><b>依赖方向（已反转完成）</b>：{@code Controller → CurrentUserProvider → Session}，
+ * 而 {@link OwnershipGuard} / {@code DataScope} 的自身 id/角色读取<b>委托到本类</b>。
+ * 因此：① 身份读取只有**一份实现**（本类）；② 本类**不依赖任何 Controller**，也不依赖守卫
+ * （无循环依赖）。
  */
 public final class CurrentUserProvider {
 
@@ -46,10 +47,12 @@ public final class CurrentUserProvider {
     /**
      * 当前登录角色；Session 中不存在时返回 {@code null}。
      *
-     * @see OwnershipGuard#currentRole(HttpServletRequest)
+     * <p><b>本类是身份读取的唯一实现</b>（依赖反转后）：{@link OwnershipGuard} 与本类的
+     * {@link #currentUserIdOrNull} 都委托到此，故「Session 怎么读」只有一处定义。
      */
     public static String currentRole(HttpServletRequest request) {
-        return OwnershipGuard.currentRole(request);
+        Object v = request.getSession().getAttribute("role");
+        return v == null ? null : String.valueOf(v);
     }
 
     /**
@@ -59,7 +62,8 @@ public final class CurrentUserProvider {
      * 交由下游各自处理），<b>不改变语义</b>。
      */
     public static Integer currentUserIdOrNull(HttpServletRequest request) {
-        return OwnershipGuard.currentUserId(request);
+        Object v = request.getSession().getAttribute("userId");
+        return (v instanceof Integer) ? (Integer) v : null;
     }
 
     /**
@@ -80,7 +84,7 @@ public final class CurrentUserProvider {
      * （<b>意外</b> fail-closed）。两者失败模式不一致 → 收敛后**一律 fail-closed**。
      */
     public static Integer requireCurrentUserId(HttpServletRequest request) {
-        Integer userId = OwnershipGuard.currentUserId(request);
+        Integer userId = currentUserIdOrNull(request);
         if (userId == null) {
             throw new ForbiddenException();
         }

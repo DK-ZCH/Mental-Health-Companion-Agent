@@ -297,16 +297,23 @@ public final class OwnershipGuard {
         deny();
     }
 
-    /** 当前登录用户 id（来自 Session；未登录时由拦截器保证不会走到这里） */
+    /**
+     * 当前登录用户 id（来自 Session；未登录时由拦截器保证不会走到这里）。
+     *
+     * <p><b>依赖反转后委托给 {@link CurrentUserProvider}</b> —— 本方法保留公开签名（
+     * {@code DataScope} 等仍在用），但身份读取的实现只有 `CurrentUserProvider` 一处。
+     */
     public static Integer currentUserId(HttpServletRequest request) {
-        Object v = request.getSession().getAttribute("userId");
-        return (v instanceof Integer) ? (Integer) v : null;
+        return CurrentUserProvider.currentUserIdOrNull(request);
     }
 
-    /** 当前登录角色（来自 Session） */
+    /**
+     * 当前登录角色（来自 Session）。
+     *
+     * <p><b>依赖反转后委托给 {@link CurrentUserProvider}</b>（同上：签名保留，实现唯一）。
+     */
     public static String currentRole(HttpServletRequest request) {
-        Object v = request.getSession().getAttribute("role");
-        return v == null ? null : String.valueOf(v);
+        return CurrentUserProvider.currentRole(request);
     }
 
     /**
