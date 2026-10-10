@@ -59,7 +59,7 @@ public class AssessmentPaperController {
     @Autowired
     private StudentService yonghuService;
     @Autowired
-    private XinlilaoshiService xinlilaoshiService;
+    private CounselorService xinlilaoshiService;
 
 
     /**

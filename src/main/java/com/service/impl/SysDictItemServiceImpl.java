@@ -36,7 +36,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemDao, SysDictI
     static {
         // 学生 / 心理老师 性别
         DICT_CODE.put("Student.gender", "gender");
-        DICT_CODE.put("Xinlilaoshi.gender", "gender");
+        DICT_CODE.put("Counselor.gender", "gender");
         // 测评量表状态
         DICT_CODE.put("AssessmentPaper.status", "assessment_paper_status");
         // 测评题目类型

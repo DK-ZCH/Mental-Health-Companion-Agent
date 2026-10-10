@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.XinlilaoshiDao;
-import com.entity.XinlilaoshiEntity;
-import com.service.XinlilaoshiService;
-import com.entity.view.XinlilaoshiView;
+import com.dao.CounselorDao;
+import com.entity.CounselorEntity;
+import com.service.CounselorService;
+import com.entity.view.CounselorView;
 
 /**
  * 心理老师 服务实现类
  */
 @Service("xinlilaoshiService")
 @Transactional
-public class XinlilaoshiServiceImpl extends ServiceImpl<XinlilaoshiDao, XinlilaoshiEntity> implements XinlilaoshiService {
+public class CounselorServiceImpl extends ServiceImpl<CounselorDao, CounselorEntity> implements CounselorService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class XinlilaoshiServiceImpl extends ServiceImpl<XinlilaoshiDao, Xinlilao
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<XinlilaoshiView> page =new Query<XinlilaoshiView>(params).getPage();
+        Page<CounselorView> page =new Query<CounselorView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }

@@ -56,7 +56,7 @@ public class SysDictItemController {
     @Autowired
     private StudentService yonghuService;
     @Autowired
-    private XinlilaoshiService xinlilaoshiService;
+    private CounselorService xinlilaoshiService;
 
 
     /**

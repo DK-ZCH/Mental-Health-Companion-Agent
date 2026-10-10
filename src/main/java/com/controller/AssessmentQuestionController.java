@@ -61,7 +61,7 @@ public class AssessmentQuestionController {
     @Autowired
     private StudentService yonghuService;
     @Autowired
-    private XinlilaoshiService xinlilaoshiService;
+    private CounselorService xinlilaoshiService;
 
 
     /**

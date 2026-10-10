@@ -59,7 +59,7 @@ public class StudentController {
     //级联表service
 
     @Autowired
-    private XinlilaoshiService xinlilaoshiService;
+    private CounselorService xinlilaoshiService;
 
 
     /**

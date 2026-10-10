@@ -44,11 +44,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/xinlilaoshi")
-public class XinlilaoshiController {
-    private static final Logger logger = LoggerFactory.getLogger(XinlilaoshiController.class);
+public class CounselorController {
+    private static final Logger logger = LoggerFactory.getLogger(CounselorController.class);
 
     @Autowired
-    private XinlilaoshiService xinlilaoshiService;
+    private CounselorService xinlilaoshiService;
 
 
     @Autowired
@@ -76,8 +76,8 @@ public class XinlilaoshiController {
         PageUtils page = xinlilaoshiService.queryPage(params);
 
         //字典表数据转换
-        List<XinlilaoshiView> list =(List<XinlilaoshiView>)page.getList();
-        for(XinlilaoshiView c:list){
+        List<CounselorView> list =(List<CounselorView>)page.getList();
+        for(CounselorView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -90,10 +90,10 @@ public class XinlilaoshiController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(id);
+        CounselorEntity xinlilaoshi = xinlilaoshiService.getById(id);
         if(xinlilaoshi !=null){
             //entity转view
-            XinlilaoshiView view = new XinlilaoshiView();
+            CounselorView view = new CounselorView();
             BeanUtils.copyProperties( xinlilaoshi , view );//把实体数据重构到view中
 
             //修改对应字典表字段
@@ -109,21 +109,21 @@ public class XinlilaoshiController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody XinlilaoshiEntity xinlilaoshi, HttpServletRequest request){
+    public R save(@RequestBody CounselorEntity xinlilaoshi, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
 
 
         if(false)
             return R.error(511,"永远不会进入");
 
-        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
+        QueryWrapper<CounselorEntity> queryWrapper = new QueryWrapper<CounselorEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
             .eq("phone", xinlilaoshi.getPhone())
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
+        CounselorEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity==null){
             xinlilaoshi.setCreatedAt(new Date());
             xinlilaoshi.setPassword("123456");
@@ -138,12 +138,12 @@ public class XinlilaoshiController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody XinlilaoshiEntity xinlilaoshi, HttpServletRequest request){
+    public R update(@RequestBody CounselorEntity xinlilaoshi, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
 
         // Step 5 批4-B：资料更新授权（业务规则 Q2）—— 管理员放行（管理端编辑）/ 心理老师仅限【本人】/ 学生与其他拒绝
         // Q1 取证结论：老师对业务数据没有写入口（回复留言由管理员在管理端完成），故老师不可改他人资料
-        XinlilaoshiEntity existing = xinlilaoshi.getId() == null ? null : xinlilaoshiService.getById(xinlilaoshi.getId());
+        CounselorEntity existing = xinlilaoshi.getId() == null ? null : xinlilaoshiService.getById(xinlilaoshi.getId());
         OwnershipGuard.assertSelfOrAdmin(request, OwnershipGuard.ROLE_COUNSELOR, xinlilaoshi.getId(), existing);
         // Q2：工号（username）、性别（gender）属固定身份信息 → 自助更新时由服务端恢复库中现值；
         //     expertise / resume / introduction（个人描述）等非固定信息允许本人修改
@@ -152,7 +152,7 @@ public class XinlilaoshiController {
             xinlilaoshi.setGender(existing.getGender());
         }
         //根据字段查询是否有相同数据
-        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
+        QueryWrapper<CounselorEntity> queryWrapper = new QueryWrapper<CounselorEntity>()
             .notIn("id",xinlilaoshi.getId()).and(w -> w
             .eq("username", xinlilaoshi.getUsername())
             .or()
@@ -160,7 +160,7 @@ public class XinlilaoshiController {
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
+        CounselorEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if("".equals(xinlilaoshi.getAvatarUrl()) || "null".equals(xinlilaoshi.getAvatarUrl())){
                 xinlilaoshi.setAvatarUrl(null);
         }
@@ -192,7 +192,7 @@ public class XinlilaoshiController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<XinlilaoshiEntity> xinlilaoshiList = new ArrayList<>();//上传的东西
+            List<CounselorEntity> xinlilaoshiList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -212,7 +212,7 @@ public class XinlilaoshiController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            XinlilaoshiEntity xinlilaoshiEntity = new XinlilaoshiEntity();
+                            CounselorEntity xinlilaoshiEntity = new CounselorEntity();
 //                            xinlilaoshiEntity.setUsername(data.get(0));                    //账户 要改的
 //                            //xinlilaoshiEntity.setPassword("123456");//密码
 //                            xinlilaoshiEntity.setName(data.get(0));                    //心理老师姓名 要改的
@@ -250,19 +250,19 @@ public class XinlilaoshiController {
 
                         //查询是否重复
                          //账户
-                        List<XinlilaoshiEntity> xinlilaoshiEntities_username = xinlilaoshiService.list(new QueryWrapper<XinlilaoshiEntity>().in("username", seachFields.get("username")));
+                        List<CounselorEntity> xinlilaoshiEntities_username = xinlilaoshiService.list(new QueryWrapper<CounselorEntity>().in("username", seachFields.get("username")));
                         if(xinlilaoshiEntities_username.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
-                            for(XinlilaoshiEntity s:xinlilaoshiEntities_username){
+                            for(CounselorEntity s:xinlilaoshiEntities_username){
                                 repeatFields.add(s.getUsername());
                             }
                             return R.error(511,"数据库的该表中的 [账户] 字段已经存在 存在数据为:"+repeatFields.toString());
                         }
                          //心理老师手机号
-                        List<XinlilaoshiEntity> xinlilaoshiEntities_xinlilaoshiPhone = xinlilaoshiService.list(new QueryWrapper<XinlilaoshiEntity>().in("phone", seachFields.get("phone")));
+                        List<CounselorEntity> xinlilaoshiEntities_xinlilaoshiPhone = xinlilaoshiService.list(new QueryWrapper<CounselorEntity>().in("phone", seachFields.get("phone")));
                         if(xinlilaoshiEntities_xinlilaoshiPhone.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
-                            for(XinlilaoshiEntity s:xinlilaoshiEntities_xinlilaoshiPhone){
+                            for(CounselorEntity s:xinlilaoshiEntities_xinlilaoshiPhone){
                                 repeatFields.add(s.getPhone());
                             }
                             return R.error(511,"数据库的该表中的 [心理老师手机号] 字段已经存在 存在数据为:"+repeatFields.toString());
@@ -285,7 +285,7 @@ public class XinlilaoshiController {
     @IgnoreAuth
     @RequestMapping(value = "/login")
     public R login(String username, String password, String captcha, HttpServletRequest request) {
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<XinlilaoshiEntity>().eq("username", username));
+        CounselorEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<CounselorEntity>().eq("username", username));
         if(xinlilaoshi==null || !xinlilaoshi.getPassword().equals(password))
             return R.error("账号或密码不正确");
         //  // 获取监听器中的字典表
@@ -308,14 +308,14 @@ public class XinlilaoshiController {
     */
     @IgnoreAuth
     @PostMapping(value = "/register")
-    public R register(@RequestBody XinlilaoshiEntity xinlilaoshi){
+    public R register(@RequestBody CounselorEntity xinlilaoshi){
 //    	ValidatorUtils.validateEntity(user);
-        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
+        QueryWrapper<CounselorEntity> queryWrapper = new QueryWrapper<CounselorEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
             .eq("phone", xinlilaoshi.getPhone())
             ;
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
+        CounselorEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity != null)
             return R.error("账户或者心理老师手机号已经被使用");
         xinlilaoshi.setCreatedAt(new Date());
@@ -330,7 +330,7 @@ public class XinlilaoshiController {
     public R resetPassword(Integer  id, HttpServletRequest request){
         // Step 5 批2：归属授权 —— 管理端「重置密码」按钮的调用目标（xinlilaoshi/list.vue:750）→ 限管理员
         OwnershipGuard.assertAdminOnly(request);
-        XinlilaoshiEntity xinlilaoshi = new XinlilaoshiEntity();
+        CounselorEntity xinlilaoshi = new CounselorEntity();
         xinlilaoshi.setPassword("123456");
         xinlilaoshi.setId(id);
         xinlilaoshiService.updateById(xinlilaoshi);
@@ -344,7 +344,7 @@ public class XinlilaoshiController {
     @IgnoreAuth
     @RequestMapping(value = "/resetPass")
     public R resetPass(String username, HttpServletRequest request) {
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<XinlilaoshiEntity>().eq("username", username));
+        CounselorEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<CounselorEntity>().eq("username", username));
         if(xinlilaoshi!=null){
             xinlilaoshi.setPassword("123456");
             boolean b = xinlilaoshiService.updateById(xinlilaoshi);
@@ -362,12 +362,12 @@ public class XinlilaoshiController {
     * 获取学生的session学生信息
     */
     @RequestMapping("/session")
-    public R getCurrXinlilaoshi(HttpServletRequest request){
+    public R getCurrCounselor(HttpServletRequest request){
         Integer id = CurrentUserProvider.currentUserIdOrNull(request);
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(id);
+        CounselorEntity xinlilaoshi = xinlilaoshiService.getById(id);
         if(xinlilaoshi !=null){
             //entity转view
-            XinlilaoshiView view = new XinlilaoshiView();
+            CounselorView view = new CounselorView();
             BeanUtils.copyProperties( xinlilaoshi , view );//把实体数据重构到view中
 
             //修改对应字典表字段
@@ -406,8 +406,8 @@ public class XinlilaoshiController {
         PageUtils page = xinlilaoshiService.queryPage(params);
 
         //字典表数据转换
-        List<XinlilaoshiView> list =(List<XinlilaoshiView>)page.getList();
-        for(XinlilaoshiView c:list)
+        List<CounselorView> list =(List<CounselorView>)page.getList();
+        for(CounselorView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -418,12 +418,12 @@ public class XinlilaoshiController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(id);
+        CounselorEntity xinlilaoshi = xinlilaoshiService.getById(id);
             if(xinlilaoshi !=null){
 
 
                 //entity转view
-                XinlilaoshiView view = new XinlilaoshiView();
+                CounselorView view = new CounselorView();
                 BeanUtils.copyProperties( xinlilaoshi , view );//把实体数据重构到view中
 
                 //修改对应字典表字段
@@ -439,15 +439,15 @@ public class XinlilaoshiController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody XinlilaoshiEntity xinlilaoshi, HttpServletRequest request){
+    public R add(@RequestBody CounselorEntity xinlilaoshi, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
-        QueryWrapper<XinlilaoshiEntity> queryWrapper = new QueryWrapper<XinlilaoshiEntity>()
+        QueryWrapper<CounselorEntity> queryWrapper = new QueryWrapper<CounselorEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()
             .eq("phone", xinlilaoshi.getPhone())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
+        CounselorEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity==null){
             xinlilaoshi.setCreatedAt(new Date());
         xinlilaoshi.setPassword("123456");

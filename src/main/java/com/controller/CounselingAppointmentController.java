@@ -60,7 +60,7 @@ public class CounselingAppointmentController {
     @Autowired
     private StudentService yonghuService;
     @Autowired
-    private XinlilaoshiService xinlilaoshiService;
+    private CounselorService xinlilaoshiService;
 
 
 
@@ -109,7 +109,7 @@ public class CounselingAppointmentController {
                     view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiOrder.getCounselorId());
+                CounselorEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiOrder.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createdAt", "appliedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setCounselorId(xinlilaoshi.getId());
@@ -309,7 +309,7 @@ public class CounselingAppointmentController {
                     view.setStudentId(yonghu.getId());
                 }
                 //级联表
-                    XinlilaoshiEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiOrder.getCounselorId());
+                    CounselorEntity xinlilaoshi = xinlilaoshiService.getById(xinlilaoshiOrder.getCounselorId());
                 if(xinlilaoshi != null){
                     BeanUtils.copyProperties( xinlilaoshi , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setCounselorId(xinlilaoshi.getId());
@@ -329,11 +329,11 @@ public class CounselingAppointmentController {
     @RequestMapping("/add")
     public R add(@RequestBody CounselingAppointmentEntity xinlilaoshiOrder, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,xinlilaoshiOrder:{}",this.getClass().getName(),xinlilaoshiOrder.toString());
-            XinlilaoshiEntity xinlilaoshiEntity = xinlilaoshiService.getById(xinlilaoshiOrder.getCounselorId());
+            CounselorEntity xinlilaoshiEntity = xinlilaoshiService.getById(xinlilaoshiOrder.getCounselorId());
             if(xinlilaoshiEntity == null){
                 return R.error(511,"查不到该心理老师");
             }
-            // Double xinlilaoshiNewMoney = xinlilaoshiEntity.getXinlilaoshiNewMoney();
+            // Double xinlilaoshiNewMoney = xinlilaoshiEntity.getCounselorNewMoney();
 
             if(false){
             }

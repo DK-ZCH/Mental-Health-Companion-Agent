@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.XinlilaoshiEntity;
+import com.entity.CounselorEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -15,7 +15,7 @@ import java.util.Date;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("counselor")
-public class XinlilaoshiView extends XinlilaoshiEntity implements Serializable {
+public class CounselorView extends CounselorEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
@@ -25,11 +25,11 @@ public class XinlilaoshiView extends XinlilaoshiEntity implements Serializable {
 
 
 
-	public XinlilaoshiView() {
+	public CounselorView() {
 
 	}
 
-	public XinlilaoshiView(XinlilaoshiEntity xinlilaoshiEntity) {
+	public CounselorView(CounselorEntity xinlilaoshiEntity) {
 		BeanUtils.copyProperties(xinlilaoshiEntity, this);
 	}
 

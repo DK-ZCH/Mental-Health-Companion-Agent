@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.TokenEntity;
 import com.entity.UsersEntity;
 import com.entity.CounselorFavoriteEntity;
-import com.entity.XinlilaoshiEntity;
+import com.entity.CounselorEntity;
 import com.entity.CounselorMessageEntity;
 import com.entity.StudentEntity;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,7 +15,7 @@ import com.service.CounselorFavoriteService;
 import com.service.CounselorMessageService;
 import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
-import com.service.XinlilaoshiService;
+import com.service.CounselorService;
 import com.service.StudentService;
 
 import java.util.Date;
@@ -90,7 +90,7 @@ class IdentityAuthorizationRegressionTest {
     private StudentService yonghuService;
 
     @Autowired
-    private XinlilaoshiService xinlilaoshiService;
+    private CounselorService xinlilaoshiService;
 
     /** 批 3B：写路径归属断言所需 */
     @Autowired
@@ -277,7 +277,7 @@ class IdentityAuthorizationRegressionTest {
 
     /** 读取心理老师当前密码（作为「前后快照」） */
     private String counselorPassword(int id) {
-        XinlilaoshiEntity entity = xinlilaoshiService.getById(id);
+        CounselorEntity entity = xinlilaoshiService.getById(id);
         return entity == null ? null : entity.getPassword();
     }
 
@@ -492,7 +492,7 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("23. 老师：改自己资料可成功（描述等非固定信息），改学生资料 403；工号/性别被恢复")
     void counselorSelfOnly_andCannotTouchStudentProfile() throws Exception {
-        XinlilaoshiEntity before = xinlilaoshiService.getById(1);
+        CounselorEntity before = xinlilaoshiService.getById(1);
         assertThat(before.getUsername()).as("前置：工号应存在（防空跑）").isNotNull();
 
         // 老师改【自己】：可改（含 expertise/resume/introduction 等非固定信息）
@@ -501,7 +501,7 @@ class IdentityAuthorizationRegressionTest {
                         + before.getResume() + "\",\"username\":\"HACKED-3\",\"gender\":9}"),
                 "老师修改自己的资料");
 
-        XinlilaoshiEntity after = xinlilaoshiService.getById(1);
+        CounselorEntity after = xinlilaoshiService.getById(1);
         assertThat(after.getUsername()).as("工号不得被自助修改").isEqualTo(before.getUsername());
         assertThat(after.getGender()).as("性别不得被自助修改").isEqualTo(before.getGender());
 

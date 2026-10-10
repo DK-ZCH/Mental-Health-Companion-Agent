@@ -28,15 +28,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
  * @email
  */
 @TableName("counselor")
-public class XinlilaoshiEntity<T> implements Serializable {
+public class CounselorEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-	public XinlilaoshiEntity() {
+	public CounselorEntity() {
 
 	}
 
-	public XinlilaoshiEntity(T t) {
+	public CounselorEntity(T t) {
 		BeanUtils.copyProperties(t, this);
 	}
 
@@ -300,7 +300,7 @@ public class XinlilaoshiEntity<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Xinlilaoshi{" +
+        return "Counselor{" +
             "id=" + id +
             ", username=" + username +
             ", password=" + password +
