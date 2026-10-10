@@ -134,9 +134,9 @@ public class XinlilaoshiOrderController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("心理老师".equals(role))
-            xinlilaoshiOrder.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiOrder.setCounselorId(CurrentUserProvider.requireCurrentUserId(request));
         else if("学生".equals(role))
-            xinlilaoshiOrder.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiOrder.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
         xinlilaoshiOrder.setAppliedAt(new Date());
         xinlilaoshiOrder.setCreatedAt(new Date());
@@ -340,7 +340,7 @@ public class XinlilaoshiOrderController {
 
             //计算所获得积分
             Double buyJifen =0.0;
-            Integer userId = (Integer) request.getSession().getAttribute("userId");
+            Integer userId = CurrentUserProvider.requireCurrentUserId(request);
             xinlilaoshiOrder.setStudentId(userId); //设置订单支付人id
             xinlilaoshiOrder.setAppointmentNo(String.valueOf(new Date().getTime()));
             xinlilaoshiOrder.setAppliedAt(new Date());

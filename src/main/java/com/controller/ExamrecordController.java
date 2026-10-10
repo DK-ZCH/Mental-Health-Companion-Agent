@@ -136,7 +136,7 @@ public class ExamrecordController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("学生".equals(role))
-            examrecord.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            examrecord.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
         QueryWrapper<ExamrecordEntity> queryWrapper = new QueryWrapper<ExamrecordEntity>()
             .eq("record_no", examrecord.getRecordNo())
@@ -373,7 +373,7 @@ public class ExamrecordController {
         examrecord.setRecordNo(uuid);
         examrecord.setPaperId(paperId);
         examrecord.setTotalScore(0);
-        examrecord.setStudentId((Integer) request.getSession().getAttribute("userId"));
+        examrecord.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
         examrecord.setSubmittedAt(new Date());
         examrecord.setCreatedAt(new Date());
         boolean insert = examrecordService.save(examrecord);

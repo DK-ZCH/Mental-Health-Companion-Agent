@@ -144,7 +144,7 @@ public class ExamrewrongquestionController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("学生".equals(role))
-            examrewrongquestion.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            examrewrongquestion.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
         QueryWrapper<ExamrewrongquestionEntity> queryWrapper = new QueryWrapper<ExamrewrongquestionEntity>()
             .eq("student_id", examrewrongquestion.getStudentId())

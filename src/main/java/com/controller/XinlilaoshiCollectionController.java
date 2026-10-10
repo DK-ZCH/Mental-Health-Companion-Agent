@@ -134,9 +134,9 @@ public class XinlilaoshiCollectionController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("心理老师".equals(role))
-            xinlilaoshiCollection.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiCollection.setCounselorId(CurrentUserProvider.requireCurrentUserId(request));
         else if("学生".equals(role))
-            xinlilaoshiCollection.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiCollection.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
         QueryWrapper<XinlilaoshiCollectionEntity> queryWrapper = new QueryWrapper<XinlilaoshiCollectionEntity>()
             .eq("counselor_id", xinlilaoshiCollection.getCounselorId())

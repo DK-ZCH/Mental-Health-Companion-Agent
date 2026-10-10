@@ -134,9 +134,9 @@ public class XinlilaoshiLiuyanController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("心理老师".equals(role))
-            xinlilaoshiLiuyan.setCounselorId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiLiuyan.setCounselorId(CurrentUserProvider.requireCurrentUserId(request));
         else if("学生".equals(role))
-            xinlilaoshiLiuyan.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            xinlilaoshiLiuyan.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
         xinlilaoshiLiuyan.setSentAt(new Date());
         xinlilaoshiLiuyan.setCreatedAt(new Date());

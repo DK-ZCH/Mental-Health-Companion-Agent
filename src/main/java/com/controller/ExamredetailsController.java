@@ -136,7 +136,7 @@ public class ExamredetailsController {
         if(false)
             return R.error(511,"永远不会进入");
         else if("学生".equals(role))
-            examredetails.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            examredetails.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
         QueryWrapper<ExamredetailsEntity> queryWrapper = new QueryWrapper<ExamredetailsEntity>()
             .eq("record_no", examredetails.getRecordNo())
@@ -376,7 +376,7 @@ public class ExamredetailsController {
 
         String role = CurrentUserProvider.currentRole(request);
         if("学生id".equals(role)){
-            examredetails.setStudentId(Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId"))));
+            examredetails.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
         }
         examredetails.setCreatedAt(new Date());
         boolean insert = examredetailsService.save(examredetails);
@@ -419,7 +419,7 @@ public class ExamredetailsController {
         //记录需要新增的错题本数据信息
         ArrayList<ExamrewrongquestionEntity> examrewrongquestionArrayList = new ArrayList<>();
         //获得当前登录学生的id
-        Integer studentId = (Integer) request.getSession().getAttribute("userId");
+        Integer studentId = CurrentUserProvider.requireCurrentUserId(request);
         //是否在新examredetailsArrayList中增加数据状态（默认为0，）为0时不添加 为1时添加
         Integer state = 0;
 

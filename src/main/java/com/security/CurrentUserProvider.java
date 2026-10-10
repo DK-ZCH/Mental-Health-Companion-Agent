@@ -51,4 +51,39 @@ public final class CurrentUserProvider {
     public static String currentRole(HttpServletRequest request) {
         return OwnershipGuard.currentRole(request);
     }
+
+    /**
+     * 当前登录用户 id，<b>允许缺失</b>（缺失时返回 {@code null}）。
+     *
+     * <p><b>适用</b>：{@code /session} 这类「报告当前登录者」的读端点 —— 保留既有行为（缺失即 {@code null}，
+     * 交由下游各自处理），<b>不改变语义</b>。
+     */
+    public static Integer currentUserIdOrNull(HttpServletRequest request) {
+        return OwnershipGuard.currentUserId(request);
+    }
+
+    /**
+     * 当前登录用户 id，<b>必须存在</b>（写入路径的自我归属）—— 缺失时<b>拒绝</b>（fail-closed）。
+     *
+     * <p><b>契约（A2 裁定）</b>：缺失时抛 {@link ForbiddenException} → {@code HTTP 403 + code=403}。
+     * 复用既有拒绝形态，<b>不新增契约</b>；「未认证」仍由拦截器的 {@code HTTP 200 + code=401} 表达
+     * （D1 已锁定，不改）。
+     *
+     * <p><b>为什么不能返回 {@code null}</b>：本方法用于写路径的归属赋值，如
+     * {@code entity.setStudentId(currentUserId())} —— 返回 {@code null} 时 MyBatis-Plus 会<b>跳过该字段</b>，
+     * 于是<b>客户端提交的归属值就会生效</b> = 归属校验失效（<b>fail-open</b>）。
+     *
+     * <p><b>本次迁移同时修正一处既有 fail-open（需显式声明）</b>：
+     * {@code Examrecord:376}、{@code Examredetails:422}、{@code XinlilaoshiOrder:343} 原写作
+     * {@code (Integer) request.getSession().getAttribute("userId")} —— 缺失时得到 {@code null} 并<b>静默不覆盖归属</b>；
+     * 而其余 10 处 {@code Integer.valueOf(String.valueOf(...))} 形态会抛 {@code NumberFormatException}
+     * （<b>意外</b> fail-closed）。两者失败模式不一致 → 收敛后**一律 fail-closed**。
+     */
+    public static Integer requireCurrentUserId(HttpServletRequest request) {
+        Integer userId = OwnershipGuard.currentUserId(request);
+        if (userId == null) {
+            throw new ForbiddenException();
+        }
+        return userId;
+    }
 }

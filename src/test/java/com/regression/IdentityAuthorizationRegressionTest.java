@@ -14,6 +14,7 @@ import com.service.UsersService;
 import com.service.XinlilaoshiCollectionService;
 import com.service.XinlilaoshiLiuyanService;
 import com.security.CurrentUserProvider;
+import com.security.ForbiddenException;
 import com.service.XinlilaoshiService;
 import com.service.YonghuService;
 
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,6 +33,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -549,6 +552,42 @@ class IdentityAuthorizationRegressionTest {
 
         request.getSession().removeAttribute("role");
         assertThat(CurrentUserProvider.currentRole(request)).as("移除后仍返回 null").isNull();
+    }
+
+    @Test
+    @DisplayName("26. A2：userId 契约 —— 读自己允许缺失（null），写路径缺失必须 fail-closed 拒绝")
+    void currentUserIdContract() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        assertThat(CurrentUserProvider.currentUserIdOrNull(request)).as("允许缺失：返回 null").isNull();
+        assertThatThrownBy(() -> CurrentUserProvider.requireCurrentUserId(request))
+                .as("写路径缺失必须拒绝 —— 绝不能返回 null，否则归属赋值被 MP 跳过、客户端提交的归属值就会生效")
+                .isInstanceOf(ForbiddenException.class);
+
+        request.getSession().setAttribute("userId", 7);
+        assertThat(CurrentUserProvider.currentUserIdOrNull(request)).isEqualTo(7);
+        assertThat(CurrentUserProvider.requireCurrentUserId(request)).isEqualTo(7);
+    }
+
+    @Test
+    @DisplayName("27. A2：「身份不完整」状态本身【不可构造】—— auth_token.user_id 由 schema 保证非空")
+    void incompleteIdentityIsNotConstructible() {
+        // 这条用例回答了「为什么 requireCurrentUserId 的 403 分支在真实链路中不可达」：
+        //   身份进入 Session 的唯一来源 = AuthorizationInterceptor ← auth_token 行；
+        //   而 auth_token.user_id 为 NOT NULL 且无默认值 → 无法构造出 user_id 为空的登录态。
+        //
+        // ⚠️ 它同时是一个**不变量守卫**：若有人把该约束放开，本用例必须失败 ——
+        //    那时 requireCurrentUserId 的 fail-closed 分支就变成可达路径了。
+        String token = "batch5-a2-null-userid-token";
+
+        assertThatThrownBy(() -> tokenService.save(new TokenEntity(null, "a1", "student", "学生", token,
+                new Date(System.currentTimeMillis() + 3_600_000L))))
+                .as("schema 必须拒绝 user_id 为空的 token")
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        assertThat(tokenService.getOne(new QueryWrapper<TokenEntity>().eq("token", token)))
+                .as("失败的插入不得留下任何 token 行")
+                .isNull();
     }
 
     private String usersPassword(String username) {
