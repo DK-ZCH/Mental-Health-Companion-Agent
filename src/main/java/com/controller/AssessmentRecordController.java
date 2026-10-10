@@ -58,7 +58,7 @@ public class AssessmentRecordController {
 
     //级联表service
     @Autowired
-    private ExampaperService exampaperService;
+    private AssessmentPaperService exampaperService;
     @Autowired
     private YonghuService yonghuService;
 
@@ -105,7 +105,7 @@ public class AssessmentRecordController {
             BeanUtils.copyProperties( examrecord , view );//把实体数据重构到view中
 
                 //级联表
-                ExampaperEntity exampaper = exampaperService.getById(examrecord.getPaperId());
+                AssessmentPaperEntity exampaper = exampaperService.getById(examrecord.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createdAt", "submittedAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setPaperId(exampaper.getId());
@@ -315,7 +315,7 @@ public class AssessmentRecordController {
                 BeanUtils.copyProperties( examrecord , view );//把实体数据重构到view中
 
                 //级联表
-                    ExampaperEntity exampaper = exampaperService.getById(examrecord.getPaperId());
+                    AssessmentPaperEntity exampaper = exampaperService.getById(examrecord.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setPaperId(exampaper.getId());

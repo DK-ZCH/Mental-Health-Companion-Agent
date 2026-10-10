@@ -42,11 +42,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/exampaper")
-public class ExampaperController {
-    private static final Logger logger = LoggerFactory.getLogger(ExampaperController.class);
+public class AssessmentPaperController {
+    private static final Logger logger = LoggerFactory.getLogger(AssessmentPaperController.class);
 
     @Autowired
-    private ExampaperService exampaperService;
+    private AssessmentPaperService exampaperService;
 
 
     @Autowired
@@ -77,8 +77,8 @@ public class ExampaperController {
         PageUtils page = exampaperService.queryPage(params);
 
         //字典表数据转换
-        List<ExampaperView> list =(List<ExampaperView>)page.getList();
-        for(ExampaperView c:list){
+        List<AssessmentPaperView> list =(List<AssessmentPaperView>)page.getList();
+        for(AssessmentPaperView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -91,10 +91,10 @@ public class ExampaperController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExampaperEntity exampaper = exampaperService.getById(id);
+        AssessmentPaperEntity exampaper = exampaperService.getById(id);
         if(exampaper !=null){
             //entity转view
-            ExampaperView view = new ExampaperView();
+            AssessmentPaperView view = new AssessmentPaperView();
             BeanUtils.copyProperties( exampaper , view );//把实体数据重构到view中
 
             //修改对应字典表字段
@@ -110,14 +110,14 @@ public class ExampaperController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody ExampaperEntity exampaper, HttpServletRequest request){
+    public R save(@RequestBody AssessmentPaperEntity exampaper, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,exampaper:{}",this.getClass().getName(),exampaper.toString());
 
 
         if(false)
             return R.error(511,"永远不会进入");
 
-        QueryWrapper<ExampaperEntity> queryWrapper = new QueryWrapper<ExampaperEntity>()
+        QueryWrapper<AssessmentPaperEntity> queryWrapper = new QueryWrapper<AssessmentPaperEntity>()
             .eq("name", exampaper.getName())
             .eq("duration_minutes", exampaper.getDurationMinutes())
             .eq("total_score", exampaper.getTotalScore())
@@ -126,7 +126,7 @@ public class ExampaperController {
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExampaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
+        AssessmentPaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
         if(exampaperEntity==null){
             exampaper.setIsDeleted(1);
             exampaper.setCreatedAt(new Date());
@@ -141,14 +141,14 @@ public class ExampaperController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody ExampaperEntity exampaper, HttpServletRequest request){
+    public R update(@RequestBody AssessmentPaperEntity exampaper, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,exampaper:{}",this.getClass().getName(),exampaper.toString());
 
 
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        QueryWrapper<ExampaperEntity> queryWrapper = new QueryWrapper<ExampaperEntity>()
+        QueryWrapper<AssessmentPaperEntity> queryWrapper = new QueryWrapper<AssessmentPaperEntity>()
             .notIn("id",exampaper.getId()).and(w -> w
             .eq("name", exampaper.getName())
             .eq("duration_minutes", exampaper.getDurationMinutes())
@@ -158,7 +158,7 @@ public class ExampaperController {
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExampaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
+        AssessmentPaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
         if(exampaperEntity==null){
             exampaperService.updateById(exampaper);//根据id更新
             return R.ok();
@@ -173,9 +173,9 @@ public class ExampaperController {
     @RequestMapping("/delete")
     public R delete(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        ArrayList<ExampaperEntity> list = new ArrayList<>();
+        ArrayList<AssessmentPaperEntity> list = new ArrayList<>();
         for(Integer id:ids){
-            ExampaperEntity exampaperEntity = new ExampaperEntity();
+            AssessmentPaperEntity exampaperEntity = new AssessmentPaperEntity();
             exampaperEntity.setId(id);
             exampaperEntity.setIsDeleted(2);
             list.add(exampaperEntity);
@@ -196,7 +196,7 @@ public class ExampaperController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<ExampaperEntity> exampaperList = new ArrayList<>();//上传的东西
+            List<AssessmentPaperEntity> exampaperList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -216,7 +216,7 @@ public class ExampaperController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            ExampaperEntity exampaperEntity = new ExampaperEntity();
+                            AssessmentPaperEntity exampaperEntity = new AssessmentPaperEntity();
 //                            exampaperEntity.setName(data.get(0));                    //试卷名称 要改的
 //                            exampaperEntity.setDurationMinutes(Integer.valueOf(data.get(0)));   //考试时长(分钟) 要改的
 //                            exampaperEntity.setTotalScore(Integer.valueOf(data.get(0)));   //试卷总分数 要改的
@@ -260,8 +260,8 @@ public class ExampaperController {
         PageUtils page = exampaperService.queryPage(params);
 
         //字典表数据转换
-        List<ExampaperView> list =(List<ExampaperView>)page.getList();
-        for(ExampaperView c:list)
+        List<AssessmentPaperView> list =(List<AssessmentPaperView>)page.getList();
+        for(AssessmentPaperView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -272,12 +272,12 @@ public class ExampaperController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExampaperEntity exampaper = exampaperService.getById(id);
+        AssessmentPaperEntity exampaper = exampaperService.getById(id);
             if(exampaper !=null){
 
 
                 //entity转view
-                ExampaperView view = new ExampaperView();
+                AssessmentPaperView view = new AssessmentPaperView();
                 BeanUtils.copyProperties( exampaper , view );//把实体数据重构到view中
 
                 //修改对应字典表字段
@@ -293,9 +293,9 @@ public class ExampaperController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody ExampaperEntity exampaper, HttpServletRequest request){
+    public R add(@RequestBody AssessmentPaperEntity exampaper, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,exampaper:{}",this.getClass().getName(),exampaper.toString());
-        QueryWrapper<ExampaperEntity> queryWrapper = new QueryWrapper<ExampaperEntity>()
+        QueryWrapper<AssessmentPaperEntity> queryWrapper = new QueryWrapper<AssessmentPaperEntity>()
             .eq("name", exampaper.getName())
             .eq("duration_minutes", exampaper.getDurationMinutes())
             .eq("total_score", exampaper.getTotalScore())
@@ -303,7 +303,7 @@ public class ExampaperController {
             .eq("is_deleted", exampaper.getIsDeleted())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExampaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
+        AssessmentPaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
         if(exampaperEntity==null){
             exampaper.setIsDeleted(1);
             exampaper.setCreatedAt(new Date());

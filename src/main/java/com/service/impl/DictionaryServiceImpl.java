@@ -38,7 +38,7 @@ public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary
         DICT_CODE.put("Yonghu.gender", "gender");
         DICT_CODE.put("Xinlilaoshi.gender", "gender");
         // 测评量表状态
-        DICT_CODE.put("Exampaper.status", "assessment_paper_status");
+        DICT_CODE.put("AssessmentPaper.status", "assessment_paper_status");
         // 测评题目类型
         DICT_CODE.put("Examquestion.questionType", "question_type");
         // 知识分类

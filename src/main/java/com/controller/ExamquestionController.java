@@ -56,7 +56,7 @@ public class ExamquestionController {
 
     //级联表service
     @Autowired
-    private ExampaperService exampaperService;
+    private AssessmentPaperService exampaperService;
 
     @Autowired
     private YonghuService yonghuService;
@@ -99,7 +99,7 @@ public class ExamquestionController {
             BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
 
                 //级联表
-                ExampaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
+                AssessmentPaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createdAt", "insertTime", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setPaperId(exampaper.getId());
@@ -287,7 +287,7 @@ public class ExamquestionController {
                 BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
 
                 //级联表
-                    ExampaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
+                    AssessmentPaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setPaperId(exampaper.getId());
@@ -357,7 +357,7 @@ public class ExamquestionController {
             if(!b){
                 return R.error();
             }
-            ExampaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
+            AssessmentPaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
             exampaper.setTotalScore(exampaper.getTotalScore()+examquestion.getScore());
             boolean b1 = exampaperService.updateById(exampaper);
             if(!b1){
@@ -393,13 +393,13 @@ public class ExamquestionController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         ExamquestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
         if(examquestionEntity==null){
-            ExampaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
+            AssessmentPaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
             ExamquestionEntity examquestion1 = examquestionService.getById(examquestion.getId());
             if(examquestion1.getPaperId() != examquestion.getPaperId()){
                 //当前表的总分数更新
                 exampaper.setTotalScore(exampaper.getTotalScore()+examquestion.getScore());
                 //之前表的数据更新
-                ExampaperEntity exampaper1 = exampaperService.getById(examquestion1.getPaperId());
+                AssessmentPaperEntity exampaper1 = exampaperService.getById(examquestion1.getPaperId());
                 if(exampaper1 != null){
                     exampaper1.setTotalScore(exampaper1.getTotalScore()-examquestion.getScore());
                     boolean b2 = exampaperService.updateById(exampaper1);
@@ -435,7 +435,7 @@ public class ExamquestionController {
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
         List<ExamquestionEntity> examquestionEntities = examquestionService.listByIds(Arrays.asList(ids));
         HashMap<Integer, Integer> map = new HashMap<>();
-        List<ExampaperEntity> exampaperList = new ArrayList<ExampaperEntity>();
+        List<AssessmentPaperEntity> exampaperList = new ArrayList<AssessmentPaperEntity>();
 
         for (ExamquestionEntity question:examquestionEntities) {
 
@@ -446,9 +446,9 @@ public class ExamquestionController {
             }
 
         }
-        List<ExampaperEntity> exampaper = exampaperService.listByIds(map.keySet());
-        for (ExampaperEntity paper:exampaper) {
-            ExampaperEntity exampaperEntity = new ExampaperEntity();
+        List<AssessmentPaperEntity> exampaper = exampaperService.listByIds(map.keySet());
+        for (AssessmentPaperEntity paper:exampaper) {
+            AssessmentPaperEntity exampaperEntity = new AssessmentPaperEntity();
             exampaperEntity.setId(paper.getId());
             exampaperEntity.setTotalScore(paper.getTotalScore()-map.get(paper.getId()));
             exampaperList.add(exampaperEntity);

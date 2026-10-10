@@ -58,7 +58,7 @@ public class AssessmentWrongQuestionController {
 
     //级联表service
     @Autowired
-    private ExampaperService exampaperService;
+    private AssessmentPaperService exampaperService;
     @Autowired
     private ExamquestionService examquestionService;
     @Autowired
@@ -107,7 +107,7 @@ public class AssessmentWrongQuestionController {
             BeanUtils.copyProperties( examrewrongquestion , view );//把实体数据重构到view中
 
                 //级联表
-                ExampaperEntity exampaper = exampaperService.getById(examrewrongquestion.getPaperId());
+                AssessmentPaperEntity exampaper = exampaperService.getById(examrewrongquestion.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createdAt", "answeredAt", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setPaperId(exampaper.getId());
@@ -305,7 +305,7 @@ public class AssessmentWrongQuestionController {
                 BeanUtils.copyProperties( examrewrongquestion , view );//把实体数据重构到view中
 
                 //级联表
-                    ExampaperEntity exampaper = exampaperService.getById(examrewrongquestion.getPaperId());
+                    AssessmentPaperEntity exampaper = exampaperService.getById(examrewrongquestion.getPaperId());
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setPaperId(exampaper.getId());

@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.ExampaperDao;
-import com.entity.ExampaperEntity;
-import com.service.ExampaperService;
-import com.entity.view.ExampaperView;
+import com.dao.AssessmentPaperDao;
+import com.entity.AssessmentPaperEntity;
+import com.service.AssessmentPaperService;
+import com.entity.view.AssessmentPaperView;
 
 /**
  * 试卷表 服务实现类
  */
 @Service("exampaperService")
 @Transactional
-public class ExampaperServiceImpl extends ServiceImpl<ExampaperDao, ExampaperEntity> implements ExampaperService {
+public class AssessmentPaperServiceImpl extends ServiceImpl<AssessmentPaperDao, AssessmentPaperEntity> implements AssessmentPaperService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class ExampaperServiceImpl extends ServiceImpl<ExampaperDao, ExampaperEnt
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<ExampaperView> page =new Query<ExampaperView>(params).getPage();
+        Page<AssessmentPaperView> page =new Query<AssessmentPaperView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }
