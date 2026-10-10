@@ -48,7 +48,7 @@ public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary
         //    简单名（去掉 Entity 后缀）拼 key → 改实体类名必须同步改这里，否则翻译会静默失效
         DICT_CODE.put("Notification.category", "notification_category");
         // 心理老师收藏类型
-        DICT_CODE.put("XinlilaoshiCollection.favoriteType", "counselor_favorite_type");
+        DICT_CODE.put("CounselorFavorite.favoriteType", "counselor_favorite_type");
         // 预约时间段与预约状态
         DICT_CODE.put("XinlilaoshiOrder.timeSlot", "time_slot");
         DICT_CODE.put("XinlilaoshiOrder.status", "appointment_status");

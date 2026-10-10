@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.XinlilaoshiCollectionDao;
-import com.entity.XinlilaoshiCollectionEntity;
-import com.service.XinlilaoshiCollectionService;
-import com.entity.view.XinlilaoshiCollectionView;
+import com.dao.CounselorFavoriteDao;
+import com.entity.CounselorFavoriteEntity;
+import com.service.CounselorFavoriteService;
+import com.entity.view.CounselorFavoriteView;
 
 /**
  * 心理老师收藏 服务实现类
  */
 @Service("xinlilaoshiCollectionService")
 @Transactional
-public class XinlilaoshiCollectionServiceImpl extends ServiceImpl<XinlilaoshiCollectionDao, XinlilaoshiCollectionEntity> implements XinlilaoshiCollectionService {
+public class CounselorFavoriteServiceImpl extends ServiceImpl<CounselorFavoriteDao, CounselorFavoriteEntity> implements CounselorFavoriteService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class XinlilaoshiCollectionServiceImpl extends ServiceImpl<XinlilaoshiCol
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<XinlilaoshiCollectionView> page =new Query<XinlilaoshiCollectionView>(params).getPage();
+        Page<CounselorFavoriteView> page =new Query<CounselorFavoriteView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }

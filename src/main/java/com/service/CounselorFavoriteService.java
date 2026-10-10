@@ -2,14 +2,14 @@ package com.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.utils.PageUtils;
-import com.entity.XinlilaoshiCollectionEntity;
+import com.entity.CounselorFavoriteEntity;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 心理老师收藏 服务类
  */
-public interface XinlilaoshiCollectionService extends IService<XinlilaoshiCollectionEntity> {
+public interface CounselorFavoriteService extends IService<CounselorFavoriteEntity> {
 
     /**
     * @param params 查询参数

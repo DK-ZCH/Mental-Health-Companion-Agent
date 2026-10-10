@@ -3,7 +3,7 @@ package com.regression;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.TokenEntity;
 import com.entity.UsersEntity;
-import com.entity.XinlilaoshiCollectionEntity;
+import com.entity.CounselorFavoriteEntity;
 import com.entity.XinlilaoshiEntity;
 import com.entity.CounselorMessageEntity;
 import com.entity.YonghuEntity;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.TokenService;
 import com.service.UsersService;
-import com.service.XinlilaoshiCollectionService;
+import com.service.CounselorFavoriteService;
 import com.service.CounselorMessageService;
 import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
@@ -97,7 +97,7 @@ class IdentityAuthorizationRegressionTest {
     private CounselorMessageService xinlilaoshiLiuyanService;
 
     @Autowired
-    private XinlilaoshiCollectionService xinlilaoshiCollectionService;
+    private CounselorFavoriteService xinlilaoshiCollectionService;
 
     @Autowired
     private TokenService tokenService;
@@ -347,7 +347,7 @@ class IdentityAuthorizationRegressionTest {
 
         QueryWrapper<CounselorMessageEntity> messageQuery = new QueryWrapper<CounselorMessageEntity>()
                 .eq("student_id", STUDENT_A1_ID).eq("counselor_id", 3);
-        QueryWrapper<XinlilaoshiCollectionEntity> favoriteQuery = new QueryWrapper<XinlilaoshiCollectionEntity>()
+        QueryWrapper<CounselorFavoriteEntity> favoriteQuery = new QueryWrapper<CounselorFavoriteEntity>()
                 .eq("student_id", STUDENT_A1_ID).eq("counselor_id", 3).eq("favorite_type", 2);
         try {
             // 种子数据中不存在 (当前学生, 老师3) 的留言/收藏 —— 若伪造生效，这里会查不到记录
@@ -601,7 +601,7 @@ class IdentityAuthorizationRegressionTest {
     }
 
     private int favoriteOwner(int id) {
-        XinlilaoshiCollectionEntity entity = xinlilaoshiCollectionService.getById(id);
+        CounselorFavoriteEntity entity = xinlilaoshiCollectionService.getById(id);
         return entity == null ? -1 : entity.getStudentId();
     }
 

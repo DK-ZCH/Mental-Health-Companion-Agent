@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.XinlilaoshiCollectionEntity;
+import com.entity.CounselorFavoriteEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("counselor_favorite")
-public class XinlilaoshiCollectionView extends XinlilaoshiCollectionEntity implements Serializable {
+public class CounselorFavoriteView extends CounselorFavoriteEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 		/**
@@ -78,11 +78,11 @@ public class XinlilaoshiCollectionView extends XinlilaoshiCollectionEntity imple
 			*/
 			private String counselorIntroduction;
 
-	public XinlilaoshiCollectionView() {
+	public CounselorFavoriteView() {
 
 	}
 
-	public XinlilaoshiCollectionView(XinlilaoshiCollectionEntity xinlilaoshiCollectionEntity) {
+	public CounselorFavoriteView(CounselorFavoriteEntity xinlilaoshiCollectionEntity) {
 		BeanUtils.copyProperties(xinlilaoshiCollectionEntity, this);
 	}
 
