@@ -44,11 +44,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/examrecord")
-public class ExamrecordController {
-    private static final Logger logger = LoggerFactory.getLogger(ExamrecordController.class);
+public class AssessmentRecordController {
+    private static final Logger logger = LoggerFactory.getLogger(AssessmentRecordController.class);
 
     @Autowired
-    private ExamrecordService examrecordService;
+    private AssessmentRecordService examrecordService;
 
 
     @Autowired
@@ -80,8 +80,8 @@ public class ExamrecordController {
         PageUtils page = examrecordService.queryPage(params);
 
         //字典表数据转换
-        List<ExamrecordView> list =(List<ExamrecordView>)page.getList();
-        for(ExamrecordView c:list){
+        List<AssessmentRecordView> list =(List<AssessmentRecordView>)page.getList();
+        for(AssessmentRecordView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -94,14 +94,14 @@ public class ExamrecordController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExamrecordEntity examrecord = examrecordService.getById(id);
+        AssessmentRecordEntity examrecord = examrecordService.getById(id);
         // Step 5 批1：归属授权 —— 学生匹配 studentId；管理员放行
         // 注：assessment_record 无 counselor_id 字段，教师侧归属规则无 schema 依据，暂维持现状
         OwnershipGuard.assertOwnership(request, examrecord,
                 examrecord == null ? null : examrecord.getStudentId(), null);
         if(examrecord !=null){
             //entity转view
-            ExamrecordView view = new ExamrecordView();
+            AssessmentRecordView view = new AssessmentRecordView();
             BeanUtils.copyProperties( examrecord , view );//把实体数据重构到view中
 
                 //级联表
@@ -129,7 +129,7 @@ public class ExamrecordController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody ExamrecordEntity examrecord, HttpServletRequest request){
+    public R save(@RequestBody AssessmentRecordEntity examrecord, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,examrecord:{}",this.getClass().getName(),examrecord.toString());
 
         String role = CurrentUserProvider.currentRole(request);
@@ -138,7 +138,7 @@ public class ExamrecordController {
         else if("学生".equals(role))
             examrecord.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
-        QueryWrapper<ExamrecordEntity> queryWrapper = new QueryWrapper<ExamrecordEntity>()
+        QueryWrapper<AssessmentRecordEntity> queryWrapper = new QueryWrapper<AssessmentRecordEntity>()
             .eq("record_no", examrecord.getRecordNo())
             .eq("student_id", examrecord.getStudentId())
             .eq("paper_id", examrecord.getPaperId())
@@ -146,7 +146,7 @@ public class ExamrecordController {
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamrecordEntity examrecordEntity = examrecordService.getOne(queryWrapper);
+        AssessmentRecordEntity examrecordEntity = examrecordService.getOne(queryWrapper);
         if(examrecordEntity==null){
             examrecord.setSubmittedAt(new Date());
             examrecord.setCreatedAt(new Date());
@@ -161,12 +161,12 @@ public class ExamrecordController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody ExamrecordEntity examrecord, HttpServletRequest request){
+    public R update(@RequestBody AssessmentRecordEntity examrecord, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,examrecord:{}",this.getClass().getName(),examrecord.toString());
 
         // Step 5 批3B：写路径归属授权（此前整个 role 分支被注释 → /update 完全采信客户端实体）
         // ① 目标记录必须可写：学生仅限自己的记录（否则 403）；管理员放行；心理老师暂保持现状（→ 批 4）
-        ExamrecordEntity existing = examrecord.getId() == null ? null
+        AssessmentRecordEntity existing = examrecord.getId() == null ? null
                 : examrecordService.getById(examrecord.getId());
         OwnershipGuard.assertWritableTarget(request, existing,
                 existing == null ? null : existing.getStudentId(), null);
@@ -174,7 +174,7 @@ public class ExamrecordController {
         examrecord.setStudentId(OwnershipGuard.resolveWriteOwner(request,
                 OwnershipGuard.AdminWriteOperation.UPDATE_ASSESSMENT_RECORD, examrecord.getStudentId()));
         //根据字段查询是否有相同数据
-        QueryWrapper<ExamrecordEntity> queryWrapper = new QueryWrapper<ExamrecordEntity>()
+        QueryWrapper<AssessmentRecordEntity> queryWrapper = new QueryWrapper<AssessmentRecordEntity>()
             .notIn("id",examrecord.getId()).and(w -> w
             .eq("record_no", examrecord.getRecordNo())
             .eq("student_id", examrecord.getStudentId())
@@ -183,7 +183,7 @@ public class ExamrecordController {
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamrecordEntity examrecordEntity = examrecordService.getOne(queryWrapper);
+        AssessmentRecordEntity examrecordEntity = examrecordService.getOne(queryWrapper);
         if(examrecordEntity==null){
             examrecordService.updateById(examrecord);//根据id更新
             return R.ok();
@@ -212,7 +212,7 @@ public class ExamrecordController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<ExamrecordEntity> examrecordList = new ArrayList<>();//上传的东西
+            List<AssessmentRecordEntity> examrecordList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -232,7 +232,7 @@ public class ExamrecordController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            ExamrecordEntity examrecordEntity = new ExamrecordEntity();
+                            AssessmentRecordEntity examrecordEntity = new AssessmentRecordEntity();
 //                            examrecordEntity.setRecordNo(data.get(0));                    //考试编号 要改的
 //                            examrecordEntity.setStudentId(Integer.valueOf(data.get(0)));   //考试学生 要改的
 //                            examrecordEntity.setPaperId(Integer.valueOf(data.get(0)));   //所属试卷id（外键） 要改的
@@ -256,10 +256,10 @@ public class ExamrecordController {
 
                         //查询是否重复
                          //考试编号
-                        List<ExamrecordEntity> examrecordEntities_examrecordUuidNumber = examrecordService.list(new QueryWrapper<ExamrecordEntity>().in("record_no", seachFields.get("recordNo")));
+                        List<AssessmentRecordEntity> examrecordEntities_examrecordUuidNumber = examrecordService.list(new QueryWrapper<AssessmentRecordEntity>().in("record_no", seachFields.get("recordNo")));
                         if(examrecordEntities_examrecordUuidNumber.size() >0 ){
                             ArrayList<String> repeatFields = new ArrayList<>();
-                            for(ExamrecordEntity s:examrecordEntities_examrecordUuidNumber){
+                            for(AssessmentRecordEntity s:examrecordEntities_examrecordUuidNumber){
                                 repeatFields.add(s.getRecordNo());
                             }
                             return R.error(511,"数据库的该表中的 [考试编号] 字段已经存在 存在数据为:"+repeatFields.toString());
@@ -294,8 +294,8 @@ public class ExamrecordController {
         PageUtils page = examrecordService.queryPage(params);
 
         //字典表数据转换
-        List<ExamrecordView> list =(List<ExamrecordView>)page.getList();
-        for(ExamrecordView c:list)
+        List<AssessmentRecordView> list =(List<AssessmentRecordView>)page.getList();
+        for(AssessmentRecordView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -306,12 +306,12 @@ public class ExamrecordController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExamrecordEntity examrecord = examrecordService.getById(id);
+        AssessmentRecordEntity examrecord = examrecordService.getById(id);
             if(examrecord !=null){
 
 
                 //entity转view
-                ExamrecordView view = new ExamrecordView();
+                AssessmentRecordView view = new AssessmentRecordView();
                 BeanUtils.copyProperties( examrecord , view );//把实体数据重构到view中
 
                 //级联表
@@ -339,16 +339,16 @@ public class ExamrecordController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody ExamrecordEntity examrecord, HttpServletRequest request){
+    public R add(@RequestBody AssessmentRecordEntity examrecord, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,examrecord:{}",this.getClass().getName(),examrecord.toString());
-        QueryWrapper<ExamrecordEntity> queryWrapper = new QueryWrapper<ExamrecordEntity>()
+        QueryWrapper<AssessmentRecordEntity> queryWrapper = new QueryWrapper<AssessmentRecordEntity>()
             .eq("record_no", examrecord.getRecordNo())
             .eq("student_id", examrecord.getStudentId())
             .eq("paper_id", examrecord.getPaperId())
             .eq("total_score", examrecord.getTotalScore())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamrecordEntity examrecordEntity = examrecordService.getOne(queryWrapper);
+        AssessmentRecordEntity examrecordEntity = examrecordService.getOne(queryWrapper);
         if(examrecordEntity==null){
             examrecord.setSubmittedAt(new Date());
             examrecord.setCreatedAt(new Date());
@@ -366,9 +366,9 @@ public class ExamrecordController {
     /**
     * 后端保存
     */
-    @RequestMapping("/saveExamrecord")
-    public R saveExamrecord(Integer paperId, HttpServletRequest request){
-        ExamrecordEntity examrecord = new ExamrecordEntity();
+    @RequestMapping("/saveAssessmentRecord")
+    public R saveAssessmentRecord(Integer paperId, HttpServletRequest request){
+        AssessmentRecordEntity examrecord = new AssessmentRecordEntity();
         String uuid = String.valueOf(new Date().getTime());
         examrecord.setRecordNo(uuid);
         examrecord.setPaperId(paperId);
@@ -389,12 +389,12 @@ public class ExamrecordController {
     /**
      * 删除
      */
-    @RequestMapping("/deleteExamrecord")
-    public R deleteExamrecord(@RequestBody Integer[] ids){
+    @RequestMapping("/deleteAssessmentRecord")
+    public R deleteAssessmentRecord(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        List<ExamrecordEntity> examrecordE = examrecordService.listByIds(Arrays.asList(ids));//考试记录表
+        List<AssessmentRecordEntity> examrecordE = examrecordService.listByIds(Arrays.asList(ids));//考试记录表
         List<String> joinIds = new ArrayList<>();
-        for (ExamrecordEntity examrecord:examrecordE) {
+        for (AssessmentRecordEntity examrecord:examrecordE) {
             joinIds.add(examrecord.getRecordNo());
         }
         boolean deleteSuccess = examredetailsService.remove(new QueryWrapper<ExamredetailsEntity>().in("record_no", joinIds));

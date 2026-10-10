@@ -78,7 +78,7 @@ public final class CurrentUserProvider {
      * 于是<b>客户端提交的归属值就会生效</b> = 归属校验失效（<b>fail-open</b>）。
      *
      * <p><b>本次迁移同时修正一处既有 fail-open（需显式声明）</b>：
-     * {@code Examrecord:376}、{@code Examredetails:422}、{@code CounselingAppointment:343} 原写作
+     * {@code AssessmentRecord:376}、{@code Examredetails:422}、{@code CounselingAppointment:343} 原写作
      * {@code (Integer) request.getSession().getAttribute("userId")} —— 缺失时得到 {@code null} 并<b>静默不覆盖归属</b>；
      * 而其余 10 处 {@code Integer.valueOf(String.valueOf(...))} 形态会抛 {@code NumberFormatException}
      * （<b>意外</b> fail-closed）。两者失败模式不一致 → 收敛后**一律 fail-closed**。

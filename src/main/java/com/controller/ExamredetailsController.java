@@ -363,7 +363,7 @@ public class ExamredetailsController {
 
 
     @Autowired
-    private ExamrecordService examrecordService;
+    private AssessmentRecordService examrecordService;
     @Autowired
     private AssessmentWrongQuestionService examrewrongquestionService;
 
@@ -385,7 +385,7 @@ public class ExamredetailsController {
         }
         ExamquestionEntity examquestion = examquestionService.getById(examredetails.getQuestionId());
         if(examquestion.getAnswer().equals(examredetails.getStudentAnswer())){
-            ExamrecordEntity examrecord = examrecordService.getById(examrecordId);
+            AssessmentRecordEntity examrecord = examrecordService.getById(examrecordId);
             examrecord.setTotalScore(examrecord.getTotalScore()+examredetails.getScore());
             boolean b = examrecordService.updateById(examrecord);
             if(!b){

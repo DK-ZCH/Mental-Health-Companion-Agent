@@ -1,6 +1,6 @@
 package com.entity.view;
 
-import com.entity.ExamrecordEntity;
+import com.entity.AssessmentRecordEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import org.springframework.beans.BeanUtils;
 
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * （通常后端关联的表或者自定义的字段需要返回使用）
  */
 @TableName("assessment_record")
-public class ExamrecordView extends ExamrecordEntity implements Serializable {
+public class AssessmentRecordView extends AssessmentRecordEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
@@ -70,11 +70,11 @@ public class ExamrecordView extends ExamrecordEntity implements Serializable {
 			*/
 			private String studentEmail;
 
-	public ExamrecordView() {
+	public AssessmentRecordView() {
 
 	}
 
-	public ExamrecordView(ExamrecordEntity examrecordEntity) {
+	public AssessmentRecordView(AssessmentRecordEntity examrecordEntity) {
 		BeanUtils.copyProperties(examrecordEntity, this);
 	}
 

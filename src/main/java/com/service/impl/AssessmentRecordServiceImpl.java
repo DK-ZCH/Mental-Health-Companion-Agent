@@ -12,17 +12,17 @@ import com.utils.Query;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import com.dao.ExamrecordDao;
-import com.entity.ExamrecordEntity;
-import com.service.ExamrecordService;
-import com.entity.view.ExamrecordView;
+import com.dao.AssessmentRecordDao;
+import com.entity.AssessmentRecordEntity;
+import com.service.AssessmentRecordService;
+import com.entity.view.AssessmentRecordView;
 
 /**
  * 考试记录表 服务实现类
  */
 @Service("examrecordService")
 @Transactional
-public class ExamrecordServiceImpl extends ServiceImpl<ExamrecordDao, ExamrecordEntity> implements ExamrecordService {
+public class AssessmentRecordServiceImpl extends ServiceImpl<AssessmentRecordDao, AssessmentRecordEntity> implements AssessmentRecordService {
 
     @Override
     public PageUtils queryPage(Map<String,Object> params) {
@@ -30,7 +30,7 @@ public class ExamrecordServiceImpl extends ServiceImpl<ExamrecordDao, Examrecord
             params.put("page","1");
             params.put("limit","10");
         }
-        Page<ExamrecordView> page =new Query<ExamrecordView>(params).getPage();
+        Page<AssessmentRecordView> page =new Query<AssessmentRecordView>(params).getPage();
         page.setRecords(baseMapper.selectListView(page,params));
         return new PageUtils(page);
     }
