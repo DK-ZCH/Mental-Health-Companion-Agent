@@ -362,7 +362,7 @@ public class AssessmentRecordController {
 
 
     @Autowired
-    private ExamredetailsService examredetailsService;
+    private AssessmentAnswerService examredetailsService;
     /**
     * 后端保存
     */
@@ -397,7 +397,7 @@ public class AssessmentRecordController {
         for (AssessmentRecordEntity examrecord:examrecordE) {
             joinIds.add(examrecord.getRecordNo());
         }
-        boolean deleteSuccess = examredetailsService.remove(new QueryWrapper<ExamredetailsEntity>().in("record_no", joinIds));
+        boolean deleteSuccess = examredetailsService.remove(new QueryWrapper<AssessmentAnswerEntity>().in("record_no", joinIds));
         if(!deleteSuccess){
             return R.error();
         }
