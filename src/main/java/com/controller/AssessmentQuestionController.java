@@ -11,7 +11,7 @@ import org.springframework.beans.BeanUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.ContextLoader;
 import jakarta.servlet.ServletContext;
-import com.service.TokenService;
+import com.service.AuthTokenService;
 import com.utils.*;
 import java.lang.reflect.InvocationTargetException;
 
@@ -50,7 +50,7 @@ public class AssessmentQuestionController {
 
 
     @Autowired
-    private TokenService tokenService;
+    private AuthTokenService tokenService;
     @Autowired
     private SysDictItemService dictionaryService;
 

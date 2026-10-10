@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.entity.TokenEntity;
+import com.entity.AuthTokenEntity;
 import com.utils.PageUtils;
 
 
@@ -15,14 +15,14 @@ import com.utils.PageUtils;
  * @author yangliyuan
  * @date 2019年10月10日 上午9:18:20
  */
-public interface TokenService extends IService<TokenEntity> {
+public interface AuthTokenService extends IService<AuthTokenEntity> {
  	PageUtils queryPage(Map<String, Object> params);
     
-   	List<TokenEntity> selectListView(QueryWrapper<TokenEntity> wrapper);
+   	List<AuthTokenEntity> selectListView(QueryWrapper<AuthTokenEntity> wrapper);
    	
-   	PageUtils queryPage(Map<String, Object> params,QueryWrapper<TokenEntity> wrapper);
+   	PageUtils queryPage(Map<String, Object> params,QueryWrapper<AuthTokenEntity> wrapper);
 	
    	String generateToken(Integer userId,String username,String tableName, String role);
    	
-   	TokenEntity getTokenEntity(String token);
+   	AuthTokenEntity getAuthTokenEntity(String token);
 }

@@ -16,8 +16,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.annotation.IgnoreAuth;
 import com.entity.EIException;
-import com.entity.TokenEntity;
-import com.service.TokenService;
+import com.entity.AuthTokenEntity;
+import com.service.AuthTokenService;
 import com.utils.R;
 
 /**
@@ -29,7 +29,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
     public static final String LOGIN_TOKEN_KEY = "Token";
 
     @Autowired
-    private TokenService tokenService;
+    private AuthTokenService tokenService;
     
 	@Override
 
@@ -64,9 +64,9 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
         	return true;
         }
         
-        TokenEntity tokenEntity = null;
+        AuthTokenEntity tokenEntity = null;
         if(StringUtils.isNotBlank(token)) {
-        	tokenEntity = tokenService.getTokenEntity(token);
+        	tokenEntity = tokenService.getAuthTokenEntity(token);
         }
         
         if(tokenEntity != null) {

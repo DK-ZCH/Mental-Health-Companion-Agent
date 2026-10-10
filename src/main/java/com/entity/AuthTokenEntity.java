@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
  * token表
  */
 @TableName("auth_token")
-public class TokenEntity implements Serializable {
+public class AuthTokenEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@TableId(type = IdType.AUTO)
@@ -116,7 +116,7 @@ public class TokenEntity implements Serializable {
 		this.username = username;
 	}
 
-	public TokenEntity(Integer userId, String username, String userType,String role, String token, Date expiredAt) {
+	public AuthTokenEntity(Integer userId, String username, String userType,String role, String token, Date expiredAt) {
 		super();
 		this.userId = userId;
 		this.username = username;
@@ -126,7 +126,7 @@ public class TokenEntity implements Serializable {
 		this.expiredAt = expiredAt;
 	}
 	
-	public TokenEntity() {
+	public AuthTokenEntity() {
 	}
 	
 }

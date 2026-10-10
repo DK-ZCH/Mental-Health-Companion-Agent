@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.annotation.IgnoreAuth;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.AdminUserEntity;
-import com.service.TokenService;
+import com.service.AuthTokenService;
 import com.utils.MPUtil;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
@@ -38,7 +38,7 @@ public class AdminUserController {
 	private AdminUserService usersService;
 	
 	@Autowired
-	private TokenService tokenService;
+	private AuthTokenService tokenService;
 
 	/**
 	 * 登录

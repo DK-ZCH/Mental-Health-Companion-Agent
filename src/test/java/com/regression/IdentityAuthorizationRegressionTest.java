@@ -1,7 +1,7 @@
 package com.regression;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.entity.TokenEntity;
+import com.entity.AuthTokenEntity;
 import com.entity.AdminUserEntity;
 import com.entity.CounselorFavoriteEntity;
 import com.entity.CounselorEntity;
@@ -9,7 +9,7 @@ import com.entity.CounselorMessageEntity;
 import com.entity.StudentEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.service.TokenService;
+import com.service.AuthTokenService;
 import com.service.AdminUserService;
 import com.service.CounselorFavoriteService;
 import com.service.CounselorMessageService;
@@ -100,7 +100,7 @@ class IdentityAuthorizationRegressionTest {
     private CounselorFavoriteService xinlilaoshiCollectionService;
 
     @Autowired
-    private TokenService tokenService;
+    private AuthTokenService tokenService;
 
     /** D7：断言被下线的管理端账号重置端点确实不再可调用 */
     @Autowired
@@ -368,14 +368,14 @@ class IdentityAuthorizationRegressionTest {
     void unknownRoleIsDenied() throws Exception {
         // 真实 token 表驱动的未知角色（跑完即删）；用于证明「未登记角色」不会获得任何权限
         String unknownToken = "batch3b-unknown-role-token";
-        tokenService.save(new TokenEntity(STUDENT_A1_ID, "a1", "student", "未知角色", unknownToken,
+        tokenService.save(new AuthTokenEntity(STUDENT_A1_ID, "a1", "student", "未知角色", unknownToken,
                 new Date(System.currentTimeMillis() + 3_600_000L)));
         try {
             assertDenied(postJson("/xinlilaoshiLiuyan/update", unknownToken, "{\"id\":2,\"studentId\":1}"),
                     "未知角色执行写操作");
             assertDenied(perform("/xinlilaoshiLiuyan/info/2", unknownToken), "未知角色执行读操作");
         } finally {
-            tokenService.remove(new QueryWrapper<TokenEntity>().eq("token", unknownToken));
+            tokenService.remove(new QueryWrapper<AuthTokenEntity>().eq("token", unknownToken));
         }
     }
 
@@ -419,14 +419,14 @@ class IdentityAuthorizationRegressionTest {
     @DisplayName("19. 未知角色的 page：403（矩阵 12 —— 不得默认全量）")
     void unknownRolePageIsDenied() throws Exception {
         String unknownToken = "batch4-unknown-role-token";
-        tokenService.save(new TokenEntity(STUDENT_A1_ID, "a1", "student", "未知角色", unknownToken,
+        tokenService.save(new AuthTokenEntity(STUDENT_A1_ID, "a1", "student", "未知角色", unknownToken,
                 new Date(System.currentTimeMillis() + 3_600_000L)));
         try {
             // 改造前：未知角色会跳过全部分支 → 不加任何过滤 → 返回全量（fail-open 缺口）
             assertDenied(perform("/xinlilaoshiLiuyan/page?page=1&limit=10", unknownToken),
                     "未知角色查询列表");
         } finally {
-            tokenService.remove(new QueryWrapper<TokenEntity>().eq("token", unknownToken));
+            tokenService.remove(new QueryWrapper<AuthTokenEntity>().eq("token", unknownToken));
         }
     }
 
@@ -580,12 +580,12 @@ class IdentityAuthorizationRegressionTest {
         //    那时 requireCurrentUserId 的 fail-closed 分支就变成可达路径了。
         String token = "batch5-a2-null-userid-token";
 
-        assertThatThrownBy(() -> tokenService.save(new TokenEntity(null, "a1", "student", "学生", token,
+        assertThatThrownBy(() -> tokenService.save(new AuthTokenEntity(null, "a1", "student", "学生", token,
                 new Date(System.currentTimeMillis() + 3_600_000L))))
                 .as("schema 必须拒绝 user_id 为空的 token")
                 .isInstanceOf(DataIntegrityViolationException.class);
 
-        assertThat(tokenService.getOne(new QueryWrapper<TokenEntity>().eq("token", token)))
+        assertThat(tokenService.getOne(new QueryWrapper<AuthTokenEntity>().eq("token", token)))
                 .as("失败的插入不得留下任何 token 行")
                 .isNull();
     }
