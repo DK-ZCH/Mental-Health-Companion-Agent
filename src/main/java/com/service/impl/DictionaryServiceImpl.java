@@ -40,7 +40,7 @@ public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary
         // 测评量表状态
         DICT_CODE.put("AssessmentPaper.status", "assessment_paper_status");
         // 测评题目类型
-        DICT_CODE.put("Examquestion.questionType", "question_type");
+        DICT_CODE.put("AssessmentQuestion.questionType", "question_type");
         // 知识分类
         DICT_CODE.put("KnowledgeArticle.category", "knowledge_category");
         // 通知分类

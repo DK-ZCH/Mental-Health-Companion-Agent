@@ -27,15 +27,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
  * @email
  */
 @TableName("assessment_question")
-public class ExamquestionEntity<T> implements Serializable {
+public class AssessmentQuestionEntity<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-	public ExamquestionEntity() {
+	public AssessmentQuestionEntity() {
 
 	}
 
-	public ExamquestionEntity(T t) {
+	public AssessmentQuestionEntity(T t) {
 		BeanUtils.copyProperties(t, this);
 	}
 
@@ -256,7 +256,7 @@ public class ExamquestionEntity<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Examquestion{" +
+        return "AssessmentQuestion{" +
             "id=" + id +
             ", paperId=" + paperId +
             ", content=" + content +

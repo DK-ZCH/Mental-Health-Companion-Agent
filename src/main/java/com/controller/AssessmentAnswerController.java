@@ -58,7 +58,7 @@ public class AssessmentAnswerController {
 
     //级联表service
     @Autowired
-    private ExamquestionService examquestionService;
+    private AssessmentQuestionService examquestionService;
     @Autowired
     private YonghuService yonghuService;
 
@@ -105,7 +105,7 @@ public class AssessmentAnswerController {
             BeanUtils.copyProperties( examredetails , view );//把实体数据重构到view中
 
                 //级联表
-                ExamquestionEntity examquestion = examquestionService.getById(examredetails.getQuestionId());
+                AssessmentQuestionEntity examquestion = examquestionService.getById(examredetails.getQuestionId());
                 if(examquestion != null){
                     BeanUtils.copyProperties( examquestion , view ,new String[]{ "id", "createdAt", "insertTime", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setQuestionId(examquestion.getId());
@@ -316,7 +316,7 @@ public class AssessmentAnswerController {
                 BeanUtils.copyProperties( examredetails , view );//把实体数据重构到view中
 
                 //级联表
-                    ExamquestionEntity examquestion = examquestionService.getById(examredetails.getQuestionId());
+                    AssessmentQuestionEntity examquestion = examquestionService.getById(examredetails.getQuestionId());
                 if(examquestion != null){
                     BeanUtils.copyProperties( examquestion , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setQuestionId(examquestion.getId());
@@ -383,7 +383,7 @@ public class AssessmentAnswerController {
         if(!insert){
             return R.error();
         }
-        ExamquestionEntity examquestion = examquestionService.getById(examredetails.getQuestionId());
+        AssessmentQuestionEntity examquestion = examquestionService.getById(examredetails.getQuestionId());
         if(examquestion.getAnswer().equals(examredetails.getStudentAnswer())){
             AssessmentRecordEntity examrecord = examrecordService.getById(examrecordId);
             examrecord.setTotalScore(examrecord.getTotalScore()+examredetails.getScore());
@@ -424,9 +424,9 @@ public class AssessmentAnswerController {
         Integer state = 0;
 
         //查询试题表获取到所有当前考卷的试题数据
-        QueryWrapper<ExamquestionEntity> entityWrapper = new QueryWrapper<ExamquestionEntity>()
+        QueryWrapper<AssessmentQuestionEntity> entityWrapper = new QueryWrapper<AssessmentQuestionEntity>()
                 .eq("paper_id",params.get("paperId"));
-        List<ExamquestionEntity> examquestionList = examquestionService.list(entityWrapper);
+        List<AssessmentQuestionEntity> examquestionList = examquestionService.list(entityWrapper);
 
         //根据uuid和学生id查询考题详情表中有无符合条件的数据
         QueryWrapper<AssessmentAnswerEntity> queryWrapper = new QueryWrapper<AssessmentAnswerEntity>()
@@ -435,7 +435,7 @@ public class AssessmentAnswerController {
         List<AssessmentAnswerEntity> examredetailsList = examredetailsService.list(queryWrapper);
 
         //循环查出来的所有试题数据
-        for (ExamquestionEntity examquestion:examquestionList) {
+        for (AssessmentQuestionEntity examquestion:examquestionList) {
             //判断查出的数据是否大于0
             if(examredetailsList.size()>0){//如果大于0记录数据中的id
                 for (AssessmentAnswerEntity examredetails:examredetailsList) {

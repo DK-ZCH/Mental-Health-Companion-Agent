@@ -42,11 +42,11 @@ import com.alibaba.fastjson.*;
 @RestController
 @Controller
 @RequestMapping("/examquestion")
-public class ExamquestionController {
-    private static final Logger logger = LoggerFactory.getLogger(ExamquestionController.class);
+public class AssessmentQuestionController {
+    private static final Logger logger = LoggerFactory.getLogger(AssessmentQuestionController.class);
 
     @Autowired
-    private ExamquestionService examquestionService;
+    private AssessmentQuestionService examquestionService;
 
 
     @Autowired
@@ -78,8 +78,8 @@ public class ExamquestionController {
         PageUtils page = examquestionService.queryPage(params);
 
         //字典表数据转换
-        List<ExamquestionView> list =(List<ExamquestionView>)page.getList();
-        for(ExamquestionView c:list){
+        List<AssessmentQuestionView> list =(List<AssessmentQuestionView>)page.getList();
+        for(AssessmentQuestionView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
         }
@@ -92,10 +92,10 @@ public class ExamquestionController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExamquestionEntity examquestion = examquestionService.getById(id);
+        AssessmentQuestionEntity examquestion = examquestionService.getById(id);
         if(examquestion !=null){
             //entity转view
-            ExamquestionView view = new ExamquestionView();
+            AssessmentQuestionView view = new AssessmentQuestionView();
             BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
 
                 //级联表
@@ -117,14 +117,14 @@ public class ExamquestionController {
     * 后端保存
     */
     @RequestMapping("/save")
-    public R save(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
+    public R save(@RequestBody AssessmentQuestionEntity examquestion, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
 
         if(false)
             return R.error(511,"永远不会进入");
 
-        QueryWrapper<ExamquestionEntity> queryWrapper = new QueryWrapper<ExamquestionEntity>()
+        QueryWrapper<AssessmentQuestionEntity> queryWrapper = new QueryWrapper<AssessmentQuestionEntity>()
             .eq("paper_id", examquestion.getPaperId())
             .eq("content", examquestion.getContent())
             .eq("options", examquestion.getOptions())
@@ -136,7 +136,7 @@ public class ExamquestionController {
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamquestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
+        AssessmentQuestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
         if(examquestionEntity==null){
             examquestion.setCreatedAt(new Date());
             examquestionService.save(examquestion);
@@ -150,14 +150,14 @@ public class ExamquestionController {
     * 后端修改
     */
     @RequestMapping("/update")
-    public R update(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
+    public R update(@RequestBody AssessmentQuestionEntity examquestion, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
 
 //        if(false)
 //            return R.error(511,"永远不会进入");
         //根据字段查询是否有相同数据
-        QueryWrapper<ExamquestionEntity> queryWrapper = new QueryWrapper<ExamquestionEntity>()
+        QueryWrapper<AssessmentQuestionEntity> queryWrapper = new QueryWrapper<AssessmentQuestionEntity>()
             .notIn("id",examquestion.getId()).and(w -> w
             .eq("paper_id", examquestion.getPaperId())
             .eq("content", examquestion.getContent())
@@ -170,7 +170,7 @@ public class ExamquestionController {
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamquestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
+        AssessmentQuestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
         if(examquestionEntity==null){
             examquestionService.updateById(examquestion);//根据id更新
             return R.ok();
@@ -199,7 +199,7 @@ public class ExamquestionController {
         Integer studentId = Integer.valueOf(String.valueOf(request.getSession().getAttribute("userId")));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            List<ExamquestionEntity> examquestionList = new ArrayList<>();//上传的东西
+            List<AssessmentQuestionEntity> examquestionList = new ArrayList<>();//上传的东西
             Map<String, List<String>> seachFields= new HashMap<>();//要查询的字段
             Date date = new Date();
             int lastIndexOf = fileName.lastIndexOf(".");
@@ -219,7 +219,7 @@ public class ExamquestionController {
                         dataList.remove(0);//删除第一行，因为第一行是提示
                         for(List<String> data:dataList){
                             //循环
-                            ExamquestionEntity examquestionEntity = new ExamquestionEntity();
+                            AssessmentQuestionEntity examquestionEntity = new AssessmentQuestionEntity();
 //                            examquestionEntity.setPaperId(Integer.valueOf(data.get(0)));   //所属试卷id（外键） 要改的
 //                            examquestionEntity.setContent(data.get(0));                    //试题名称 要改的
 //                            examquestionEntity.setOptions(data.get(0));                    //选项，json字符串 要改的
@@ -266,8 +266,8 @@ public class ExamquestionController {
         PageUtils page = examquestionService.queryPage(params);
 
         //字典表数据转换
-        List<ExamquestionView> list =(List<ExamquestionView>)page.getList();
-        for(ExamquestionView c:list)
+        List<AssessmentQuestionView> list =(List<AssessmentQuestionView>)page.getList();
+        for(AssessmentQuestionView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
@@ -278,12 +278,12 @@ public class ExamquestionController {
     @RequestMapping("/detail/{id}")
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        ExamquestionEntity examquestion = examquestionService.getById(id);
+        AssessmentQuestionEntity examquestion = examquestionService.getById(id);
             if(examquestion !=null){
 
 
                 //entity转view
-                ExamquestionView view = new ExamquestionView();
+                AssessmentQuestionView view = new AssessmentQuestionView();
                 BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
 
                 //级联表
@@ -305,9 +305,9 @@ public class ExamquestionController {
     * 前端保存
     */
     @RequestMapping("/add")
-    public R add(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
+    public R add(@RequestBody AssessmentQuestionEntity examquestion, HttpServletRequest request){
         logger.debug("add方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
-        QueryWrapper<ExamquestionEntity> queryWrapper = new QueryWrapper<ExamquestionEntity>()
+        QueryWrapper<AssessmentQuestionEntity> queryWrapper = new QueryWrapper<AssessmentQuestionEntity>()
             .eq("paper_id", examquestion.getPaperId())
             .eq("content", examquestion.getContent())
             .eq("options", examquestion.getOptions())
@@ -318,7 +318,7 @@ public class ExamquestionController {
             .eq("sort_order", examquestion.getSortOrder())
             ;
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamquestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
+        AssessmentQuestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
         if(examquestionEntity==null){
             examquestion.setCreatedAt(new Date());
         examquestionService.save(examquestion);
@@ -333,12 +333,12 @@ public class ExamquestionController {
     /**
     * 后端保存
     */
-    @RequestMapping("/saveExamquestion")
-    public R saveExamquestion(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
+    @RequestMapping("/saveAssessmentQuestion")
+    public R saveAssessmentQuestion(@RequestBody AssessmentQuestionEntity examquestion, HttpServletRequest request){
         logger.debug("save方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
 
-        QueryWrapper<ExamquestionEntity> queryWrapper = new QueryWrapper<ExamquestionEntity>()
+        QueryWrapper<AssessmentQuestionEntity> queryWrapper = new QueryWrapper<AssessmentQuestionEntity>()
             .eq("paper_id", examquestion.getPaperId())
             .eq("content", examquestion.getContent())
             .eq("options", examquestion.getOptions())
@@ -350,7 +350,7 @@ public class ExamquestionController {
             ;
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamquestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
+        AssessmentQuestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
         if(examquestionEntity==null){
             examquestion.setCreatedAt(new Date());
             boolean b = examquestionService.save(examquestion);
@@ -372,13 +372,13 @@ public class ExamquestionController {
     /**
     * 后端修改
     */
-    @RequestMapping("/updateExamquestion")
-    public R updateExamquestion(@RequestBody ExamquestionEntity examquestion, HttpServletRequest request){
+    @RequestMapping("/updateAssessmentQuestion")
+    public R updateAssessmentQuestion(@RequestBody AssessmentQuestionEntity examquestion, HttpServletRequest request){
         logger.debug("update方法:,,Controller:{},,examquestion:{}",this.getClass().getName(),examquestion.toString());
 
 
         //根据字段查询是否有相同数据
-        QueryWrapper<ExamquestionEntity> queryWrapper = new QueryWrapper<ExamquestionEntity>()
+        QueryWrapper<AssessmentQuestionEntity> queryWrapper = new QueryWrapper<AssessmentQuestionEntity>()
             .notIn("id",examquestion.getId()).and(w -> w
             .eq("paper_id", examquestion.getPaperId())
             .eq("content", examquestion.getContent())
@@ -391,10 +391,10 @@ public class ExamquestionController {
             );
 
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
-        ExamquestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
+        AssessmentQuestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
         if(examquestionEntity==null){
             AssessmentPaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
-            ExamquestionEntity examquestion1 = examquestionService.getById(examquestion.getId());
+            AssessmentQuestionEntity examquestion1 = examquestionService.getById(examquestion.getId());
             if(examquestion1.getPaperId() != examquestion.getPaperId()){
                 //当前表的总分数更新
                 exampaper.setTotalScore(exampaper.getTotalScore()+examquestion.getScore());
@@ -430,14 +430,14 @@ public class ExamquestionController {
     /**
     * 删除
     */
-    @RequestMapping("/deleteExamquestion")
-    public R deleteExamquestion(@RequestBody Integer[] ids){
+    @RequestMapping("/deleteAssessmentQuestion")
+    public R deleteAssessmentQuestion(@RequestBody Integer[] ids){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
-        List<ExamquestionEntity> examquestionEntities = examquestionService.listByIds(Arrays.asList(ids));
+        List<AssessmentQuestionEntity> examquestionEntities = examquestionService.listByIds(Arrays.asList(ids));
         HashMap<Integer, Integer> map = new HashMap<>();
         List<AssessmentPaperEntity> exampaperList = new ArrayList<AssessmentPaperEntity>();
 
-        for (ExamquestionEntity question:examquestionEntities) {
+        for (AssessmentQuestionEntity question:examquestionEntities) {
 
             if(map.containsKey(question.getPaperId())){
                 map.put(question.getPaperId(),map.get(question.getPaperId())+question.getScore());
