@@ -266,6 +266,10 @@ public class CounselorFavoriteController {
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
 
+        // D2-2b：读范围收敛（与 /page 同款，两入口共用同一条 selectListView 的 params 条件）
+        // 缺此注入时：学生/教师在本端点可见全量（D2-2b-Phase1 实测：学生看到 s1,s2,s3 全部）
+        DataScope.apply(request, params, "studentId", "counselorId");
+
         // 没有指定排序字段就默认id倒序
         if(StringUtil.isEmpty(String.valueOf(params.get("orderBy")))){
             params.put("orderBy","id");
