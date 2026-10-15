@@ -286,6 +286,10 @@ public class AssessmentAnswerController {
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
 
+        // D2-2b：读范围收敛（与 /page 同款，两入口共用同一条 selectListView 的 params 条件）
+        // 学生侧生效（表自带 student_id，XML 有 params.studentId）；教师侧无声（无 counselor_id）→ 维持现状，G3 挂账
+        DataScope.apply(request, params, "studentId", "counselorId");
+
         // 没有指定排序字段就默认id倒序
         if(StringUtil.isEmpty(String.valueOf(params.get("orderBy")))){
             params.put("orderBy","id");
