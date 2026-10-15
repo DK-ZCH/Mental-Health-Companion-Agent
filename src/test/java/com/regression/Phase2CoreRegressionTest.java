@@ -95,8 +95,12 @@ class Phase2CoreRegressionTest {
      * <p>因此这里<b>只断言 body 的 {@code code}</b>、<b>刻意不断言 HTTP 状态</b> ——
      * 将来若把状态码修正为标准的 401，本测试不会被误伤。
      *
-     * <p>另：{@code /yonghu/list}、{@code /exampaper/list}、{@code /dictionary/page} 属免鉴权路径，
-     * 是否收紧属**待决策 D2**（匿名 /list 是否收敛），故本测试<b>不对它们做任何断言</b>。
+     * <p><b>D2-2a 后更新</b>：{@code /yonghu/list} 等 A 组 7 个 {@code /list} 已移除方法级 {@code @IgnoreAuth}
+     * ⇒ 由「免鉴权」变为「受保护」，故<b>已纳入本清单</b>断言匿名被拒。
+     * 仍属免鉴权（<b>保持公开</b>，有首页调用证据）：{@code /exampaper/list}（C 组暂缓）、
+     * {@code /examquestion/list}（C 组暂缓）、{@code /dictionary/page}（B 组）、
+     * {@code /jiankangzhishi/list}、{@code /tongzhi/list}、{@code /config/list}、{@code /xinlilaoshi/list}（B 组）
+     * ⇒ 本测试<b>不对它们做任何断言</b>（公开是经审计确认的既定行为，见 {@code PHASE2-D2-LIST-AUDIT.md}）。
      */
     private static final String[] TOKEN_PROTECTED_ENDPOINTS = {
             "/yonghu/page?page=1&limit=" + PAGE_LIMIT,
@@ -108,7 +112,15 @@ class Phase2CoreRegressionTest {
             "/tongzhi/page?page=1&limit=" + PAGE_LIMIT,
             "/examrecord/page?page=1&limit=" + PAGE_LIMIT,
             "/examredetails/page?page=1&limit=" + PAGE_LIMIT,
-            "/xinlilaoshiOrder/page?page=1&limit=" + PAGE_LIMIT
+            "/xinlilaoshiOrder/page?page=1&limit=" + PAGE_LIMIT,
+            // ↓ D2-2a：A 组 7 个 /list 认证收口（原方法级 @IgnoreAuth 使匿名可达）
+            "/yonghu/list",
+            "/xinlilaoshiLiuyan/list",
+            "/xinlilaoshiCollection/list",
+            "/xinlilaoshiOrder/list",
+            "/examrecord/list",
+            "/examredetails/list",
+            "/examrewrongquestion/list"
     };
 
     /**
@@ -418,6 +430,45 @@ class Phase2CoreRegressionTest {
         assertThat(dictCode.get(key))
                 .as("键 %s 应映射到种子字典编码 notification_category", key)
                 .isEqualTo("notification_category");
+    }
+
+    // ================== 11. D2-2a：认证收口（A 组 7 个 /list） ==================
+
+    @Test
+    @DisplayName("11. D2-2a：A 组 7 个 /list 匿名被拒、已登录行为不变、B 组公开项未被误伤")
+    void listAuthConvergence_keepsLoggedInBehaviorAndPublicGroup() throws Exception {
+        String[] aGroup = {
+                "/yonghu/list", "/xinlilaoshiLiuyan/list", "/xinlilaoshiCollection/list",
+                "/xinlilaoshiOrder/list", "/examrecord/list", "/examredetails/list",
+                "/examrewrongquestion/list"
+        };
+
+        // ① 匿名（无 Token）→ body.code=401
+        for (String uri : aGroup) {
+            MvcResult result = perform(uri, null);
+            JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+            assertThat(body.path("code").asInt())
+                    .as("D2-2a 收口后，匿名访问 %s 应被拒（body.code=401）", uri)
+                    .isEqualTo(401);
+        }
+
+        // ② 已登录 → 行为必须保持不变（本批只挪认证边界，不碰数据范围 —— 范围属 D2-2b）
+        for (String uri : aGroup) {
+            JsonNode body = getJson(uri, studentToken);
+            assertThat(body.path("code").asInt())
+                    .as("已登录（学生）访问 %s 行为须不变（仍 code=0）；范围问题属 D2-2b", uri)
+                    .isZero();
+        }
+
+        // ③ B 组（有首页调用证据，审计确认保持公开）必须仍匿名可达 —— 防止误伤公开页面
+        String[] publicGroup = {"/jiankangzhishi/list", "/tongzhi/list", "/config/list", "/xinlilaoshi/list"};
+        for (String uri : publicGroup) {
+            JsonNode body = getJson(uri, null);
+            assertThat(body.path("code").asInt())
+                    .as("B 组 %s 有首页调用证据，必须保持匿名可达（本批不得误伤公开页面）", uri)
+                    .isZero();
+        }
+        // C 组（/exampaper/list、/examquestion/list）业务证据不足 ⇒ 暂缓，本测试刻意【不做断言】
     }
 
     private void assertBadRequest(MvcResult result, String source) throws Exception {

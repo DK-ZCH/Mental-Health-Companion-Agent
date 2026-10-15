@@ -17,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.service.SysDictItemService;
 import org.apache.commons.lang3.StringUtils;
-import com.annotation.IgnoreAuth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -282,7 +281,6 @@ public class AssessmentRecordController {
     /**
     * 前端列表
     */
-    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));

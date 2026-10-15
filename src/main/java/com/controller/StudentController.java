@@ -424,7 +424,6 @@ public class StudentController {
     /**
     * 前端列表
     */
-    @IgnoreAuth
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
