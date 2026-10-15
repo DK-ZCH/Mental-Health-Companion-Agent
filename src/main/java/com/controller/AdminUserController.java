@@ -112,7 +112,7 @@ public class AdminUserController {
         // Step 5b-A：同上 —— 管理端账号列表仅管理员可访问
         OwnershipGuard.assertAdminOnly(request);
        	QueryWrapper<AdminUserEntity> ew = new QueryWrapper<AdminUserEntity>();
-      	ew.allEq(MPUtil.allEQMapPre( user, "user")); 
+      	ew.allEq(MPUtil.allEQMapPre( user, "u"), false); 
         return R.ok().put("data", usersService.selectListView(ew));
     }
 
