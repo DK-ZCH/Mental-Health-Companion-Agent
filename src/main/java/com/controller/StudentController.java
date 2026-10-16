@@ -428,6 +428,10 @@ public class StudentController {
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
 
+        // D2-2b-G2-A：读范围收敛（与 /page 同款）—— 与 G2-B(/page) 共同依赖 StudentDao.xml 的 owner 条件
+        // （缺 XML 条件时注入会被静默忽略：这正是 G2-B /page 的历史缺口）
+        DataScope.apply(request, params, "studentId", "counselorId");
+
         // 没有指定排序字段就默认id倒序
         if(StringUtil.isEmpty(String.valueOf(params.get("orderBy")))){
             params.put("orderBy","id");

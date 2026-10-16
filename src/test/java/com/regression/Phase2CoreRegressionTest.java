@@ -209,16 +209,32 @@ class Phase2CoreRegressionTest {
     // ================== 4. MyBatis-Plus 3.x 分页 ==================
 
     @Test
-    @DisplayName("4. MP3 分页：total / pageSize / totalPage / 记录数 正确")
+    @DisplayName("4. MP3 分页：total / pageSize / totalPage / 记录数 正确（管理员全量）＋ 学生只见自己（D2-2b-G2 锁行为）")
     void studentPage_paginationMetadataIsCorrect() throws Exception {
-        JsonNode body = getJson("/yonghu/page?page=1&limit=" + PAGE_LIMIT, studentToken);
-        assertThat(body.path("code").asInt()).isZero();
+        // ⚠️ 修订说明（D2-2b-G2，2026-10-16）：本用例原本以【学生】身份断言「能看到全部 3 名学生」——
+        //    那实际上把一个读范围缺口当成了正确行为固化下来：/yonghu/page 早已调用 DataScope.apply(...)，
+        //    但 StudentDao.xml 没有任何 params.studentId 条件 ⇒ 注入被静默忽略 ⇒ 学生看到全表。
+        //    G2（G2-A /list 注入 + G2-B 同一 XML 条件）修复后：
+        //      · 分页元数据改用【管理员】验证（管理员无读范围收敛 ⇒ 仍是全量基线），保持本用例原意；
+        //      · 学生侧改为断言「仅自己 1 条」，把修复后的行为锁住，防止回退。
+        JsonNode adminBody = getJson("/yonghu/page?page=1&limit=" + PAGE_LIMIT, loginAsAdmin());
+        assertThat(adminBody.path("code").asInt()).isZero();
 
-        JsonNode data = body.path("data");
-        assertThat(data.path("total").asInt()).as("总记录数").isEqualTo(BASELINE_STUDENTS);
+        JsonNode data = adminBody.path("data");
+        assertThat(data.path("total").asInt()).as("总记录数（管理员全量）").isEqualTo(BASELINE_STUDENTS);
         assertThat(data.path("pageSize").asInt()).as("每页条数").isEqualTo(PAGE_LIMIT);
         assertThat(data.path("totalPage").asInt()).as("总页数").isEqualTo(BASELINE_STUDENT_TOTAL_PAGES);
         assertThat(data.path("list").size()).as("当前页记录数").isEqualTo(PAGE_LIMIT);
+
+        // D2-2b-G2-B：同一 XML owner 条件修复后，学生在本端点只能读到自己的记录
+        JsonNode studentBody = getJson("/yonghu/page?page=1&limit=" + PAGE_LIMIT, studentToken);
+        assertThat(studentBody.path("code").asInt()).isZero();
+        JsonNode sData = studentBody.path("data");
+        assertThat(sData.path("total").asInt()).as("学生只应看到自己 1 条（D2-2b-G2-B）").isEqualTo(1);
+        assertThat(sData.path("list").size()).as("学生当前页记录数").isEqualTo(1);
+        assertThat(sData.path("list").get(0).path("id").asInt())
+                .as("且必须是自己（@BeforeEach 登录的是 a1 ⇒ student.id=1）")
+                .isEqualTo(1);
     }
 
     // ================== 6. 敏感字段（Step 3 / S1 的自动化断言） ==================
@@ -487,6 +503,19 @@ class Phase2CoreRegressionTest {
     }
 
     // ================== 工具方法 ==================
+
+    /**
+     * 管理员令牌（D2-2b 起）：凡断言「全量」语义（如分页元数据基线）的用例都应以管理员身份进行 ——
+     * 学生/教师身份自 G2 起带读范围收敛，看到的是本人范围而非全表。
+     */
+    private String loginAsAdmin() throws Exception {
+        MvcResult result = perform(post("/users/login?username=admin&password=admin"));
+        JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertThat(body.path("code").asInt()).as("管理员登录应成功").isZero();
+        String token = body.path("token").asText();
+        assertThat(token).as("管理员登录应返回 token").isNotBlank();
+        return token;
+    }
 
     private MvcResult perform(String uri, String token) throws Exception {
         var builder = get(uri);
