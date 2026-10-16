@@ -612,6 +612,53 @@ class IdentityAuthorizationRegressionTest {
         assertDenied(perform("/users/list", counselorToken), "心理老师访问管理端账号列表");
     }
 
+    // ================== 28–29. T11：role 为 NULL / 空字符串的完整 HTTP 覆盖 ==================
+    //
+    // 背景（PHASE2-T11-ROLE-MISSING-AUDIT.md · Phase 1 只读审计）：
+    //   · 既有覆盖的**精确边界**：#16 / #19 用的是【非空但未登记】的角色（"未知角色"）；
+    //     #25 只覆盖 currentRole() 的【函数契约】（不经拦截器、不经 DataScope、不看响应）。
+    //   · 而 auth_token.role 允许 NULL（schema 证据），且 /users/login 的 role 取自 DB 行
+    //     ⇒ 「role 为 NULL / 空字符串」是**真实可达形态**，此前【没有任何用例守护】。
+    //   · 本批只把【已经存在的 fail-closed 行为】固化为回归契约 —— **不修改任何生产代码**。
+    //
+    // 判定口径与 #19 完全一致：复用 assertDenied（HTTP 403 + body.code=403 + 统一 msg）。
+    // 每组都带【正向控制】：同一端点用合法学生 token 必须 200 + code=0 ——
+    // 证明 403 来自「角色缺失」，而不是端点本身被错误拦截（否则用例可能因接口整体失效而假绿）。
+
+    @Test
+    @DisplayName("28. T11：role = NULL 的 token —— /page 与 /list 均应 403（缺失角色必须拒绝）")
+    void nullRoleTokenIsDeniedOnPageAndList() throws Exception {
+        assertMissingRoleTokenIsDenied(null, "t11-null-role-token", "role=NULL");
+    }
+
+    @Test
+    @DisplayName("29. T11：role = \"\" 的 token —— /page 与 /list 均应 403（空角色必须拒绝）")
+    void emptyRoleTokenIsDeniedOnPageAndList() throws Exception {
+        assertMissingRoleTokenIsDenied("", "t11-empty-role-token", "role=\"\"");
+    }
+
+    /**
+     * T11 共用体：构造「role 缺失」的令牌 → 断言读范围端点一律 fail-closed（403）→ 清理；
+     * 同组内用合法学生令牌做正向控制（同端点必须 200 + code=0）。
+     *
+     * <p>覆盖两个入口：{@code /page}（{@code DataScope} 既有路径）与 {@code /list}
+     * （D2-2b-G1 收敛后与 {@code /page} 共用同一条 {@code selectListView(page, params)} 参数条件入口）。
+     */
+    private void assertMissingRoleTokenIsDenied(String role, String token, String label) throws Exception {
+        tokenService.save(new AuthTokenEntity(STUDENT_A1_ID, "a1", "student", role, token,
+                new Date(System.currentTimeMillis() + 3_600_000L)));
+        try {
+            // 反向：缺失角色 → 拒绝
+            assertDenied(perform("/xinlilaoshiLiuyan/page?page=1&limit=10", token), label + " 查询 /page");
+            assertDenied(perform("/xinlilaoshiLiuyan/list", token), label + " 查询 /list");
+            // 正向控制：同端点 + 合法学生角色 → 必须放行（证明端点本身可用）
+            assertAllowed(perform("/xinlilaoshiLiuyan/page?page=1&limit=10", studentToken), label + " 对照：合法学生 /page");
+            assertAllowed(perform("/xinlilaoshiLiuyan/list", studentToken), label + " 对照：合法学生 /list");
+        } finally {
+            tokenService.remove(new QueryWrapper<AuthTokenEntity>().eq("token", token));
+        }
+    }
+
     private String usersPassword(String username) {
         AdminUserEntity user = usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", username));
         return user == null ? null : user.getPassword();
