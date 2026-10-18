@@ -176,6 +176,7 @@ public class StudentController {
                 yonghu.setAvatarUrl(null);
         }
         if(yonghuEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(yonghu); // T1：空更新防护（400，不进入 DAO）
             yonghuService.updateById(yonghu);//根据id更新
             return R.ok();
         }else {

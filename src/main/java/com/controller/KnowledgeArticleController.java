@@ -156,6 +156,7 @@ public class KnowledgeArticleController {
                 jiankangzhishi.setCoverUrl(null);
         }
         if(jiankangzhishiEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(jiankangzhishi); // T1：空更新防护（400，不进入 DAO）
             jiankangzhishiService.updateById(jiankangzhishi);//根据id更新
             return R.ok();
         }else {

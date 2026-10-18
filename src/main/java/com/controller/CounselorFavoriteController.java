@@ -184,6 +184,7 @@ public class CounselorFavoriteController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         CounselorFavoriteEntity xinlilaoshiCollectionEntity = xinlilaoshiCollectionService.getOne(queryWrapper);
         if(xinlilaoshiCollectionEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(xinlilaoshiCollection); // T1：空更新防护（400，不进入 DAO）
             xinlilaoshiCollectionService.updateById(xinlilaoshiCollection);//根据id更新
             return R.ok();
         }else {

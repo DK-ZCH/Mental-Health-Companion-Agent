@@ -96,6 +96,7 @@ public class SysConfigController{
     @RequestMapping("/update")
     public R update(@RequestBody SysConfigEntity config){
 //        ValidatorUtils.validateEntity(config);
+        com.security.UpdateGuard.assertHasUpdatableFields(config); // T1：空更新防护（400，不进入 DAO）
         configService.updateById(config);//全部更新
         return R.ok();
     }

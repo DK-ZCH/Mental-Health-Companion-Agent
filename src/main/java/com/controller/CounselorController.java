@@ -165,6 +165,7 @@ public class CounselorController {
                 xinlilaoshi.setAvatarUrl(null);
         }
         if(xinlilaoshiEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(xinlilaoshi); // T1：空更新防护（400，不进入 DAO）
             xinlilaoshiService.updateById(xinlilaoshi);//根据id更新
             return R.ok();
         }else {

@@ -160,6 +160,7 @@ public class AssessmentPaperController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         AssessmentPaperEntity exampaperEntity = exampaperService.getOne(queryWrapper);
         if(exampaperEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(exampaper); // T1：空更新防护（400，不进入 DAO）
             exampaperService.updateById(exampaper);//根据id更新
             return R.ok();
         }else {

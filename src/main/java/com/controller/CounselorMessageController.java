@@ -170,6 +170,7 @@ public class CounselorMessageController {
         CounselorMessageEntity xinlilaoshiLiuyanEntity = xinlilaoshiLiuyanService.getOne(queryWrapper);
         xinlilaoshiLiuyan.setRepliedAt(new Date());
         if(xinlilaoshiLiuyanEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(xinlilaoshiLiuyan); // T1：空更新防护（400，不进入 DAO）
             xinlilaoshiLiuyanService.updateById(xinlilaoshiLiuyan);//根据id更新
             return R.ok();
         }else {

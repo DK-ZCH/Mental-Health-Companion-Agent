@@ -169,6 +169,7 @@ public class CounselingAppointmentController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         CounselingAppointmentEntity xinlilaoshiOrderEntity = xinlilaoshiOrderService.getOne(queryWrapper);
         if(xinlilaoshiOrderEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(xinlilaoshiOrder); // T1：空更新防护（400，不进入 DAO）
             xinlilaoshiOrderService.updateById(xinlilaoshiOrder);//根据id更新
             return R.ok();
         }else {

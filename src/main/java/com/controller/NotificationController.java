@@ -156,6 +156,7 @@ public class NotificationController {
                 tongzhi.setCoverUrl(null);
         }
         if(tongzhiEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(tongzhi); // T1：空更新防护（400，不进入 DAO）
             tongzhiService.updateById(tongzhi);//根据id更新
             return R.ok();
         }else {

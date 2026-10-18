@@ -167,6 +167,7 @@ public class SysDictItemController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         SysDictItemEntity dictionaryEntity = dictionaryService.getOne(queryWrapper);
         if(dictionaryEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(dictionary); // T1：空更新防护（400，不进入 DAO）
             dictionaryService.updateById(dictionary);//根据id更新
             //如果字典表修改数据的话,把数据再重新查出,放入监听器中
             List<SysDictItemEntity> dictionaryEntities = dictionaryService.list(new QueryWrapper<SysDictItemEntity>());

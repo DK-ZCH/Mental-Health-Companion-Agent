@@ -172,6 +172,7 @@ public class AssessmentQuestionController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         AssessmentQuestionEntity examquestionEntity = examquestionService.getOne(queryWrapper);
         if(examquestionEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(examquestion); // T1：空更新防护（400，不进入 DAO）
             examquestionService.updateById(examquestion);//根据id更新
             return R.ok();
         }else {

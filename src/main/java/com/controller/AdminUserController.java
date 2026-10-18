@@ -157,6 +157,7 @@ public class AdminUserController {
     @RequestMapping("/update")
     public R update(@RequestBody AdminUserEntity user){
 //        ValidatorUtils.validateEntity(user);
+        com.security.UpdateGuard.assertHasUpdatableFields(user); // T1：空更新防护（400，不进入 DAO）
         usersService.updateById(user);//全部更新
         return R.ok();
     }

@@ -184,6 +184,7 @@ public class AssessmentRecordController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         AssessmentRecordEntity examrecordEntity = examrecordService.getOne(queryWrapper);
         if(examrecordEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(examrecord); // T1：空更新防护（400，不进入 DAO）
             examrecordService.updateById(examrecord);//根据id更新
             return R.ok();
         }else {

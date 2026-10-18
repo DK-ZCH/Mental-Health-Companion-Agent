@@ -357,6 +357,34 @@ class Phase2CoreRegressionTest {
     }
 
     @Test
+    @DisplayName("9e. T1：空更新（除主键外无任何可更新字段）→ 400，且不写入数据库")
+    void emptyUpdate_returnsBadRequestAndWritesNothing() throws Exception {
+        // T1 Phase 1 分类 ②：请求不完整属【参数错误】——
+        // 不得再以「空 SET → SQL 语法错误 → 500」的形式暴露（500 是兜底，不是语义归属）。
+        String admin = loginAsAdmin();
+        JsonNode before = getJson("/yonghu/info/2", admin).path("data");
+        assertThat(before.path("id").asInt()).as("前置：student id=2 应存在").isEqualTo(2);
+
+        // 触发源 1：只提交主键（除 id 外全部为 null ⇒ 空 SET）
+        assertBadRequest(perform(post("/yonghu/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\":2}")
+                .header("Token", admin)), "空更新：仅提交 id");
+
+        // 触发源 2：只提交 @JsonIgnore 字段（这正是 4-B 那次 500 的原始载荷形态）
+        assertBadRequest(perform(post("/yonghu/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\":2,\"password\":\"x\"}")
+                .header("Token", admin)), "空更新：只提交不可绑定的 password");
+
+        // 关键：拒绝必须发生在进入 DAO 之前 ⇒ 库中记录不得发生任何变化
+        JsonNode after = getJson("/yonghu/info/2", admin).path("data");
+        assertThat(after.path("username").asText()).as("username 不应变化").isEqualTo(before.path("username").asText());
+        assertThat(after.path("name").asText()).as("name 不应变化").isEqualTo(before.path("name").asText());
+        assertThat(after.path("phone").asText()).as("phone 不应变化").isEqualTo(before.path("phone").asText());
+    }
+
+    @Test
     @DisplayName("9c. 资源不存在 → HTTP 404 + code=404（改造前是被劫持的 code=401）")
     void notFound_returns404() throws Exception {
         MvcResult result = perform("/not-exist-xyz", null);

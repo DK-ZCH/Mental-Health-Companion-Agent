@@ -192,6 +192,7 @@ public class AssessmentWrongQuestionController {
         logger.info("sql语句:"+queryWrapper.getSqlSegment());
         AssessmentWrongQuestionEntity examrewrongquestionEntity = examrewrongquestionService.getOne(queryWrapper);
         if(examrewrongquestionEntity==null){
+            com.security.UpdateGuard.assertHasUpdatableFields(examrewrongquestion); // T1：空更新防护（400，不进入 DAO）
             examrewrongquestionService.updateById(examrewrongquestion);//根据id更新
             return R.ok();
         }else {

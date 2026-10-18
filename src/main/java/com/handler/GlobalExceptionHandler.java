@@ -82,6 +82,21 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 请求参数 / 请求体<b>语义</b>错误 → HTTP 400（Phase 2 / <b>T1</b>）。
+     *
+     * <p>与「无法解析/绑定」的 400 区分：本条用于<b>已经解析成功、但语义不完整</b>的请求，
+     * 例如「除主键外没有任何可更新字段」的 {@code /update}（{@code UpdateGuard} 抛出）。
+     * 语义依据：T1 Phase 1 分类 ② —— 请求不完整属<b>参数错误</b>，
+     * 不应再以「空 SET → SQL 语法错误 → 500」的形式暴露。
+     */
+    @ExceptionHandler(com.security.BadRequestException.class)
+    public ResponseEntity<R> handleBadRequestException(com.security.BadRequestException e) {
+        logger.warn("请求语义错误: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(R.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+    }
+
+    /**
      * 授权失败 → <b>HTTP 403</b>（Step 5 第二阶段批 1 的<b>新增行为契约</b>）。
      *
      * <p>与「未认证」严格区分：未认证由拦截器返回 {@code HTTP 200 + body.code=401}（既有契约，不改）；
