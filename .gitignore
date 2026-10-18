@@ -27,7 +27,7 @@ Thumbs.db
 
 # ===== 必须提交的项目资产（请勿忽略） =====
 # src/main/resources/mental_health_companion_agent.sql   数据库初始化脚本
-# src/main/resources/admin/admin/dist/                   后端直接托管的已构建前端产物（运行必需）
+# 注：src/main/resources/admin/admin/dist/ 为**构建产物**，不入库（见文末）；部署时 npm install && npm run build 生成
 # src/main/resources/static/upload/                      演示图片等运行必需资源
 
 # ===== 不纳入版本控制 =====
@@ -40,10 +40,9 @@ docs/
 src/main/resources/front/
 src/main/resources/static/
 src/main/resources/img/
-# 注：src/main/resources/admin/ 未整体忽略——其中已有 82 个文件被跟踪
-#     （admin/dist 构建产物与工程配置文件），若整体忽略会形成"半跟踪"状态
+# 注：src/main/resources/admin/ 未整体忽略——admin 源码(262)与构建配置均已完整纳管
+#     仅 admin/dist 构建产物不入库（见文末），避免"半跟踪"状态
 
-# ===== 管理端源码（暂不纳入仓库）=====
-# admin/dist 构建产物与工程配置文件已在仓库中，此处仅排除源码目录
-src/main/resources/admin/admin/src/
-src/main/resources/admin/admin/vue.config.js
+# ===== 管理端构建产物（不入库，可由 npm run build 再生）=====
+# 磁盘上的 dist 保留（后端直接托管静态资源）；Git 不再跟踪，fresh clone 需执行 npm install && npm run build
+src/main/resources/admin/admin/dist/
