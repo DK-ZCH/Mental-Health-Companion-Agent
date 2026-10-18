@@ -24,7 +24,7 @@ import center from '@/views/center'
     import xinlilaoshiCollection from '@/views/modules/xinlilaoshiCollection/list'
     import xinlilaoshiLiuyan from '@/views/modules/xinlilaoshiLiuyan/list'
     import xinlilaoshiOrder from '@/views/modules/xinlilaoshiOrder/list'
-    import yonghu from '@/views/modules/yonghu/list'
+    import student from '@/views/modules/yonghu/list'
     import xinlilaoshi from '@/views/modules/xinlilaoshi/list'
     import config from '@/views/modules/config/list'
     import dictionaryExampaper from '@/views/modules/dictionaryExampaper/list'
@@ -183,7 +183,7 @@ const routes = [{
     ,{
         path: '/yonghu',
         name: '学生',
-        component: yonghu
+        component: student
       }
     ,{
         path: '/xinlilaoshi',

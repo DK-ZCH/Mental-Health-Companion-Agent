@@ -118,7 +118,7 @@ class IdentityAuthorizationRegressionTest {
 
     @BeforeEach
     void loginAllIdentities() throws Exception {
-        JsonNode student = getJson("/yonghu/login?username=a1&password=123456", null);
+        JsonNode student = getJson("/student/login?username=a1&password=123456", null);
         assertThat(student.path("code").asInt()).as("学生 a1 登录").isZero();
         studentToken = student.path("token").asText();
 
@@ -144,7 +144,7 @@ class IdentityAuthorizationRegressionTest {
         assertAllowed(perform("/counselorFavorite/info/3", studentToken), "自己的收藏");
         assertAllowed(perform("/counselingAppointment/info/1", studentToken), "自己的预约");
         assertAllowed(perform("/assessmentRecord/info/1", studentToken), "自己的测评记录");
-        assertAllowed(perform("/yonghu/info/1", studentToken), "本人学生资料");
+        assertAllowed(perform("/student/info/1", studentToken), "本人学生资料");
     }
 
     @Test
@@ -152,7 +152,7 @@ class IdentityAuthorizationRegressionTest {
     void adminCanReadOthersObjects() throws Exception {
         assertAllowed(perform("/counselorMessage/info/1", adminToken), "他人留言（属 student 2）");
         assertAllowed(perform("/counselorFavorite/info/1", adminToken), "他人收藏（属 student 3）");
-        assertAllowed(perform("/yonghu/info/2", adminToken), "他人学生资料（student 2）");
+        assertAllowed(perform("/student/info/2", adminToken), "他人学生资料（student 2）");
         assertAllowed(perform("/users/info/1", adminToken), "管理端账号");
     }
 
@@ -192,7 +192,7 @@ class IdentityAuthorizationRegressionTest {
     void studentCannotReadOthersObjects() throws Exception {
         assertDenied(perform("/counselorMessage/info/1", studentToken), "他人留言（属 student 2）");
         assertDenied(perform("/counselorFavorite/info/1", studentToken), "他人收藏（属 student 3）");
-        assertDenied(perform("/yonghu/info/2", studentToken), "他人学生资料（student 2）");
+        assertDenied(perform("/student/info/2", studentToken), "他人学生资料（student 2）");
     }
 
     @Test
@@ -206,7 +206,7 @@ class IdentityAuthorizationRegressionTest {
     @DisplayName("7. 记录不存在时也应 403（避免用 200/403 差异探测 id 是否存在）")
     void nonExistentRecordIsDenied() throws Exception {
         assertDenied(perform("/counselorMessage/info/999999", studentToken), "不存在的留言");
-        assertDenied(perform("/yonghu/info/999999", studentToken), "不存在的学生");
+        assertDenied(perform("/student/info/999999", studentToken), "不存在的学生");
     }
 
     @Test
@@ -233,7 +233,7 @@ class IdentityAuthorizationRegressionTest {
         assertThat(studentPassword(3)).as("前置条件：student 3 初始密码应为 123456").isEqualTo("123456");
         assertThat(counselorPassword(3)).as("前置条件：counselor 3 初始密码应为 123456").isEqualTo("123456");
 
-        assertAllowed(perform("/yonghu/resetPassword?id=3", adminToken), "管理员重置学生密码");
+        assertAllowed(perform("/student/resetPassword?id=3", adminToken), "管理员重置学生密码");
         assertAllowed(perform("/counselor/resetPassword?id=3", adminToken), "管理员重置老师密码");
 
         assertThat(studentPassword(3)).as("重置后密码仍应为 123456（无意外变更）").isEqualTo("123456");
@@ -246,8 +246,8 @@ class IdentityAuthorizationRegressionTest {
         String studentBefore = studentPassword(2);
         String counselorBefore = counselorPassword(2);
 
-        assertDenied(perform("/yonghu/resetPassword?id=2", studentToken), "学生重置他人（学生）密码");
-        assertDenied(perform("/yonghu/resetPassword?id=2", counselorToken), "老师重置他人（学生）密码");
+        assertDenied(perform("/student/resetPassword?id=2", studentToken), "学生重置他人（学生）密码");
+        assertDenied(perform("/student/resetPassword?id=2", counselorToken), "老师重置他人（学生）密码");
         assertDenied(perform("/counselor/resetPassword?id=2", studentToken), "学生重置他人（老师）密码");
         assertDenied(perform("/counselor/resetPassword?id=2", counselorToken), "老师重置他人（老师）密码");
 
@@ -261,7 +261,7 @@ class IdentityAuthorizationRegressionTest {
     void passwordReset_withoutTokenKeeps401Contract() throws Exception {
         String before = studentPassword(3);
 
-        MvcResult result = perform("/yonghu/resetPassword?id=3", null);
+        MvcResult result = perform("/student/resetPassword?id=3", null);
         JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
 
         assertThat(result.getResponse().getStatus()).as("未认证仍是 HTTP 200").isEqualTo(200);
@@ -447,9 +447,9 @@ class IdentityAuthorizationRegressionTest {
 
         // 对照：同名「忘记密码」端点（用户端）按 D3 保持不变 →
         //      证明上面的 404 是「该路径被删除」，而非「所有 /resetPass 都 404」或全局 404 行为
-        MvcResult contrast = perform("/yonghu/resetPass?username=not-exist-user-xyz", null);
+        MvcResult contrast = perform("/student/resetPass?username=not-exist-user-xyz", null);
         assertThat(contrast.getResponse().getStatus())
-                .as("对照：/yonghu/resetPass 属「忘记密码」流程，按 D3 保持存在")
+                .as("对照：/student/resetPass 属「忘记密码」流程，按 D3 保持存在")
                 .isNotEqualTo(404);
         assertThat(usersPassword("admin")).as("对照请求也不得改动任何数据").isEqualTo(before);
     }
@@ -463,7 +463,7 @@ class IdentityAuthorizationRegressionTest {
         assertThat(before.getUsername()).as("前置：学号应存在（防空跑）").isNotNull();
         assertThat(before.getGender()).as("前置：性别应存在（防空跑）").isNotNull();
 
-        assertAllowed(postJson("/yonghu/update", studentToken,
+        assertAllowed(postJson("/student/update", studentToken,
                 "{\"id\":" + STUDENT_A1_ID + ",\"name\":\"" + before.getName()
                         + "\",\"username\":\"HACKED-NO\",\"gender\":9,\"idCardNo\":\"HACKED-ID-NO\"}"),
                 "学生修改自己的资料");
@@ -479,7 +479,7 @@ class IdentityAuthorizationRegressionTest {
     void studentCannotUpdateOthersProfile() throws Exception {
         StudentEntity before = yonghuService.getById(2);
 
-        assertDenied(postJson("/yonghu/update", studentToken,
+        assertDenied(postJson("/student/update", studentToken,
                         "{\"id\":2,\"username\":\"HACKED-2\",\"password\":\"hacked-pass\"}"),
                 "学生修改他人资料");
 
@@ -507,7 +507,7 @@ class IdentityAuthorizationRegressionTest {
 
         // 老师改【学生】资料：拒绝（Q1 取证：老师对业务数据没有写入口，回复留言由管理员在管理端完成）
         StudentEntity studentBefore = yonghuService.getById(1);
-        assertDenied(postJson("/yonghu/update", counselorToken,
+        assertDenied(postJson("/student/update", counselorToken,
                         "{\"id\":1,\"password\":\"hacked-by-counselor\"}"),
                 "老师修改学生资料");
         assertThat(yonghuService.getById(1).getPassword())
@@ -519,7 +519,7 @@ class IdentityAuthorizationRegressionTest {
     void adminCanStillEditStudentProfile() throws Exception {
         StudentEntity before = yonghuService.getById(2);
 
-        assertAllowed(postJson("/yonghu/update", adminToken,
+        assertAllowed(postJson("/student/update", adminToken,
                 "{\"id\":2,\"name\":\"" + before.getName() + "\"}"), "管理员编辑学生资料");
 
         StudentEntity after = yonghuService.getById(2);

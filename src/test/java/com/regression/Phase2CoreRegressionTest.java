@@ -95,7 +95,7 @@ class Phase2CoreRegressionTest {
      * <p>因此这里<b>只断言 body 的 {@code code}</b>、<b>刻意不断言 HTTP 状态</b> ——
      * 将来若把状态码修正为标准的 401，本测试不会被误伤。
      *
-     * <p><b>D2-2a 后更新</b>：{@code /yonghu/list} 等 A 组 7 个 {@code /list} 已移除方法级 {@code @IgnoreAuth}
+     * <p><b>D2-2a 后更新</b>：{@code /student/list} 等 A 组 7 个 {@code /list} 已移除方法级 {@code @IgnoreAuth}
      * ⇒ 由「免鉴权」变为「受保护」，故<b>已纳入本清单</b>断言匿名被拒。
      * 仍属免鉴权（<b>保持公开</b>，有首页调用证据）：{@code /assessmentPaper/list}（C 组暂缓）、
      * {@code /assessmentQuestion/list}（C 组暂缓）、{@code /dictionary/page}（B 组）、
@@ -103,8 +103,8 @@ class Phase2CoreRegressionTest {
      * ⇒ 本测试<b>不对它们做任何断言</b>（公开是经审计确认的既定行为，见 {@code PHASE2-D2-LIST-AUDIT.md}）。
      */
     private static final String[] TOKEN_PROTECTED_ENDPOINTS = {
-            "/yonghu/page?page=1&limit=" + PAGE_LIMIT,
-            "/yonghu/info/1",
+            "/student/page?page=1&limit=" + PAGE_LIMIT,
+            "/student/info/1",
             "/users/page?page=1&limit=" + PAGE_LIMIT,
             "/users/list",
             "/counselor/page?page=1&limit=" + PAGE_LIMIT,
@@ -114,7 +114,7 @@ class Phase2CoreRegressionTest {
             "/assessmentAnswer/page?page=1&limit=" + PAGE_LIMIT,
             "/counselingAppointment/page?page=1&limit=" + PAGE_LIMIT,
             // ↓ D2-2a：A 组 7 个 /list 认证收口（原方法级 @IgnoreAuth 使匿名可达）
-            "/yonghu/list",
+            "/student/list",
             "/counselorMessage/list",
             "/counselorFavorite/list",
             "/counselingAppointment/list",
@@ -129,8 +129,8 @@ class Phase2CoreRegressionTest {
      */
     private static Map<String, String> sensitiveCheckTargets() {
         Map<String, String> targets = new LinkedHashMap<>();
-        targets.put("学生列表", "/yonghu/list");
-        targets.put("学生分页", "/yonghu/page?page=1&limit=" + PAGE_LIMIT);
+        targets.put("学生列表", "/student/list");
+        targets.put("学生分页", "/student/page?page=1&limit=" + PAGE_LIMIT);
         targets.put("预约列表", "/counselingAppointment/list");
         targets.put("预约分页", "/counselingAppointment/page?page=1&limit=" + PAGE_LIMIT);
         targets.put("留言列表", "/counselorMessage/list");
@@ -156,7 +156,7 @@ class Phase2CoreRegressionTest {
 
     @BeforeEach
     void loginAsStudent() throws Exception {
-        JsonNode body = getJson("/yonghu/login?username=a1&password=123456", null);
+        JsonNode body = getJson("/student/login?username=a1&password=123456", null);
         assertThat(body.path("code").asInt()).as("学生登录应成功").isZero();
         studentToken = body.path("token").asText();
         assertThat(studentToken).as("登录应返回 token").isNotBlank();
@@ -167,7 +167,7 @@ class Phase2CoreRegressionTest {
     @Test
     @DisplayName("1. 学生登录：返回 token 与角色信息")
     void studentLogin_returnsTokenAndRole() throws Exception {
-        JsonNode body = getJson("/yonghu/login?username=a1&password=123456", null);
+        JsonNode body = getJson("/student/login?username=a1&password=123456", null);
         assertThat(body.path("code").asInt()).isZero();
         assertThat(body.path("token").asText()).isNotBlank();
         assertThat(body.path("role").asText()).isEqualTo("学生");
@@ -212,12 +212,12 @@ class Phase2CoreRegressionTest {
     @DisplayName("4. MP3 分页：total / pageSize / totalPage / 记录数 正确（管理员全量）＋ 学生只见自己（D2-2b-G2 锁行为）")
     void studentPage_paginationMetadataIsCorrect() throws Exception {
         // ⚠️ 修订说明（D2-2b-G2，2026-10-16）：本用例原本以【学生】身份断言「能看到全部 3 名学生」——
-        //    那实际上把一个读范围缺口当成了正确行为固化下来：/yonghu/page 早已调用 DataScope.apply(...)，
+        //    那实际上把一个读范围缺口当成了正确行为固化下来：/student/page 早已调用 DataScope.apply(...)，
         //    但 StudentDao.xml 没有任何 params.studentId 条件 ⇒ 注入被静默忽略 ⇒ 学生看到全表。
         //    G2（G2-A /list 注入 + G2-B 同一 XML 条件）修复后：
         //      · 分页元数据改用【管理员】验证（管理员无读范围收敛 ⇒ 仍是全量基线），保持本用例原意；
         //      · 学生侧改为断言「仅自己 1 条」，把修复后的行为锁住，防止回退。
-        JsonNode adminBody = getJson("/yonghu/page?page=1&limit=" + PAGE_LIMIT, loginAsAdmin());
+        JsonNode adminBody = getJson("/student/page?page=1&limit=" + PAGE_LIMIT, loginAsAdmin());
         assertThat(adminBody.path("code").asInt()).isZero();
 
         JsonNode data = adminBody.path("data");
@@ -227,7 +227,7 @@ class Phase2CoreRegressionTest {
         assertThat(data.path("list").size()).as("当前页记录数").isEqualTo(PAGE_LIMIT);
 
         // D2-2b-G2-B：同一 XML owner 条件修复后，学生在本端点只能读到自己的记录
-        JsonNode studentBody = getJson("/yonghu/page?page=1&limit=" + PAGE_LIMIT, studentToken);
+        JsonNode studentBody = getJson("/student/page?page=1&limit=" + PAGE_LIMIT, studentToken);
         assertThat(studentBody.path("code").asInt()).isZero();
         JsonNode sData = studentBody.path("data");
         assertThat(sData.path("total").asInt()).as("学生只应看到自己 1 条（D2-2b-G2-B）").isEqualTo(1);
@@ -265,7 +265,7 @@ class Phase2CoreRegressionTest {
     @Test
     @DisplayName("6b. 学生详情接口：响应不含 password 与身份证字段")
     void sensitiveFields_areNeverExposedInDetail() throws Exception {
-        MvcResult result = perform("/yonghu/info/1", studentToken);
+        MvcResult result = perform("/student/info/1", studentToken);
         assertThat(result.getResponse().getStatus()).isEqualTo(200);
 
         String body = result.getResponse().getContentAsString();
@@ -336,7 +336,7 @@ class Phase2CoreRegressionTest {
         assertThat(b1.path("msg").asText()).as("应返回可读业务提示").isEqualTo("上传文件不能为空");
 
         // 触发源 2：SQLFilter 命中关键词（Query → SQLFilter.sqlInject 抛 EIException）
-        MvcResult keyword = perform("/yonghu/page?page=1&limit=" + PAGE_LIMIT + "&sidx=select", studentToken);
+        MvcResult keyword = perform("/student/page?page=1&limit=" + PAGE_LIMIT + "&sidx=select", studentToken);
         assertThat(keyword.getResponse().getStatus()).as("业务异常应保持 HTTP 200").isEqualTo(200);
         JsonNode b2 = objectMapper.readTree(keyword.getResponse().getContentAsString());
         assertThat(b2.path("code").asInt()).isEqualTo(500);
@@ -348,9 +348,9 @@ class Phase2CoreRegressionTest {
     void badRequest_returns400() throws Exception {
         assertBadRequest(perform("/file/download", null), "缺少必填参数");
 
-        assertBadRequest(perform("/yonghu/resetPassword?id=abc", studentToken), "参数类型不符");
+        assertBadRequest(perform("/student/resetPassword?id=abc", studentToken), "参数类型不符");
 
-        assertBadRequest(perform(post("/yonghu/update")
+        assertBadRequest(perform(post("/student/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{bad json")
                 .header("Token", studentToken)), "请求体不可读（非法 JSON）");
@@ -362,23 +362,23 @@ class Phase2CoreRegressionTest {
         // T1 Phase 1 分类 ②：请求不完整属【参数错误】——
         // 不得再以「空 SET → SQL 语法错误 → 500」的形式暴露（500 是兜底，不是语义归属）。
         String admin = loginAsAdmin();
-        JsonNode before = getJson("/yonghu/info/2", admin).path("data");
+        JsonNode before = getJson("/student/info/2", admin).path("data");
         assertThat(before.path("id").asInt()).as("前置：student id=2 应存在").isEqualTo(2);
 
         // 触发源 1：只提交主键（除 id 外全部为 null ⇒ 空 SET）
-        assertBadRequest(perform(post("/yonghu/update")
+        assertBadRequest(perform(post("/student/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"id\":2}")
                 .header("Token", admin)), "空更新：仅提交 id");
 
         // 触发源 2：只提交 @JsonIgnore 字段（这正是 4-B 那次 500 的原始载荷形态）
-        assertBadRequest(perform(post("/yonghu/update")
+        assertBadRequest(perform(post("/student/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"id\":2,\"password\":\"x\"}")
                 .header("Token", admin)), "空更新：只提交不可绑定的 password");
 
         // 关键：拒绝必须发生在进入 DAO 之前 ⇒ 库中记录不得发生任何变化
-        JsonNode after = getJson("/yonghu/info/2", admin).path("data");
+        JsonNode after = getJson("/student/info/2", admin).path("data");
         assertThat(after.path("username").asText()).as("username 不应变化").isEqualTo(before.path("username").asText());
         assertThat(after.path("name").asText()).as("name 不应变化").isEqualTo(before.path("name").asText());
         assertThat(after.path("phone").asText()).as("phone 不应变化").isEqualTo(before.path("phone").asText());
@@ -402,11 +402,11 @@ class Phase2CoreRegressionTest {
     @DisplayName("9d. 未捕获异常 → HTTP 500 + code=500 且不泄漏内部细节（两个触发源）")
     void unhandledException_returns500() throws Exception {
         assertServerError(
-                perform("/yonghu/page?page=1&limit=" + PAGE_LIMIT + "&sidx=not_exist_col&order=asc", studentToken),
+                perform("/student/page?page=1&limit=" + PAGE_LIMIT + "&sidx=not_exist_col&order=asc", studentToken),
                 "排序列不存在（SQL 异常）");
 
         assertServerError(
-                perform("/yonghu/page?page=abc&limit=" + PAGE_LIMIT, studentToken),
+                perform("/student/page?page=abc&limit=" + PAGE_LIMIT, studentToken),
                 "分页参数非数字");
     }
 
@@ -482,7 +482,7 @@ class Phase2CoreRegressionTest {
     @DisplayName("11. D2-2a：A 组 7 个 /list 匿名被拒、已登录行为不变、B 组公开项未被误伤")
     void listAuthConvergence_keepsLoggedInBehaviorAndPublicGroup() throws Exception {
         String[] aGroup = {
-                "/yonghu/list", "/counselorMessage/list", "/counselorFavorite/list",
+                "/student/list", "/counselorMessage/list", "/counselorFavorite/list",
                 "/counselingAppointment/list", "/assessmentRecord/list", "/assessmentAnswer/list",
                 "/assessmentWrongQuestion/list"
         };

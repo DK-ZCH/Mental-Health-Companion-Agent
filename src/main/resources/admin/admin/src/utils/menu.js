@@ -87,7 +87,7 @@ const menu = {
                         ],
                         "menu":"学生管理",
                         "menuJump":"列表",
-                        "tableName":"yonghu"
+                        "tableName":"student"
                     }
                 ],
                 "menu":"学生管理"
@@ -255,7 +255,7 @@ const menu = {
                         ],
                         "menu":"学生管理",
                         "menuJump":"列表",
-                        "tableName":"yonghu"
+                        "tableName":"student"
                     }
                 ],
                 "menu":"学生管理"
@@ -453,7 +453,7 @@ const menu = {
         "hasFrontLogin":"否",
         "hasFrontRegister":"否",
         "roleName":"学生",
-        "tableName":"yonghu"
+        "tableName":"student"
     }
 ]
     }

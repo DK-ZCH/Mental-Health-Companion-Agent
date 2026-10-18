@@ -310,7 +310,7 @@
             });
 
             this.$http({
-                url: `yonghu/page?page=1&limit=100`,
+                url: `student/page?page=1&limit=100`,
                 method: "get"
             }).then(({ data }) => {
                 if (data && data.code === 0) {
@@ -390,7 +390,7 @@
             },
             yonghuChange(id){
                 this.$http({
-                    url: `yonghu/info/`+id,
+                    url: `student/info/`+id,
                     method: "get"
                 }).then(({ data }) => {
                     if (data && data.code === 0) {

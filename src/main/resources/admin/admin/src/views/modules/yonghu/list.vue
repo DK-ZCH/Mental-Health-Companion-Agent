@@ -653,7 +653,7 @@
 
 
                 this.$http({
-                    url: "yonghu/page",
+                    url: "student/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -713,7 +713,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "yonghu/delete",
+                        url: "student/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -735,7 +735,7 @@
             resetPassword(id) {
                 //重置密码
                 this.$http({
-                    url: "yonghu/resetPassword?id=" + id,
+                    url: "student/resetPassword?id=" + id,
                     method: "get",
                     // id:id
                 }).then(({data}) => {
@@ -748,7 +748,7 @@
             yonghuUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "yonghu/batchInsert?fileName=" + data.file,
+                    url: "student/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){
