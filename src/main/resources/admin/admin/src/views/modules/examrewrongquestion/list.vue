@@ -489,7 +489,7 @@
 
 
                 this.$http({
-                    url: "examrewrongquestion/page",
+                    url: "assessmentWrongQuestion/page",
                     method: "get",
                     params: params
                 }).then(({ data }) => {
@@ -561,7 +561,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "examrewrongquestion/delete",
+                        url: "assessmentWrongQuestion/delete",
                         method: "post",
                         data: ids
                     }).then(({ data }) => {

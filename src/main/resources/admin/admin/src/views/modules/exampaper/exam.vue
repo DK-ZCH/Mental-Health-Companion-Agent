@@ -262,7 +262,7 @@
                     recordNo: this.$route.params.paperUUID,
                 };
                 this.$http({
-                    url: `examredetails/addUnsaved`,
+                    url: `assessmentAnswer/addUnsaved`,
                     method: "get",
                     params: record
                 }).then(({ data }) => {
@@ -293,7 +293,7 @@
                     studentId: this.user.id,
                 };
                 this.$http({
-                    url: `examredetails/saveExamredetails?examrecordId=`+this.$route.params.examrecordId,
+                    url: `assessmentAnswer/saveExamredetails?examrecordId=`+this.$route.params.examrecordId,
                     method: "post",
                     data: record
                 }).then(({ data }) => {

@@ -143,7 +143,7 @@ class IdentityAuthorizationRegressionTest {
         assertAllowed(perform("/xinlilaoshiLiuyan/info/2", studentToken), "自己的留言");
         assertAllowed(perform("/xinlilaoshiCollection/info/3", studentToken), "自己的收藏");
         assertAllowed(perform("/xinlilaoshiOrder/info/1", studentToken), "自己的预约");
-        assertAllowed(perform("/examrecord/info/1", studentToken), "自己的测评记录");
+        assertAllowed(perform("/assessmentRecord/info/1", studentToken), "自己的测评记录");
         assertAllowed(perform("/yonghu/info/1", studentToken), "本人学生资料");
     }
 

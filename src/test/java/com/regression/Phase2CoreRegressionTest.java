@@ -110,17 +110,17 @@ class Phase2CoreRegressionTest {
             "/xinlilaoshi/page?page=1&limit=" + PAGE_LIMIT,
             "/assessmentPaper/page?page=1&limit=" + PAGE_LIMIT,
             "/notification/page?page=1&limit=" + PAGE_LIMIT,
-            "/examrecord/page?page=1&limit=" + PAGE_LIMIT,
-            "/examredetails/page?page=1&limit=" + PAGE_LIMIT,
+            "/assessmentRecord/page?page=1&limit=" + PAGE_LIMIT,
+            "/assessmentAnswer/page?page=1&limit=" + PAGE_LIMIT,
             "/xinlilaoshiOrder/page?page=1&limit=" + PAGE_LIMIT,
             // ↓ D2-2a：A 组 7 个 /list 认证收口（原方法级 @IgnoreAuth 使匿名可达）
             "/yonghu/list",
             "/xinlilaoshiLiuyan/list",
             "/xinlilaoshiCollection/list",
             "/xinlilaoshiOrder/list",
-            "/examrecord/list",
-            "/examredetails/list",
-            "/examrewrongquestion/list"
+            "/assessmentRecord/list",
+            "/assessmentAnswer/list",
+            "/assessmentWrongQuestion/list"
     };
 
     /**
@@ -137,12 +137,12 @@ class Phase2CoreRegressionTest {
         targets.put("留言分页", "/xinlilaoshiLiuyan/page?page=1&limit=" + PAGE_LIMIT);
         targets.put("收藏列表", "/xinlilaoshiCollection/list");
         targets.put("收藏分页", "/xinlilaoshiCollection/page?page=1&limit=" + PAGE_LIMIT);
-        targets.put("测评记录列表", "/examrecord/list");
-        targets.put("测评记录分页", "/examrecord/page?page=1&limit=" + PAGE_LIMIT);
-        targets.put("答题明细列表", "/examredetails/list");
-        targets.put("答题明细分页", "/examredetails/page?page=1&limit=" + PAGE_LIMIT);
-        targets.put("错题列表", "/examrewrongquestion/list");
-        targets.put("错题分页", "/examrewrongquestion/page?page=1&limit=" + PAGE_LIMIT);
+        targets.put("测评记录列表", "/assessmentRecord/list");
+        targets.put("测评记录分页", "/assessmentRecord/page?page=1&limit=" + PAGE_LIMIT);
+        targets.put("答题明细列表", "/assessmentAnswer/list");
+        targets.put("答题明细分页", "/assessmentAnswer/page?page=1&limit=" + PAGE_LIMIT);
+        targets.put("错题列表", "/assessmentWrongQuestion/list");
+        targets.put("错题分页", "/assessmentWrongQuestion/page?page=1&limit=" + PAGE_LIMIT);
         return targets;
     }
 
@@ -483,8 +483,8 @@ class Phase2CoreRegressionTest {
     void listAuthConvergence_keepsLoggedInBehaviorAndPublicGroup() throws Exception {
         String[] aGroup = {
                 "/yonghu/list", "/xinlilaoshiLiuyan/list", "/xinlilaoshiCollection/list",
-                "/xinlilaoshiOrder/list", "/examrecord/list", "/examredetails/list",
-                "/examrewrongquestion/list"
+                "/xinlilaoshiOrder/list", "/assessmentRecord/list", "/assessmentAnswer/list",
+                "/assessmentWrongQuestion/list"
         };
 
         // ① 匿名（无 Token）→ body.code=401

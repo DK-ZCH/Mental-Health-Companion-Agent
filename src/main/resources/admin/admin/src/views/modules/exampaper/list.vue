@@ -448,7 +448,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: `examrecord/saveExamrecord?paperId=${id}`,
+                        url: `assessmentRecord/saveExamrecord?paperId=${id}`,
                         method: "get",
                         data: null
                     }).then(({ data }) => {
