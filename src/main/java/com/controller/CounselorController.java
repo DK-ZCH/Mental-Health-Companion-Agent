@@ -43,7 +43,7 @@ import com.alibaba.fastjson.*;
 */
 @RestController
 @Controller
-@RequestMapping("/xinlilaoshi")
+@RequestMapping("/counselor")
 public class CounselorController {
     private static final Logger logger = LoggerFactory.getLogger(CounselorController.class);
 

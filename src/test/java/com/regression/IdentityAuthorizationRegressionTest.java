@@ -122,7 +122,7 @@ class IdentityAuthorizationRegressionTest {
         assertThat(student.path("code").asInt()).as("学生 a1 登录").isZero();
         studentToken = student.path("token").asText();
 
-        JsonNode counselor = getJson("/xinlilaoshi/login?username=a1&password=123456", null);
+        JsonNode counselor = getJson("/counselor/login?username=a1&password=123456", null);
         assertThat(counselor.path("code").asInt()).as("心理老师 a1 登录").isZero();
         counselorToken = counselor.path("token").asText();
 
@@ -140,9 +140,9 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("1. 学生读【自己的】对象：留言/收藏/预约/测评/本人资料 均应放行")
     void studentCanReadOwnObjects() throws Exception {
-        assertAllowed(perform("/xinlilaoshiLiuyan/info/2", studentToken), "自己的留言");
-        assertAllowed(perform("/xinlilaoshiCollection/info/3", studentToken), "自己的收藏");
-        assertAllowed(perform("/xinlilaoshiOrder/info/1", studentToken), "自己的预约");
+        assertAllowed(perform("/counselorMessage/info/2", studentToken), "自己的留言");
+        assertAllowed(perform("/counselorFavorite/info/3", studentToken), "自己的收藏");
+        assertAllowed(perform("/counselingAppointment/info/1", studentToken), "自己的预约");
         assertAllowed(perform("/assessmentRecord/info/1", studentToken), "自己的测评记录");
         assertAllowed(perform("/yonghu/info/1", studentToken), "本人学生资料");
     }
@@ -150,8 +150,8 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("2. 管理员读【他人的】对象：应放行（B 类：管理员本就可查全量）")
     void adminCanReadOthersObjects() throws Exception {
-        assertAllowed(perform("/xinlilaoshiLiuyan/info/1", adminToken), "他人留言（属 student 2）");
-        assertAllowed(perform("/xinlilaoshiCollection/info/1", adminToken), "他人收藏（属 student 3）");
+        assertAllowed(perform("/counselorMessage/info/1", adminToken), "他人留言（属 student 2）");
+        assertAllowed(perform("/counselorFavorite/info/1", adminToken), "他人收藏（属 student 3）");
         assertAllowed(perform("/yonghu/info/2", adminToken), "他人学生资料（student 2）");
         assertAllowed(perform("/users/info/1", adminToken), "管理端账号");
     }
@@ -160,13 +160,13 @@ class IdentityAuthorizationRegressionTest {
     @DisplayName("3. 心理老师读【自己服务对象】的对象：应放行；读他人服务对象：应拒绝")
     void counselorScopeByCounselorId() throws Exception {
         // 留言 id3 → (学生3, 老师1) = a1 的 counselor 身份 ✓
-        assertAllowed(perform("/xinlilaoshiLiuyan/info/3", counselorToken), "自己服务对象的留言");
+        assertAllowed(perform("/counselorMessage/info/3", counselorToken), "自己服务对象的留言");
         // 预约 id3 → (学生1, 老师1) ✓
-        assertAllowed(perform("/xinlilaoshiOrder/info/3", counselorToken), "自己服务对象的预约");
+        assertAllowed(perform("/counselingAppointment/info/3", counselorToken), "自己服务对象的预约");
         // 留言 id1 → (学生2, 老师2) ✗
-        assertDenied(perform("/xinlilaoshiLiuyan/info/1", counselorToken), "他人服务对象的留言");
+        assertDenied(perform("/counselorMessage/info/1", counselorToken), "他人服务对象的留言");
         // 预约 id1 → (学生1, 老师2) ✗
-        assertDenied(perform("/xinlilaoshiOrder/info/1", counselorToken), "他人服务对象的预约");
+        assertDenied(perform("/counselingAppointment/info/1", counselorToken), "他人服务对象的预约");
     }
 
     @Test
@@ -190,8 +190,8 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("5. 学生读【他人的】对象：应 403（本批修复的 IDOR）")
     void studentCannotReadOthersObjects() throws Exception {
-        assertDenied(perform("/xinlilaoshiLiuyan/info/1", studentToken), "他人留言（属 student 2）");
-        assertDenied(perform("/xinlilaoshiCollection/info/1", studentToken), "他人收藏（属 student 3）");
+        assertDenied(perform("/counselorMessage/info/1", studentToken), "他人留言（属 student 2）");
+        assertDenied(perform("/counselorFavorite/info/1", studentToken), "他人收藏（属 student 3）");
         assertDenied(perform("/yonghu/info/2", studentToken), "他人学生资料（student 2）");
     }
 
@@ -205,14 +205,14 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("7. 记录不存在时也应 403（避免用 200/403 差异探测 id 是否存在）")
     void nonExistentRecordIsDenied() throws Exception {
-        assertDenied(perform("/xinlilaoshiLiuyan/info/999999", studentToken), "不存在的留言");
+        assertDenied(perform("/counselorMessage/info/999999", studentToken), "不存在的留言");
         assertDenied(perform("/yonghu/info/999999", studentToken), "不存在的学生");
     }
 
     @Test
     @DisplayName("8. 无 Token：仍是既有契约 HTTP 200 + body.code=401（本批不改 401）")
     void withoutTokenStillReturnsExisting401Contract() throws Exception {
-        MvcResult result = perform("/xinlilaoshiLiuyan/info/2", null);
+        MvcResult result = perform("/counselorMessage/info/2", null);
         JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
 
         assertThat(result.getResponse().getStatus())
@@ -234,7 +234,7 @@ class IdentityAuthorizationRegressionTest {
         assertThat(counselorPassword(3)).as("前置条件：counselor 3 初始密码应为 123456").isEqualTo("123456");
 
         assertAllowed(perform("/yonghu/resetPassword?id=3", adminToken), "管理员重置学生密码");
-        assertAllowed(perform("/xinlilaoshi/resetPassword?id=3", adminToken), "管理员重置老师密码");
+        assertAllowed(perform("/counselor/resetPassword?id=3", adminToken), "管理员重置老师密码");
 
         assertThat(studentPassword(3)).as("重置后密码仍应为 123456（无意外变更）").isEqualTo("123456");
         assertThat(counselorPassword(3)).as("重置后密码仍应为 123456（无意外变更）").isEqualTo("123456");
@@ -248,8 +248,8 @@ class IdentityAuthorizationRegressionTest {
 
         assertDenied(perform("/yonghu/resetPassword?id=2", studentToken), "学生重置他人（学生）密码");
         assertDenied(perform("/yonghu/resetPassword?id=2", counselorToken), "老师重置他人（学生）密码");
-        assertDenied(perform("/xinlilaoshi/resetPassword?id=2", studentToken), "学生重置他人（老师）密码");
-        assertDenied(perform("/xinlilaoshi/resetPassword?id=2", counselorToken), "老师重置他人（老师）密码");
+        assertDenied(perform("/counselor/resetPassword?id=2", studentToken), "学生重置他人（老师）密码");
+        assertDenied(perform("/counselor/resetPassword?id=2", counselorToken), "老师重置他人（老师）密码");
 
         // 关键：不仅断言「请求被拒绝」，还要断言「目标数据确实没有被改动」
         assertThat(studentPassword(2)).as("student 2 的密码不得因越权请求而变化").isEqualTo(studentBefore);
@@ -289,7 +289,7 @@ class IdentityAuthorizationRegressionTest {
         // 留言 id2 属 student 1（a1 自己）；请求体里故意伪造 studentId=2
         assertThat(messageOwner(2)).as("前置条件：留言 id2 应属 student 1").isEqualTo(STUDENT_A1_ID);
 
-        assertAllowed(postJson("/xinlilaoshiLiuyan/update", studentToken, "{\"id\":2,\"studentId\":2}"),
+        assertAllowed(postJson("/counselorMessage/update", studentToken, "{\"id\":2,\"studentId\":2}"),
                 "学生修改自己的留言");
 
         assertThat(messageOwner(2))
@@ -305,9 +305,9 @@ class IdentityAuthorizationRegressionTest {
         assertThat(beforeMessageOwner).as("前置条件：留言 id1 应属 student 2").isEqualTo(2);
         assertThat(beforeFavoriteOwner).as("前置条件：收藏 id1 应属 student 3").isEqualTo(3);
 
-        assertDenied(postJson("/xinlilaoshiLiuyan/update", studentToken, "{\"id\":1,\"studentId\":1}"),
+        assertDenied(postJson("/counselorMessage/update", studentToken, "{\"id\":1,\"studentId\":1}"),
                 "学生修改他人留言");
-        assertDenied(postJson("/xinlilaoshiCollection/update", studentToken, "{\"id\":1,\"studentId\":1}"),
+        assertDenied(postJson("/counselorFavorite/update", studentToken, "{\"id\":1,\"studentId\":1}"),
                 "学生修改他人收藏");
 
         assertThat(messageOwner(1)).as("越权请求不得改动他人留言").isEqualTo(beforeMessageOwner);
@@ -324,7 +324,7 @@ class IdentityAuthorizationRegressionTest {
         xinlilaoshiLiuyanService.save(fixture);
         Integer fixtureId = fixture.getId();
         try {
-            assertAllowed(postJson("/xinlilaoshiLiuyan/update", adminToken,
+            assertAllowed(postJson("/counselorMessage/update", adminToken,
                             "{\"id\":" + fixtureId + ",\"studentId\":3}"),
                     "管理员代表目标学生修改");
 
@@ -340,9 +340,9 @@ class IdentityAuthorizationRegressionTest {
     @DisplayName("15. 两个 /add：客户端伪造 studentId → 数据库仍写入 Session 当前学生")
     void addEndpointsAlwaysStampCurrentStudent() throws Exception {
         // 学生 a1 伪造 studentId=3 提交留言与收藏（服务端应强制写为 1）
-        assertAllowed(postJson("/xinlilaoshiLiuyan/add", studentToken,
+        assertAllowed(postJson("/counselorMessage/add", studentToken,
                 "{\"studentId\":3,\"counselorId\":3}"), "伪造归属提交留言");
-        assertAllowed(postJson("/xinlilaoshiCollection/add", studentToken,
+        assertAllowed(postJson("/counselorFavorite/add", studentToken,
                 "{\"studentId\":3,\"counselorId\":3,\"favoriteType\":2}"), "伪造归属提交收藏");
 
         QueryWrapper<CounselorMessageEntity> messageQuery = new QueryWrapper<CounselorMessageEntity>()
@@ -371,9 +371,9 @@ class IdentityAuthorizationRegressionTest {
         tokenService.save(new AuthTokenEntity(STUDENT_A1_ID, "a1", "student", "未知角色", unknownToken,
                 new Date(System.currentTimeMillis() + 3_600_000L)));
         try {
-            assertDenied(postJson("/xinlilaoshiLiuyan/update", unknownToken, "{\"id\":2,\"studentId\":1}"),
+            assertDenied(postJson("/counselorMessage/update", unknownToken, "{\"id\":2,\"studentId\":1}"),
                     "未知角色执行写操作");
-            assertDenied(perform("/xinlilaoshiLiuyan/info/2", unknownToken), "未知角色执行读操作");
+            assertDenied(perform("/counselorMessage/info/2", unknownToken), "未知角色执行读操作");
         } finally {
             tokenService.remove(new QueryWrapper<AuthTokenEntity>().eq("token", unknownToken));
         }
@@ -384,7 +384,7 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("17. 学生伪造 studentId 查询 page：仍只返回自己的记录（矩阵 3）")
     void studentPageScopeCannotBeForged() throws Exception {
-        JsonNode body = getJson("/xinlilaoshiLiuyan/page?page=1&limit=10&studentId=2", studentToken);
+        JsonNode body = getJson("/counselorMessage/page?page=1&limit=10&studentId=2", studentToken);
         assertThat(body.path("code").asInt()).as("列表查询应成功").isZero();
 
         JsonNode data = body.path("data");
@@ -401,7 +401,7 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("18. 心理老师查询 page：只返回自己服务范围内的记录（矩阵 11）")
     void counselorPageIsScopedToSelf() throws Exception {
-        JsonNode body = getJson("/xinlilaoshiLiuyan/page?page=1&limit=20", counselorToken);
+        JsonNode body = getJson("/counselorMessage/page?page=1&limit=20", counselorToken);
         assertThat(body.path("code").asInt()).as("列表查询应成功").isZero();
 
         JsonNode data = body.path("data");
@@ -423,7 +423,7 @@ class IdentityAuthorizationRegressionTest {
                 new Date(System.currentTimeMillis() + 3_600_000L)));
         try {
             // 改造前：未知角色会跳过全部分支 → 不加任何过滤 → 返回全量（fail-open 缺口）
-            assertDenied(perform("/xinlilaoshiLiuyan/page?page=1&limit=10", unknownToken),
+            assertDenied(perform("/counselorMessage/page?page=1&limit=10", unknownToken),
                     "未知角色查询列表");
         } finally {
             tokenService.remove(new QueryWrapper<AuthTokenEntity>().eq("token", unknownToken));
@@ -496,7 +496,7 @@ class IdentityAuthorizationRegressionTest {
         assertThat(before.getUsername()).as("前置：工号应存在（防空跑）").isNotNull();
 
         // 老师改【自己】：可改（含 expertise/resume/introduction 等非固定信息）
-        assertAllowed(postJson("/xinlilaoshi/update", counselorToken,
+        assertAllowed(postJson("/counselor/update", counselorToken,
                 "{\"id\":1,\"name\":\"" + before.getName() + "\",\"resume\":\""
                         + before.getResume() + "\",\"username\":\"HACKED-3\",\"gender\":9}"),
                 "老师修改自己的资料");
@@ -649,11 +649,11 @@ class IdentityAuthorizationRegressionTest {
                 new Date(System.currentTimeMillis() + 3_600_000L)));
         try {
             // 反向：缺失角色 → 拒绝
-            assertDenied(perform("/xinlilaoshiLiuyan/page?page=1&limit=10", token), label + " 查询 /page");
-            assertDenied(perform("/xinlilaoshiLiuyan/list", token), label + " 查询 /list");
+            assertDenied(perform("/counselorMessage/page?page=1&limit=10", token), label + " 查询 /page");
+            assertDenied(perform("/counselorMessage/list", token), label + " 查询 /list");
             // 正向控制：同端点 + 合法学生角色 → 必须放行（证明端点本身可用）
-            assertAllowed(perform("/xinlilaoshiLiuyan/page?page=1&limit=10", studentToken), label + " 对照：合法学生 /page");
-            assertAllowed(perform("/xinlilaoshiLiuyan/list", studentToken), label + " 对照：合法学生 /list");
+            assertAllowed(perform("/counselorMessage/page?page=1&limit=10", studentToken), label + " 对照：合法学生 /page");
+            assertAllowed(perform("/counselorMessage/list", studentToken), label + " 对照：合法学生 /list");
         } finally {
             tokenService.remove(new QueryWrapper<AuthTokenEntity>().eq("token", token));
         }

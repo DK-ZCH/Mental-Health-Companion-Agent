@@ -662,7 +662,7 @@
 
 
                 this.$http({
-                    url: "xinlilaoshiLiuyan/page",
+                    url: "counselorMessage/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -722,7 +722,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "xinlilaoshiLiuyan/delete",
+                        url: "counselorMessage/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -745,7 +745,7 @@
             xinlilaoshiLiuyanUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "xinlilaoshiLiuyan/batchInsert?fileName=" + data.file,
+                    url: "counselorMessage/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){

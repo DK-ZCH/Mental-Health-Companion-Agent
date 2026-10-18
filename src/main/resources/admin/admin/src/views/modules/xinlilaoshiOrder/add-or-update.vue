@@ -256,7 +256,7 @@
             }
          });
          this.$http({
-             url: `xinlilaoshi/page?page=1&limit=100`,
+             url: `counselor/page?page=1&limit=100`,
              method: "get"
          }).then(({ data }) => {
              if (data && data.code === 0) {
@@ -305,7 +305,7 @@
             },
             xinlilaoshiChange(id){
                 this.$http({
-                    url: `xinlilaoshi/info/`+id,
+                    url: `counselor/info/`+id,
                     method: "get"
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
@@ -317,7 +317,7 @@
             info(id) {
                 let _this =this;
                 _this.$http({
-                    url: `xinlilaoshiOrder/info/${id}`,
+                    url: `counselingAppointment/info/${id}`,
                     method: 'get'
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
@@ -334,7 +334,7 @@
                 this.$refs["ruleForm"].validate(valid => {
                     if (valid) {
                         this.$http({
-                            url:`xinlilaoshiOrder/${!this.ruleForm.id ? "save" : "update"}`,
+                            url:`counselingAppointment/${!this.ruleForm.id ? "save" : "update"}`,
                             method: "post",
                             data: this.ruleForm
                         }).then(({ data }) => {

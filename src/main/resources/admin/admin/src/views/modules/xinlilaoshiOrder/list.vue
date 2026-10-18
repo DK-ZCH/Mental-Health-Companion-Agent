@@ -765,7 +765,7 @@
 
 
                 this.$http({
-                    url: "xinlilaoshiOrder/page",
+                    url: "counselingAppointment/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -843,7 +843,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "xinlilaoshiOrder/delete",
+                        url: "counselingAppointment/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -866,7 +866,7 @@
             xinlilaoshiOrderUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "xinlilaoshiOrder/batchInsert?fileName=" + data.file,
+                    url: "counselingAppointment/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){
@@ -908,7 +908,7 @@
                         return false;
                 }
                 this.$http({
-                    url:`xinlilaoshiOrder/update`,
+                    url:`counselingAppointment/update`,
                     method: "post",
                     data: _this.form
                 }).then(({ data }) => {

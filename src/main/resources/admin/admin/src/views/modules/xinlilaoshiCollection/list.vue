@@ -632,7 +632,7 @@
 
 
                 this.$http({
-                    url: "xinlilaoshiCollection/page",
+                    url: "counselorFavorite/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -692,7 +692,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "xinlilaoshiCollection/delete",
+                        url: "counselorFavorite/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -715,7 +715,7 @@
             xinlilaoshiCollectionUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "xinlilaoshiCollection/batchInsert?fileName=" + data.file,
+                    url: "counselorFavorite/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){

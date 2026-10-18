@@ -665,7 +665,7 @@
 
 
                 this.$http({
-                    url: "xinlilaoshi/page",
+                    url: "counselor/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -725,7 +725,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "xinlilaoshi/delete",
+                        url: "counselor/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -747,7 +747,7 @@
             resetPassword(id) {
                 //重置密码
                 this.$http({
-                    url: "xinlilaoshi/resetPassword?id=" + id,
+                    url: "counselor/resetPassword?id=" + id,
                     method: "get",
                     // id:id
                 }).then(({data}) => {
@@ -760,7 +760,7 @@
             xinlilaoshiUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "xinlilaoshi/batchInsert?fileName=" + data.file,
+                    url: "counselor/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){

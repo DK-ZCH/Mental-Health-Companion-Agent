@@ -99,7 +99,7 @@ class Phase2CoreRegressionTest {
      * ⇒ 由「免鉴权」变为「受保护」，故<b>已纳入本清单</b>断言匿名被拒。
      * 仍属免鉴权（<b>保持公开</b>，有首页调用证据）：{@code /assessmentPaper/list}（C 组暂缓）、
      * {@code /assessmentQuestion/list}（C 组暂缓）、{@code /dictionary/page}（B 组）、
-     * {@code /knowledgeArticle/list}、{@code /notification/list}、{@code /config/list}、{@code /xinlilaoshi/list}（B 组）
+     * {@code /knowledgeArticle/list}、{@code /notification/list}、{@code /config/list}、{@code /counselor/list}（B 组）
      * ⇒ 本测试<b>不对它们做任何断言</b>（公开是经审计确认的既定行为，见 {@code PHASE2-D2-LIST-AUDIT.md}）。
      */
     private static final String[] TOKEN_PROTECTED_ENDPOINTS = {
@@ -107,17 +107,17 @@ class Phase2CoreRegressionTest {
             "/yonghu/info/1",
             "/users/page?page=1&limit=" + PAGE_LIMIT,
             "/users/list",
-            "/xinlilaoshi/page?page=1&limit=" + PAGE_LIMIT,
+            "/counselor/page?page=1&limit=" + PAGE_LIMIT,
             "/assessmentPaper/page?page=1&limit=" + PAGE_LIMIT,
             "/notification/page?page=1&limit=" + PAGE_LIMIT,
             "/assessmentRecord/page?page=1&limit=" + PAGE_LIMIT,
             "/assessmentAnswer/page?page=1&limit=" + PAGE_LIMIT,
-            "/xinlilaoshiOrder/page?page=1&limit=" + PAGE_LIMIT,
+            "/counselingAppointment/page?page=1&limit=" + PAGE_LIMIT,
             // ↓ D2-2a：A 组 7 个 /list 认证收口（原方法级 @IgnoreAuth 使匿名可达）
             "/yonghu/list",
-            "/xinlilaoshiLiuyan/list",
-            "/xinlilaoshiCollection/list",
-            "/xinlilaoshiOrder/list",
+            "/counselorMessage/list",
+            "/counselorFavorite/list",
+            "/counselingAppointment/list",
             "/assessmentRecord/list",
             "/assessmentAnswer/list",
             "/assessmentWrongQuestion/list"
@@ -131,12 +131,12 @@ class Phase2CoreRegressionTest {
         Map<String, String> targets = new LinkedHashMap<>();
         targets.put("学生列表", "/yonghu/list");
         targets.put("学生分页", "/yonghu/page?page=1&limit=" + PAGE_LIMIT);
-        targets.put("预约列表", "/xinlilaoshiOrder/list");
-        targets.put("预约分页", "/xinlilaoshiOrder/page?page=1&limit=" + PAGE_LIMIT);
-        targets.put("留言列表", "/xinlilaoshiLiuyan/list");
-        targets.put("留言分页", "/xinlilaoshiLiuyan/page?page=1&limit=" + PAGE_LIMIT);
-        targets.put("收藏列表", "/xinlilaoshiCollection/list");
-        targets.put("收藏分页", "/xinlilaoshiCollection/page?page=1&limit=" + PAGE_LIMIT);
+        targets.put("预约列表", "/counselingAppointment/list");
+        targets.put("预约分页", "/counselingAppointment/page?page=1&limit=" + PAGE_LIMIT);
+        targets.put("留言列表", "/counselorMessage/list");
+        targets.put("留言分页", "/counselorMessage/page?page=1&limit=" + PAGE_LIMIT);
+        targets.put("收藏列表", "/counselorFavorite/list");
+        targets.put("收藏分页", "/counselorFavorite/page?page=1&limit=" + PAGE_LIMIT);
         targets.put("测评记录列表", "/assessmentRecord/list");
         targets.put("测评记录分页", "/assessmentRecord/page?page=1&limit=" + PAGE_LIMIT);
         targets.put("答题明细列表", "/assessmentAnswer/list");
@@ -199,7 +199,7 @@ class Phase2CoreRegressionTest {
     @Test
     @DisplayName("5. 心理老师列表：返回基线数量")
     void counselorList_returnsBaselineCount() throws Exception {
-        JsonNode body = getJson("/xinlilaoshi/list", null);
+        JsonNode body = getJson("/counselor/list", null);
         assertThat(body.path("code").asInt()).isZero();
         assertThat(body.path("data").path("total").asInt())
                 .as("counselor 基线数量")
@@ -482,8 +482,8 @@ class Phase2CoreRegressionTest {
     @DisplayName("11. D2-2a：A 组 7 个 /list 匿名被拒、已登录行为不变、B 组公开项未被误伤")
     void listAuthConvergence_keepsLoggedInBehaviorAndPublicGroup() throws Exception {
         String[] aGroup = {
-                "/yonghu/list", "/xinlilaoshiLiuyan/list", "/xinlilaoshiCollection/list",
-                "/xinlilaoshiOrder/list", "/assessmentRecord/list", "/assessmentAnswer/list",
+                "/yonghu/list", "/counselorMessage/list", "/counselorFavorite/list",
+                "/counselingAppointment/list", "/assessmentRecord/list", "/assessmentAnswer/list",
                 "/assessmentWrongQuestion/list"
         };
 
@@ -505,7 +505,7 @@ class Phase2CoreRegressionTest {
         }
 
         // ③ B 组（有首页调用证据，审计确认保持公开）必须仍匿名可达 —— 防止误伤公开页面
-        String[] publicGroup = {"/knowledgeArticle/list", "/notification/list", "/config/list", "/xinlilaoshi/list"};
+        String[] publicGroup = {"/knowledgeArticle/list", "/notification/list", "/config/list", "/counselor/list"};
         for (String uri : publicGroup) {
             JsonNode body = getJson(uri, null);
             assertThat(body.path("code").asInt())
