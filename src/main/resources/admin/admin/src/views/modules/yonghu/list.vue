@@ -19,14 +19,14 @@
                 <el-row class="ad" :style="{justifyContent:contents.btnAdAllBoxPosition=='1'?'flex-start':contents.btnAdAllBoxPosition=='2'?'center':'flex-end'}">
                     <el-form-item>
                         <el-button
-                                v-if="isAuth('yonghu','新增')"
+                                v-if="isAuth('student','新增')"
                                 type="success"
                                 icon="el-icon-plus"
                                 @click="addOrUpdateHandler()"
                         >新增</el-button>
                         &nbsp;
                         <el-button
-                                v-if="isAuth('yonghu','删除')"
+                                v-if="isAuth('student','删除')"
                                 :disabled="dataListSelections.length <= 0"
                                 type="danger"
                                 icon="el-icon-delete"
@@ -34,34 +34,34 @@
                         >删除</el-button>
                         &nbsp;
                         <el-button
-                                v-if="isAuth('yonghu','报表')"
+                                v-if="isAuth('student','报表')"
                                 type="success"
                                 icon="el-icon-pie-chart"
                                 @click="chartDialog()"
                         >报表</el-button>
                         &nbsp;
                         <a style="text-decoration:none" class="el-button el-button--success"
-                           v-if="isAuth('yonghu','导入导出')"
+                           v-if="isAuth('student','导入导出')"
                            icon="el-icon-download"
                            href="http://localhost:8080/xinlijiankangxitong/upload/yonghuMuBan.xls"
                         >批量导入学生数据模板</a>
                         &nbsp;
                         <el-upload
-                                v-if="isAuth('yonghu','导入导出')"
+                                v-if="isAuth('student','导入导出')"
                                 style="display: inline-block"
                                 action="xinlijiankangxitong/file/upload"
                                 :on-success="yonghuUploadSuccess"
                                 :on-error="yonghuUploadError"
                                 :show-file-list = false>
                             <el-button
-                                    v-if="isAuth('yonghu','导入导出')"
+                                    v-if="isAuth('student','导入导出')"
                                     type="success"
                                     icon="el-icon-upload2"
                             >批量导入学生数据</el-button>
                         </el-upload>
                         &nbsp;
                         <!-- 导出excel -->
-                        <download-excel v-if="isAuth('yonghu','导入导出')" style="display: inline-block" class = "export-excel-wrapper" :data = "dataList" :fields = "json_fields" name = "yonghu.xls">
+                        <download-excel v-if="isAuth('student','导入导出')" style="display: inline-block" class = "export-excel-wrapper" :data = "dataList" :fields = "json_fields" name = "yonghu.xls">
                             <!-- 导出excel -->
                             <el-button
                                     type="success"
@@ -81,7 +81,7 @@
                           :row-style="rowStyle"
                           :cell-style="cellStyle"
                           :style="{width: '100%',fontSize:contents.tableContentFontSize,color:contents.tableContentFontColor}"
-                          v-if="isAuth('yonghu','查看')"
+                          v-if="isAuth('student','查看')"
                           :data="dataList"
                           v-loading="dataListLoading"
                           @selection-change="selectionChangeHandler">
@@ -161,12 +161,12 @@
                                      header-align="center"
                                      label="操作">
                         <template slot-scope="scope">
-                            <el-button v-if="isAuth('yonghu','查看')" type="success" icon="el-icon-tickets" size="mini" @click="addOrUpdateHandler(scope.row.id,'info')">详情</el-button>
-                            <el-button v-if="isAuth('yonghu','修改')" type="primary" icon="el-icon-edit" size="mini" @click="addOrUpdateHandler(scope.row.id)">修改</el-button>
+                            <el-button v-if="isAuth('student','查看')" type="success" icon="el-icon-tickets" size="mini" @click="addOrUpdateHandler(scope.row.id,'info')">详情</el-button>
+                            <el-button v-if="isAuth('student','修改')" type="primary" icon="el-icon-edit" size="mini" @click="addOrUpdateHandler(scope.row.id)">修改</el-button>
 
-                            <el-button v-if="isAuth('yonghu','删除')" type="danger" icon="el-icon-delete" size="mini" @click="deleteHandler(scope.row.id)">删除</el-button>
+                            <el-button v-if="isAuth('student','删除')" type="danger" icon="el-icon-delete" size="mini" @click="deleteHandler(scope.row.id)">删除</el-button>
 
-                            <el-button v-if="isAuth('yonghu','修改')" type="success" icon="el-icon-tickets" size="mini" @click="resetPassword(scope.row.id)">重置密码</el-button>
+                            <el-button v-if="isAuth('student','修改')" type="success" icon="el-icon-tickets" size="mini" @click="resetPassword(scope.row.id)">重置密码</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
