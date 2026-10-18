@@ -105,8 +105,8 @@ class Phase2CoreRegressionTest {
     private static final String[] TOKEN_PROTECTED_ENDPOINTS = {
             "/student/page?page=1&limit=" + PAGE_LIMIT,
             "/student/info/1",
-            "/users/page?page=1&limit=" + PAGE_LIMIT,
-            "/users/list",
+            "/adminUser/page?page=1&limit=" + PAGE_LIMIT,
+            "/adminUser/list",
             "/counselor/page?page=1&limit=" + PAGE_LIMIT,
             "/assessmentPaper/page?page=1&limit=" + PAGE_LIMIT,
             "/notification/page?page=1&limit=" + PAGE_LIMIT,
@@ -413,8 +413,8 @@ class Phase2CoreRegressionTest {
     @Test
     @DisplayName("9e. 标准异常保留自带状态码；/error 不再被鉴权劫持（P0 防回归）")
     void standardExceptionKeepsStatus_andErrorPathIsNotHijacked() throws Exception {
-        // 405：/users/login 只接受 POST。若兜底处理器一律返回 500，本条会失败。
-        MvcResult methodNotAllowed = perform("/users/login", null);
+        // 405：/adminUser/login 只接受 POST。若兜底处理器一律返回 500，本条会失败。
+        MvcResult methodNotAllowed = perform("/adminUser/login", null);
         assertThat(methodNotAllowed.getResponse().getStatus())
                 .as("应为 405，而不是被兜底处理器吞成 500")
                 .isEqualTo(405);
@@ -537,7 +537,7 @@ class Phase2CoreRegressionTest {
      * 学生/教师身份自 G2 起带读范围收敛，看到的是本人范围而非全表。
      */
     private String loginAsAdmin() throws Exception {
-        MvcResult result = perform(post("/users/login?username=admin&password=admin"));
+        MvcResult result = perform(post("/adminUser/login?username=admin&password=admin"));
         JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
         assertThat(body.path("code").asInt()).as("管理员登录应成功").isZero();
         String token = body.path("token").asText();

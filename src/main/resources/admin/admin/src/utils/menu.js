@@ -216,7 +216,7 @@ const menu = {
         "hasFrontLogin":"否",
         "hasFrontRegister":"否",
         "roleName":"管理员",
-        "tableName":"users"
+        "tableName":"adminUser"
     }
 	,
 	{

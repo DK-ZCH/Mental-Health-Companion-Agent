@@ -126,7 +126,7 @@ class IdentityAuthorizationRegressionTest {
         assertThat(counselor.path("code").asInt()).as("心理老师 a1 登录").isZero();
         counselorToken = counselor.path("token").asText();
 
-        JsonNode admin = objectMapper.readTree(mockMvc.perform(post("/users/login")
+        JsonNode admin = objectMapper.readTree(mockMvc.perform(post("/adminUser/login")
                         .param("username", "admin").param("password", "admin"))
                 .andReturn().getResponse().getContentAsString());
         assertThat(admin.path("code").asInt()).as("管理员登录").isZero();
@@ -153,7 +153,7 @@ class IdentityAuthorizationRegressionTest {
         assertAllowed(perform("/counselorMessage/info/1", adminToken), "他人留言（属 student 2）");
         assertAllowed(perform("/counselorFavorite/info/1", adminToken), "他人收藏（属 student 3）");
         assertAllowed(perform("/student/info/2", adminToken), "他人学生资料（student 2）");
-        assertAllowed(perform("/users/info/1", adminToken), "管理端账号");
+        assertAllowed(perform("/adminUser/info/1", adminToken), "管理端账号");
     }
 
     @Test
@@ -198,8 +198,8 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("6. 学生/老师读【管理端账号】:应 403（仅管理员可访问）")
     void adminOnlyEndpointIsDeniedForNonAdmin() throws Exception {
-        assertDenied(perform("/users/info/1", studentToken), "学生读管理端账号");
-        assertDenied(perform("/users/info/1", counselorToken), "心理老师读管理端账号");
+        assertDenied(perform("/adminUser/info/1", studentToken), "学生读管理端账号");
+        assertDenied(perform("/adminUser/info/1", counselorToken), "心理老师读管理端账号");
     }
 
     @Test
@@ -431,12 +431,12 @@ class IdentityAuthorizationRegressionTest {
     }
 
     @Test
-    @DisplayName("20. D7：匿名密码重置端点 /users/resetPass 已下线（404，且不产生任何密码变更）")
+    @DisplayName("20. D7：匿名密码重置端点 /adminUser/resetPass 已下线（404，且不产生任何密码变更）")
     void adminAccountAnonymousResetEndpointIsRemoved() throws Exception {
         String before = usersPassword("admin");
         assertThat(before).as("前置：admin 账号应存在").isNotNull();
 
-        MvcResult result = perform("/users/resetPass?username=admin", null);
+        MvcResult result = perform("/adminUser/resetPass?username=admin", null);
         assertThat(result.getResponse().getStatus())
                 .as("该端点已下线，应为 404（而不是 200 或 403）")
                 .isEqualTo(404);
@@ -594,22 +594,22 @@ class IdentityAuthorizationRegressionTest {
     @DisplayName("21. 管理端账号 分页/列表：仅管理员可访问（Step 5b-A）")
     void adminUserListIsAdminOnly() throws Exception {
         // 正面：管理员可访问 —— 防空跑，同时证明下面的 403 来自「角色不符」而非接口坏掉
-        assertAllowed(perform("/users/page?page=1&limit=5", adminToken), "管理员访问管理端账号分页");
-        // 小批次 C：/users/list 的【既有 500】已修复（allEQ 前缀 "user" 与 XML 表别名 u 不一致
+        assertAllowed(perform("/adminUser/page?page=1&limit=5", adminToken), "管理员访问管理端账号分页");
+        // 小批次 C：/adminUser/list 的【既有 500】已修复（allEQ 前缀 "user" 与 XML 表别名 u 不一致
         // ⇒ camelToUnderlineMap 生成 "user.xxx" 条件 ⇒ BadSqlGrammarException）—— 故此处必须断言
         // 管理员不仅能访问，还能真正拿到数据（否则「修好了 500 但查不到东西」会被漏掉）。
-        MvcResult listResult = perform("/users/list?username=admin", adminToken);
+        MvcResult listResult = perform("/adminUser/list?username=admin", adminToken);
         assertAllowed(listResult, "管理员访问管理端账号列表");
         JsonNode listBody = objectMapper.readTree(listResult.getResponse().getContentAsString());
         assertThat(listBody.path("data").size())
                 .as("按 username=admin 过滤应至少命中种子账号（防空跑：证明 SQL 真的执行成功）")
                 .isGreaterThan(0);
 
-        // 反面：学生 / 心理老师一律拒绝（与 /users/info/{id} 同策略）
-        assertDenied(perform("/users/page?page=1&limit=5", studentToken), "学生访问管理端账号分页");
-        assertDenied(perform("/users/list", studentToken), "学生访问管理端账号列表");
-        assertDenied(perform("/users/page?page=1&limit=5", counselorToken), "心理老师访问管理端账号分页");
-        assertDenied(perform("/users/list", counselorToken), "心理老师访问管理端账号列表");
+        // 反面：学生 / 心理老师一律拒绝（与 /adminUser/info/{id} 同策略）
+        assertDenied(perform("/adminUser/page?page=1&limit=5", studentToken), "学生访问管理端账号分页");
+        assertDenied(perform("/adminUser/list", studentToken), "学生访问管理端账号列表");
+        assertDenied(perform("/adminUser/page?page=1&limit=5", counselorToken), "心理老师访问管理端账号分页");
+        assertDenied(perform("/adminUser/list", counselorToken), "心理老师访问管理端账号列表");
     }
 
     // ================== 28–29. T11：role 为 NULL / 空字符串的完整 HTTP 覆盖 ==================
@@ -617,7 +617,7 @@ class IdentityAuthorizationRegressionTest {
     // 背景（PHASE2-T11-ROLE-MISSING-AUDIT.md · Phase 1 只读审计）：
     //   · 既有覆盖的**精确边界**：#16 / #19 用的是【非空但未登记】的角色（"未知角色"）；
     //     #25 只覆盖 currentRole() 的【函数契约】（不经拦截器、不经 DataScope、不看响应）。
-    //   · 而 auth_token.role 允许 NULL（schema 证据），且 /users/login 的 role 取自 DB 行
+    //   · 而 auth_token.role 允许 NULL（schema 证据），且 /adminUser/login 的 role 取自 DB 行
     //     ⇒ 「role 为 NULL / 空字符串」是**真实可达形态**，此前【没有任何用例守护】。
     //   · 本批只把【已经存在的 fail-closed 行为】固化为回归契约 —— **不修改任何生产代码**。
     //

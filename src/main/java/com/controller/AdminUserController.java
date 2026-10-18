@@ -30,7 +30,7 @@ import com.utils.R;
 /**
  * 登录相关
  */
-@RequestMapping("users")
+@RequestMapping("adminUser")
 @RestController
 public class AdminUserController {
 	

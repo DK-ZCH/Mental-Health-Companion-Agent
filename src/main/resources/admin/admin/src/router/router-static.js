@@ -12,7 +12,7 @@ import pay from '@/views/pay'
 import register from '@/views/register'
 import center from '@/views/center'
 
-     import users from '@/views/modules/users/list'
+     import adminUser from '@/views/modules/users/list'
     import dictionary from '@/views/modules/dictionary/list'
     import exampaper from '@/views/modules/exampaper/list'
     import examquestion from '@/views/modules/examquestion/list'
@@ -70,7 +70,7 @@ const routes = [{
     } ,{
         path: '/users',
         name: '管理信息',
-        component: users
+        component: adminUser
       }
 	  ,{
 	      path: '/adminexam',
