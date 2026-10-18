@@ -110,7 +110,7 @@
                 }else{
                     //查询最大值 start
                     this.$http({
-                        url: `dictionary/maxItemCode`,
+                        url: `sysDictItem/maxItemCode`,
                         method: "post",
                         data: {"dictCode":"xinlilaoshi_collection_types"}
                     }).then(({ data }) => {
@@ -126,7 +126,7 @@
             // 多级联动参数
             info(id) {
                 this.$http({
-                    url: `dictionary/info/${id}`,
+                    url: `sysDictItem/info/${id}`,
                     method: "get"
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
@@ -150,7 +150,7 @@
                         ruleForm["dictCode"]="xinlilaoshi_collection_types";
                         ruleForm["dictName"]="收藏表类型";
                         this.$http({
-                            url: `dictionary/${!this.ruleForm.id ? "save" : "update"}`,
+                            url: `sysDictItem/${!this.ruleForm.id ? "save" : "update"}`,
                             method: "post",
                             data: ruleForm
                         }).then(({ data }) => {

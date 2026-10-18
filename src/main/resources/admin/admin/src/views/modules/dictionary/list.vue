@@ -628,7 +628,7 @@
 
 
                 this.$http({
-                    url: "dictionary/page",
+                    url: "sysDictItem/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -688,7 +688,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "dictionary/delete",
+                        url: "sysDictItem/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -711,7 +711,7 @@
             dictionaryUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "dictionary/batchInsert?fileName=" + data.file,
+                    url: "sysDictItem/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){

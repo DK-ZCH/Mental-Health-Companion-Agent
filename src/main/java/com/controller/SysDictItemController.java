@@ -40,7 +40,7 @@ import com.alibaba.fastjson.*;
 */
 @RestController
 @Controller
-@RequestMapping("/dictionary")
+@RequestMapping("/sysDictItem")
 public class SysDictItemController {
     private static final Logger logger = LoggerFactory.getLogger(SysDictItemController.class);
 

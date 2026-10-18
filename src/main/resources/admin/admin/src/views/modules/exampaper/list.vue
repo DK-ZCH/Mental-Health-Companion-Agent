@@ -406,7 +406,7 @@
                 //查询当前表搜索条件所有列表
                 //填充下拉框选项
                 this.$http({
-                    url: "dictionary/page?dictCode=exampaper_types&page=1&limit=100",
+                    url: "sysDictItem/page?dictCode=exampaper_types&page=1&limit=100",
                     method: "get",
                 }).then(({ data }) => {
                     if (data && data.code === 0) {

@@ -177,7 +177,7 @@ class IdentityAuthorizationRegressionTest {
                 "/assessmentQuestion/info/1",
                 "/knowledgeArticle/info/1",
                 "/notification/info/1",
-                "/dictionary/info/1",
+                "/sysDictItem/info/1",
                 "/config/info/1"
         };
         for (String uri : contentEndpoints) {

@@ -783,7 +783,7 @@
                 //查询当前表搜索条件所有列表
                 //填充下拉框选项
                 this.$http({
-                    url: "dictionary/page?dictCode=shijianduan_types&page=1&limit=100",
+                    url: "sysDictItem/page?dictCode=shijianduan_types&page=1&limit=100",
                     method: "get",
                 }).then(({data}) => {
                     if(data && data.code === 0){
@@ -792,7 +792,7 @@
                 });
                 //填充下拉框选项
                 this.$http({
-                    url: "dictionary/page?dictCode=xinlilaoshi_order_yesno_types&page=1&limit=100",
+                    url: "sysDictItem/page?dictCode=xinlilaoshi_order_yesno_types&page=1&limit=100",
                     method: "get",
                 }).then(({data}) => {
                     if(data && data.code === 0){

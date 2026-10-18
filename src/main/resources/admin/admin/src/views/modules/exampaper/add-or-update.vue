@@ -189,7 +189,7 @@
             this.addEditUploadStyleChange()
             //获取下拉框信息
             this.$http({
-                url:`dictionary/page?page=1&limit=100&sort=&order=&dictCode=exampaper_types`,
+                url:`sysDictItem/page?page=1&limit=100&sort=&order=&dictCode=exampaper_types`,
                 method: "get"
             }).then(({ data }) => {
                 if (data && data.code === 0) {

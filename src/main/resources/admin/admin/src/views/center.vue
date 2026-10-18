@@ -167,7 +167,7 @@ export default {
 // 注册表 心理老师 的级联表
 
       this.$http({
-          url: `dictionary/page?page=1&limit=100&sort=&order=&dictCode=sex_types`,
+          url: `sysDictItem/page?page=1&limit=100&sort=&order=&dictCode=sex_types`,
           method: "get"
       }).then(({ data }) => {
           if (data && data.code === 0) {

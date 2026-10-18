@@ -313,7 +313,7 @@
                 params['dictCode'] = "xinlilaoshi_order_yesno_types"//编码名字
                 params['dictName'] = "预约状态",//汉字名字
                 this.$http({
-                    url: "dictionary/page",
+                    url: "sysDictItem/page",
                     method: "get",
                     params: params
                 }).then(({ data }) => {
@@ -367,7 +367,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                    url: "dictionary/delete",
+                    url: "sysDictItem/delete",
                     method: "post",
                     data: ids
                 }).then(({ data }) => {

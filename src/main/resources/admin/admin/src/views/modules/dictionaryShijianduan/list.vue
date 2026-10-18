@@ -313,7 +313,7 @@
                 params['dictCode'] = "shijianduan_types"//编码名字
                 params['dictName'] = "时间段",//汉字名字
                 this.$http({
-                    url: "dictionary/page",
+                    url: "sysDictItem/page",
                     method: "get",
                     params: params
                 }).then(({ data }) => {
@@ -367,7 +367,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                    url: "dictionary/delete",
+                    url: "sysDictItem/delete",
                     method: "post",
                     data: ids
                 }).then(({ data }) => {

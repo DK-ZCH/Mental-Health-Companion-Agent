@@ -453,7 +453,7 @@
 
                 //查询级联表搜索条件所有列表
                 this.$http({
-                    url: "dictionary/page?dictCode=exampaper_types&page=1&limit=100",
+                    url: "sysDictItem/page?dictCode=exampaper_types&page=1&limit=100",
                     method: "get",
                     page: 1,
                     limit: 100,

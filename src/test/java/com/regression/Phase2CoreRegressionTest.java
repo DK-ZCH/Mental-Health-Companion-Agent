@@ -98,7 +98,7 @@ class Phase2CoreRegressionTest {
      * <p><b>D2-2a 后更新</b>：{@code /student/list} 等 A 组 7 个 {@code /list} 已移除方法级 {@code @IgnoreAuth}
      * ⇒ 由「免鉴权」变为「受保护」，故<b>已纳入本清单</b>断言匿名被拒。
      * 仍属免鉴权（<b>保持公开</b>，有首页调用证据）：{@code /assessmentPaper/list}（C 组暂缓）、
-     * {@code /assessmentQuestion/list}（C 组暂缓）、{@code /dictionary/page}（B 组）、
+     * {@code /assessmentQuestion/list}（C 组暂缓）、{@code /sysDictItem/page}（B 组）、
      * {@code /knowledgeArticle/list}、{@code /notification/list}、{@code /config/list}、{@code /counselor/list}（B 组）
      * ⇒ 本测试<b>不对它们做任何断言</b>（公开是经审计确认的既定行为，见 {@code PHASE2-D2-LIST-AUDIT.md}）。
      */

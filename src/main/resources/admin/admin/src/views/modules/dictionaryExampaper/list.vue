@@ -313,7 +313,7 @@
                 params['dictCode'] = "exampaper_types"//编码名字
                 params['dictName'] = "试卷状态",//汉字名字
                 this.$http({
-                    url: "dictionary/page",
+                    url: "sysDictItem/page",
                     method: "get",
                     params: params
                 }).then(({ data }) => {
@@ -367,7 +367,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                    url: "dictionary/delete",
+                    url: "sysDictItem/delete",
                     method: "post",
                     data: ids
                 }).then(({ data }) => {
