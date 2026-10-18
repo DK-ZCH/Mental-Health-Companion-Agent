@@ -208,7 +208,7 @@
                 paperId: this.$route.params.id
             };
             this.$http({
-                url: 'examquestion/page',
+                url: 'assessmentQuestion/page',
                 method: "get",
                 params: params
             }).then(({ data }) => {
@@ -223,7 +223,7 @@
             });
             // 获取试卷
             this.$http({
-                url: `exampaper/info/${this.$route.params.id}`,
+                url: `assessmentPaper/info/${this.$route.params.id}`,
                 method: "get"
             }).then(({ data }) => {
                 if (data && data.code === 0) {

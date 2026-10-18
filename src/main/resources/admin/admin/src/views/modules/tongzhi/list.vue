@@ -619,7 +619,7 @@
 
 
                 this.$http({
-                    url: "tongzhi/page",
+                    url: "notification/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -679,7 +679,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "tongzhi/delete",
+                        url: "notification/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -702,7 +702,7 @@
             tongzhiUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "tongzhi/batchInsert?fileName=" + data.file,
+                    url: "notification/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){

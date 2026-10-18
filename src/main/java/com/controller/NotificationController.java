@@ -41,7 +41,7 @@ import com.alibaba.fastjson.*;
 */
 @RestController
 @Controller
-@RequestMapping("/tongzhi")
+@RequestMapping("/notification")
 public class NotificationController {
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 

@@ -97,9 +97,9 @@ class Phase2CoreRegressionTest {
      *
      * <p><b>D2-2a 后更新</b>：{@code /yonghu/list} 等 A 组 7 个 {@code /list} 已移除方法级 {@code @IgnoreAuth}
      * ⇒ 由「免鉴权」变为「受保护」，故<b>已纳入本清单</b>断言匿名被拒。
-     * 仍属免鉴权（<b>保持公开</b>，有首页调用证据）：{@code /exampaper/list}（C 组暂缓）、
-     * {@code /examquestion/list}（C 组暂缓）、{@code /dictionary/page}（B 组）、
-     * {@code /jiankangzhishi/list}、{@code /tongzhi/list}、{@code /config/list}、{@code /xinlilaoshi/list}（B 组）
+     * 仍属免鉴权（<b>保持公开</b>，有首页调用证据）：{@code /assessmentPaper/list}（C 组暂缓）、
+     * {@code /assessmentQuestion/list}（C 组暂缓）、{@code /dictionary/page}（B 组）、
+     * {@code /knowledgeArticle/list}、{@code /notification/list}、{@code /config/list}、{@code /xinlilaoshi/list}（B 组）
      * ⇒ 本测试<b>不对它们做任何断言</b>（公开是经审计确认的既定行为，见 {@code PHASE2-D2-LIST-AUDIT.md}）。
      */
     private static final String[] TOKEN_PROTECTED_ENDPOINTS = {
@@ -108,8 +108,8 @@ class Phase2CoreRegressionTest {
             "/users/page?page=1&limit=" + PAGE_LIMIT,
             "/users/list",
             "/xinlilaoshi/page?page=1&limit=" + PAGE_LIMIT,
-            "/exampaper/page?page=1&limit=" + PAGE_LIMIT,
-            "/tongzhi/page?page=1&limit=" + PAGE_LIMIT,
+            "/assessmentPaper/page?page=1&limit=" + PAGE_LIMIT,
+            "/notification/page?page=1&limit=" + PAGE_LIMIT,
             "/examrecord/page?page=1&limit=" + PAGE_LIMIT,
             "/examredetails/page?page=1&limit=" + PAGE_LIMIT,
             "/xinlilaoshiOrder/page?page=1&limit=" + PAGE_LIMIT,
@@ -179,7 +179,7 @@ class Phase2CoreRegressionTest {
     @Test
     @DisplayName("2. 心理健康知识列表：返回基线数量")
     void knowledgeList_returnsBaselineCount() throws Exception {
-        JsonNode body = getJson("/jiankangzhishi/list", null);
+        JsonNode body = getJson("/knowledgeArticle/list", null);
         assertThat(body.path("code").asInt()).isZero();
         assertThat(body.path("data").path("total").asInt())
                 .as("knowledge_article 基线数量")
@@ -189,7 +189,7 @@ class Phase2CoreRegressionTest {
     @Test
     @DisplayName("3. 测评试卷列表：返回基线数量")
     void assessmentPaperList_returnsBaselineCount() throws Exception {
-        JsonNode body = getJson("/exampaper/list", null);
+        JsonNode body = getJson("/assessmentPaper/list", null);
         assertThat(body.path("code").asInt()).isZero();
         assertThat(body.path("data").path("total").asInt())
                 .as("assessment_paper 基线数量")
@@ -505,14 +505,14 @@ class Phase2CoreRegressionTest {
         }
 
         // ③ B 组（有首页调用证据，审计确认保持公开）必须仍匿名可达 —— 防止误伤公开页面
-        String[] publicGroup = {"/jiankangzhishi/list", "/tongzhi/list", "/config/list", "/xinlilaoshi/list"};
+        String[] publicGroup = {"/knowledgeArticle/list", "/notification/list", "/config/list", "/xinlilaoshi/list"};
         for (String uri : publicGroup) {
             JsonNode body = getJson(uri, null);
             assertThat(body.path("code").asInt())
                     .as("B 组 %s 有首页调用证据，必须保持匿名可达（本批不得误伤公开页面）", uri)
                     .isZero();
         }
-        // C 组（/exampaper/list、/examquestion/list）业务证据不足 ⇒ 暂缓，本测试刻意【不做断言】
+        // C 组（/assessmentPaper/list、/assessmentQuestion/list）业务证据不足 ⇒ 暂缓，本测试刻意【不做断言】
     }
 
     private void assertBadRequest(MvcResult result, String source) throws Exception {

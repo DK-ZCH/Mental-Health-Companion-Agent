@@ -189,7 +189,7 @@
             info(id) {
                 let _this =this;
                 _this.$http({
-                    url: `jiankangzhishi/info/${id}`,
+                    url: `knowledgeArticle/info/${id}`,
                     method: 'get'
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
@@ -204,7 +204,7 @@
                 this.$refs["ruleForm"].validate(valid => {
                     if (valid) {
                         this.$http({
-                            url:`jiankangzhishi/${!this.ruleForm.id ? "save" : "update"}`,
+                            url:`knowledgeArticle/${!this.ruleForm.id ? "save" : "update"}`,
                             method: "post",
                             data: this.ruleForm
                         }).then(({ data }) => {

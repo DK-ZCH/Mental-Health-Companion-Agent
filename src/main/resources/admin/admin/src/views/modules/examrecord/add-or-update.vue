@@ -292,7 +292,7 @@
             //获取下拉框信息
 
             this.$http({
-                url: `exampaper/page?page=1&limit=100`,
+                url: `assessmentPaper/page?page=1&limit=100`,
                 method: "get"
             }).then(({ data }) => {
                 if (data && data.code === 0) {
@@ -371,7 +371,7 @@
             },
             exampaperChange(id){
                 this.$http({
-                    url: `exampaper/info/`+id,
+                    url: `assessmentPaper/info/`+id,
                     method: "get"
                 }).then(({ data }) => {
                     if (data && data.code === 0) {

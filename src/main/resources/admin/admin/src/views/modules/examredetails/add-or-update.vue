@@ -301,7 +301,7 @@
             //获取下拉框信息
 
             this.$http({
-                url: `examquestion/page?page=1&limit=100`,
+                url: `assessmentQuestion/page?page=1&limit=100`,
                 method: "get"
             }).then(({ data }) => {
                 if (data && data.code === 0) {
@@ -380,7 +380,7 @@
             },
             examquestionChange(id){
                 this.$http({
-                    url: `examquestion/info/`+id,
+                    url: `assessmentQuestion/info/`+id,
                     method: "get"
                 }).then(({ data }) => {
                     if (data && data.code === 0) {

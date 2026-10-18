@@ -173,10 +173,10 @@ class IdentityAuthorizationRegressionTest {
     @DisplayName("4. 6 个内容类端点【不受本批影响】：仍是 200 + code=0")
     void contentEndpointsAreUnaffected() throws Exception {
         String[] contentEndpoints = {
-                "/exampaper/info/1",
-                "/examquestion/info/1",
-                "/jiankangzhishi/info/1",
-                "/tongzhi/info/1",
+                "/assessmentPaper/info/1",
+                "/assessmentQuestion/info/1",
+                "/knowledgeArticle/info/1",
+                "/notification/info/1",
                 "/dictionary/info/1",
                 "/config/info/1"
         };

@@ -619,7 +619,7 @@
 
 
                 this.$http({
-                    url: "jiankangzhishi/page",
+                    url: "knowledgeArticle/page",
                     method: "get",
                     params: params
                 }).then(({data}) => {
@@ -679,7 +679,7 @@
                     type: "warning"
                 }).then(() => {
                     this.$http({
-                        url: "jiankangzhishi/delete",
+                        url: "knowledgeArticle/delete",
                         method: "post",
                         data: ids
                     }).then(({data}) => {
@@ -702,7 +702,7 @@
             jiankangzhishiUploadSuccess(data){
                 let _this = this;
                 _this.$http({
-                    url: "jiankangzhishi/batchInsert?fileName=" + data.file,
+                    url: "knowledgeArticle/batchInsert?fileName=" + data.file,
                     method: "get"
                 }).then(({data}) => {
                     if(data && data.code === 0){

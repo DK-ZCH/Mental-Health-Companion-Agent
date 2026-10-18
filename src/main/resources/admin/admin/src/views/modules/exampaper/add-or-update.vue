@@ -255,7 +255,7 @@
             // 多级联动参数
             info(id) {
                 this.$http({
-                    url: `exampaper/info/${id}`,
+                    url: `assessmentPaper/info/${id}`,
                     method: 'get'
                 }).then(({ data }) => {
                     if (data && data.code === 0) {
@@ -272,7 +272,7 @@
                 this.$refs["ruleForm"].validate(valid => {
                     if (valid) {
                         this.$http({
-                            url:`exampaper/${!this.ruleForm.id ? "save" : "update"}`,
+                            url:`assessmentPaper/${!this.ruleForm.id ? "save" : "update"}`,
                             method: "post",
                             data: this.ruleForm
                         }).then(({ data }) => {
