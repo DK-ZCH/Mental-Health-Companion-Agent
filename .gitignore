@@ -46,3 +46,7 @@ src/main/resources/img/
 # ===== 管理端构建产物（不入库，可由 npm run build 再生）=====
 # 磁盘上的 dist 保留（后端直接托管静态资源）；Git 不再跟踪，fresh clone 需执行 npm install && npm run build
 src/main/resources/admin/admin/dist/
+
+# ===== 新前端（Vue 3 + Vite，Step 7）=====
+# Vite 构建产物不入库（新前端从建立之初就不纳管产物；与 Legacy Admin 的历史遗留情况不同）
+frontend/dist/
