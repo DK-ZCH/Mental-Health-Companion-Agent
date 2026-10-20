@@ -3,7 +3,13 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { listCounselors, type Counselor } from '@/api/counselor'
-import { findById } from '@/api/http'
+import { findById, ApiError } from '@/api/http'
+import {
+  addFavorite,
+  findFavoriteByCounselor,
+  removeFavorite,
+  type FavoriteItem
+} from '@/api/favorite'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
@@ -35,11 +41,57 @@ async function load() {
   }
 }
 
+/** 收藏状态（仅已登录时查询；`/list?counselorId=` 过滤实测生效 ✓） */
+const fav = ref<FavoriteItem | null>(null)
+const favLoading = ref(false)
+
+async function loadFavorite() {
+  if (!auth.isLoggedIn) {
+    fav.value = null
+    return
+  }
+  try {
+    fav.value = (await findFavoriteByCounselor(id.value)) ?? null
+  } catch {
+    fav.value = null
+  }
+}
+
 /**
- * 收藏 / 预约 / 留言 —— **仅入口状态，不调用任何写 API** ✗
- * （R11/R12/R13 属后续批次；避免"按钮看起来能用但后端写权限/参数/归属未完成"的假完成）
+ * 收藏 / 取消收藏（R11）
+ *  · 新增：`/add`（`favoriteType` 由 api 层固定为 1；studentId 服务端强制本人 ✓）
+ *  · 取消：**只用本条记录的自有 id**（后端 `/delete` 无归属校验 = SEC-FAVORITE-DELETE-IDOR P1）
  */
-function action(_kind: '收藏' | '预约' | '留言') {
+async function toggleFavorite() {
+  if (!auth.isLoggedIn) {
+    router.push({ path: '/login', query: { redirect: route.fullPath } })
+    return
+  }
+  favLoading.value = true
+  try {
+    if (fav.value?.id) {
+      await removeFavorite(fav.value.id)
+      ElMessage.success('已取消收藏')
+      fav.value = null
+    } else {
+      await addFavorite(id.value)
+      ElMessage.success('收藏成功')
+      await loadFavorite()
+    }
+  } catch (e: unknown) {
+    if (e instanceof ApiError && e.code === 511) {
+      ElMessage.warning(e.message || '您已经收藏过了')
+      await loadFavorite()
+    } else {
+      ElMessage.error(e instanceof Error ? e.message : '操作失败')
+    }
+  } finally {
+    favLoading.value = false
+  }
+}
+
+/** 预约 / 留言 —— **仍为入口状态，不调用任何写 API** ✗（R12/R13 后续批次） */
+function action(_kind: '预约' | '留言') {
   if (!auth.isLoggedIn) {
     router.push({ path: '/login', query: { redirect: route.fullPath } })
     return
@@ -47,7 +99,10 @@ function action(_kind: '收藏' | '预约' | '留言') {
   ElMessage.info('该功能将在后续批次开放')
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+  await loadFavorite()
+})
 </script>
 
 <template>
@@ -79,12 +134,19 @@ onMounted(load)
       </el-descriptions>
 
       <div class="ops">
-        <el-button type="primary" data-test="op-favorite" @click="action('收藏')">收藏</el-button>
+        <el-button
+          :type="fav ? 'success' : 'primary'"
+          :loading="favLoading"
+          data-test="op-favorite"
+          @click="toggleFavorite"
+        >
+          {{ fav ? '已收藏（点击取消）' : '收藏' }}
+        </el-button>
         <el-button data-test="op-appointment" @click="action('预约')">预约</el-button>
         <el-button data-test="op-message" @click="action('留言')">留言</el-button>
       </div>
       <p class="hint">
-        以上三个入口当前仅做状态判断（未登录 → 去登录），**尚未接入写操作**（后续批次实现）
+        收藏已接入（新增 /add，状态查 /list?counselorId=，取消使用列表返回的自有 id）；预约 / 留言仍为后续批次
       </p>
     </el-card>
 

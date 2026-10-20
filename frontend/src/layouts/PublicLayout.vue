@@ -36,6 +36,9 @@ function logout() {
         <router-link to="/me/wrong-questions" class="nav-link" data-test="nav-wrong">
           错题
         </router-link>
+        <router-link to="/me/favorites" class="nav-link" data-test="nav-favorites">
+          收藏
+        </router-link>
       </nav>
       <div class="right">
         <span class="who">{{ displayName }}</span>
