@@ -5,6 +5,7 @@ package com.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.annotation.IgnoreAuth;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.SysConfigEntity;
+import com.security.OwnershipGuard;
 import com.service.SysConfigService;
 import com.utils.PageUtils;
 import com.utils.R;
@@ -62,16 +64,6 @@ public class SysConfigController{
     }
     
     /**
-     * 详情
-     */
-    @IgnoreAuth
-    @RequestMapping("/detail/{id}")
-    public R detail(@PathVariable("id") String id){
-        SysConfigEntity config = configService.getById(id);
-        return R.ok().put("data", config);
-    }
-    
-    /**
      * 根据name获取信息
      */
     @RequestMapping("/info")
@@ -105,7 +97,8 @@ public class SysConfigController{
      * 删除
      */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] ids){
+    public R delete(@RequestBody Long[] ids, HttpServletRequest request){
+        OwnershipGuard.assertAdminOnly(request);
     	configService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }

@@ -28,6 +28,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
+import com.security.OwnershipGuard;
 import com.utils.PageUtils;
 import com.utils.R;
 import com.alibaba.fastjson.*;
@@ -192,7 +193,8 @@ public class SysDictItemController {
     * 删除
     */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] ids){
+    public R delete(@RequestBody Integer[] ids, HttpServletRequest request){
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
         dictionaryService.removeByIds(Arrays.asList(ids));
         return R.ok();

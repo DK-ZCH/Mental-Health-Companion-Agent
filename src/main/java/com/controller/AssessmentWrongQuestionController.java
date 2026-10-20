@@ -204,7 +204,8 @@ public class AssessmentWrongQuestionController {
     * 删除
     */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] ids){
+    public R delete(@RequestBody Integer[] ids, HttpServletRequest request){
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
         examrewrongquestionService.removeByIds(Arrays.asList(ids));
         return R.ok();
@@ -292,47 +293,6 @@ public class AssessmentWrongQuestionController {
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
         return R.ok().put("data", page);
     }
-
-    /**
-    * 前端详情
-    */
-    @RequestMapping("/detail/{id}")
-    public R detail(@PathVariable("id") Long id, HttpServletRequest request){
-        logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        AssessmentWrongQuestionEntity examrewrongquestion = examrewrongquestionService.getById(id);
-            if(examrewrongquestion !=null){
-
-
-                //entity转view
-                AssessmentWrongQuestionView view = new AssessmentWrongQuestionView();
-                BeanUtils.copyProperties( examrewrongquestion , view );//把实体数据重构到view中
-
-                //级联表
-                    AssessmentPaperEntity exampaper = exampaperService.getById(examrewrongquestion.getPaperId());
-                if(exampaper != null){
-                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setPaperId(exampaper.getId());
-                }
-                //级联表
-                    AssessmentQuestionEntity examquestion = examquestionService.getById(examrewrongquestion.getQuestionId());
-                if(examquestion != null){
-                    BeanUtils.copyProperties( examquestion , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setQuestionId(examquestion.getId());
-                }
-                //级联表
-                    StudentEntity yonghu = yonghuService.getById(examrewrongquestion.getStudentId());
-                if(yonghu != null){
-                    BeanUtils.copyProperties( yonghu , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setStudentId(yonghu.getId());
-                }
-                //修改对应字典表字段
-                dictionaryService.dictionaryConvert(view, request);
-                return R.ok().put("data", view);
-            }else {
-                return R.error(511,"查不到数据");
-            }
-    }
-
 
     /**
     * 前端保存

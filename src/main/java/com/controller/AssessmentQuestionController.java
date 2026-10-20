@@ -224,7 +224,8 @@ public class AssessmentQuestionController {
     * 删除
     */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] ids){
+    public R delete(@RequestBody Integer[] ids, HttpServletRequest request){
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
         examquestionService.removeByIds(Arrays.asList(ids));
         return R.ok();
@@ -318,36 +319,6 @@ public class AssessmentQuestionController {
         page.setList(pub);
         return R.ok().put("data", page);
     }
-
-    /**
-    * 前端详情
-    */
-    @RequestMapping("/detail/{id}")
-    public R detail(@PathVariable("id") Long id, HttpServletRequest request){
-        logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
-        AssessmentQuestionEntity examquestion = examquestionService.getById(id);
-            if(examquestion !=null){
-
-
-                //entity转view
-                AssessmentQuestionView view = new AssessmentQuestionView();
-                BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
-
-                //级联表
-                    AssessmentPaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
-                if(exampaper != null){
-                    BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createDate"});//把级联的数据添加到view中,并排除id和创建时间字段
-                    view.setPaperId(exampaper.getId());
-                }
-                //修改对应字典表字段
-                dictionaryService.dictionaryConvert(view, request);
-                // S2-B：/detail 无调用方且无归属守卫 → 恒返回公开 DTO（codesOnly）
-                return R.ok().put("data", toPublic(view, true));
-            }else {
-                return R.error(511,"查不到数据");
-            }
-    }
-
 
     /**
     * 前端保存
@@ -479,7 +450,8 @@ public class AssessmentQuestionController {
     * 删除
     */
     @RequestMapping("/deleteAssessmentQuestion")
-    public R deleteAssessmentQuestion(@RequestBody Integer[] ids){
+    public R deleteAssessmentQuestion(@RequestBody Integer[] ids, HttpServletRequest request){
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
         List<AssessmentQuestionEntity> examquestionEntities = examquestionService.listByIds(Arrays.asList(ids));
         HashMap<Integer, Integer> map = new HashMap<>();
