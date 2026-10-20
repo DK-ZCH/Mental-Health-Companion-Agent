@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const displayName = computed(() => (auth.isLoggedIn ? auth.username || '已登录' : '未登录'))
 
@@ -13,7 +14,9 @@ function goLogin() {
 }
 function logout() {
   auth.logout()
-  router.push('/')
+  // 受保护页退出后必须离开：守卫不会因本地状态变化自动重跑
+  if (route.meta.requiresAuth) router.replace('/login')
+  else router.push('/')
 }
 </script>
 
@@ -21,6 +24,13 @@ function logout() {
   <el-container class="layout">
     <el-header class="header">
       <div class="brand">心理健康陪伴系统</div>
+      <nav class="nav">
+        <router-link to="/" class="nav-link" data-test="nav-home">健康知识</router-link>
+        <router-link to="/me" class="nav-link" data-test="nav-me">我的信息</router-link>
+        <router-link to="/assessmentRecords" class="nav-link" data-test="nav-records">
+          测评记录
+        </router-link>
+      </nav>
       <div class="right">
         <span class="who">{{ displayName }}</span>
         <el-button v-if="!auth.isLoggedIn" type="primary" size="small" @click="goLogin">登录</el-button>
@@ -46,6 +56,20 @@ function logout() {
 }
 .brand {
   font-size: 16px;
+  font-weight: 600;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.nav-link {
+  color: #606266;
+  font-size: 14px;
+  text-decoration: none;
+}
+.nav-link.router-link-active {
+  color: #409eff;
   font-weight: 600;
 }
 .right {

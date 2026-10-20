@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const form = reactive({ username: '', password: '' })
 const loading = ref(false)
 const error = ref('')
+
+/** 登录后回跳目标：仅接受站内绝对路径（防开放重定向） */
+function redirectTarget(): string {
+  const raw = route.query.redirect
+  const path = typeof raw === 'string' ? raw : ''
+  if (path.startsWith('/') && !path.startsWith('//')) return path
+  return '/'
+}
 
 async function submit() {
   error.value = ''
@@ -21,7 +30,7 @@ async function submit() {
   try {
     await auth.login(form.username, form.password)
     ElMessage.success('登录成功')
-    router.push('/')
+    router.replace(redirectTarget())
   } catch (e: unknown) {
     error.value = e instanceof Error ? e.message : '登录失败'
   } finally {
