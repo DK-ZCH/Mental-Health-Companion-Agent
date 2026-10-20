@@ -126,3 +126,20 @@ export function pickList<T>(data: unknown): { list: T[]; total: number } {
   const total = typeof maybe?.total === 'number' ? maybe!.total! : list.length
   return { list, total }
 }
+
+/**
+ * **临时详情读取策略（G1）** —— 不是"详情 API" ✗
+ *
+ * 事实（实测）：`/xxx/info/{id}` 需登录（匿名 `code=401`）；`/list` 公开，
+ * 且 **`?id=` 参数被后端忽略**（`?id=5` 仍返回全量）✗。
+ *
+ * ⇒ Phase 3 过渡做法：拉公开全表 + 前端按 id 精确匹配。
+ *   · 代价 1：数据量增长后不适用 ⚠️
+ *   · 代价 2：详情页**不能**声称拥有比 `/list` 更多的后端数据 ⚠️
+ *   · 不新增公开 `info` API ✗（否则把 G1 从"已知技术债"变成新的后端安全面）
+ */
+export function findById<T extends { id?: number }>(list: T[], id: number | string): T | undefined {
+  const target = Number(id)
+  if (!Number.isFinite(target)) return undefined
+  return list.find((item) => Number(item.id) === target)
+}

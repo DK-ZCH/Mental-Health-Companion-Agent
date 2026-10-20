@@ -25,11 +25,14 @@ function logout() {
     <el-header class="header">
       <div class="brand">心理健康陪伴系统</div>
       <nav class="nav">
-        <router-link to="/" class="nav-link" data-test="nav-home">健康知识</router-link>
-        <router-link to="/me" class="nav-link" data-test="nav-me">我的信息</router-link>
-        <router-link to="/assessmentRecords" class="nav-link" data-test="nav-records">
-          测评记录
+        <router-link to="/" class="nav-link" data-test="nav-home">首页</router-link>
+        <router-link to="/knowledge" class="nav-link" data-test="nav-knowledge">知识</router-link>
+        <router-link to="/notifications" class="nav-link" data-test="nav-notifications">
+          通知
         </router-link>
+        <router-link to="/counselors" class="nav-link" data-test="nav-counselors">老师</router-link>
+        <router-link to="/me" class="nav-link" data-test="nav-me">我的信息</router-link>
+        <router-link to="/me/records" class="nav-link" data-test="nav-records">我的记录</router-link>
       </nav>
       <div class="right">
         <span class="who">{{ displayName }}</span>

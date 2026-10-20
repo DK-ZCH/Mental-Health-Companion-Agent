@@ -1,28 +1,39 @@
-import { http, unwrap } from './http'
+import { http, unwrap, pickList } from './http'
 
+/** 健康知识（列表即含正文；详情页数据不超出列表接口 —— G1 过渡策略） */
 export interface KnowledgeArticle {
-  id: number
+  id?: number
   title?: string
   content?: string
   coverUrl?: string
+  category?: number
+  categoryLabel?: string
+  publishedAt?: string
   createdAt?: string
 }
 
-/** 后端 /list 可能返回数组，也可能返回分页对象 { total, list }（实测为后者） */
-interface ListShape<T> {
-  list?: T[]
-  total?: number
+/** 通知（与知识同构） */
+export interface NotificationItem {
+  id?: number
+  title?: string
+  content?: string
+  coverUrl?: string
+  category?: number
+  categoryLabel?: string
+  publishedAt?: string
+  createdAt?: string
 }
 
-function toArray<T>(data: unknown): T[] {
-  if (Array.isArray(data)) return data as T[]
-  const maybe = data as ListShape<T> | null
-  if (maybe && Array.isArray(maybe.list)) return maybe.list
-  return []
-}
-
-/** 健康知识列表：GET /knowledgeArticle/list（@IgnoreAuth 公开 ✓，Step 5c 已验证 ✓） */
+/** 健康知识列表：GET /knowledgeArticle/list（@IgnoreAuth 公开 ✓） */
 export async function listKnowledge(): Promise<KnowledgeArticle[]> {
   const data = await unwrap<unknown>(http.get('/knowledgeArticle/list'))
-  return toArray<KnowledgeArticle>(data)
+  return pickList<KnowledgeArticle>(data).list
 }
+
+/** 通知列表：GET /notification/list（@IgnoreAuth 公开 ✓） */
+export async function listNotifications(): Promise<NotificationItem[]> {
+  const data = await unwrap<unknown>(http.get('/notification/list'))
+  return pickList<NotificationItem>(data).list
+}
+
+// 注：G1 的「拉全表 + 按 id 匹配」工具 `findById` 已移入 `api/http.ts`（共享层）
