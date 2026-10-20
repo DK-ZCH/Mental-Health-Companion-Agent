@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { listCounselors, type Counselor } from '@/api/counselor'
@@ -10,6 +10,8 @@ import {
   removeFavorite,
   type FavoriteItem
 } from '@/api/favorite'
+import { addAppointment } from '@/api/appointment'
+import { listDictItems, type DictItem } from '@/api/dict'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
@@ -90,8 +92,79 @@ async function toggleFavorite() {
   }
 }
 
-/** 预约 / 留言 —— **仍为入口状态，不调用任何写 API** ✗（R12/R13 后续批次） */
-function action(_kind: '预约' | '留言') {
+/** 预约表单（时段**字典驱动** ✓，不硬编码 ✗） */
+const bookingVisible = ref(false)
+const bookingSubmitting = ref(false)
+const bookingError = ref('')
+const slots = ref<DictItem[]>([])
+const bookingForm = reactive({ appointmentDate: '', timeSlot: '' })
+
+async function loadSlots() {
+  if (slots.value.length) return
+  try {
+    slots.value = await listDictItems('time_slot')
+  } catch {
+    slots.value = []
+  }
+}
+
+function todayStr(): string {
+  const d = new Date()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${m}-${day}`
+}
+
+function openBooking() {
+  if (!auth.isLoggedIn) {
+    router.push({ path: '/login', query: { redirect: route.fullPath } })
+    return
+  }
+  bookingError.value = ''
+  bookingForm.appointmentDate = todayStr()
+  bookingForm.timeSlot = ''
+  bookingVisible.value = true
+  void loadSlots()
+}
+
+/**
+ * 提交预约：`/add`（`status` 由 api 层固定 1；`studentId` 服务端强制 ✓）
+ * ⚠️ 「日期不得早于今天」是**前端约束** ✗ —— 后端无此校验（`DEF-APPOINTMENT-NO-PAST-CHECK` P2）
+ *    因此只能表述为「前端阻止过去日期请求」，不能表述为「系统不允许」✗
+ */
+async function submitBooking() {
+  bookingError.value = ''
+  if (!bookingForm.appointmentDate) {
+    bookingError.value = '请选择预约日期'
+    return
+  }
+  if (bookingForm.appointmentDate < todayStr()) {
+    bookingError.value = '不能预约过去的日期（前端校验；后端暂无此约束）'
+    return
+  }
+  if (!bookingForm.timeSlot) {
+    bookingError.value = '请选择时间段'
+    return
+  }
+
+  bookingSubmitting.value = true
+  try {
+    await addAppointment({
+      counselorId: id.value,
+      appointmentDate: bookingForm.appointmentDate,
+      timeSlot: bookingForm.timeSlot
+    })
+    ElMessage.success('预约已提交，等待老师审核')
+    bookingVisible.value = false
+  } catch (e: unknown) {
+    bookingError.value = e instanceof Error ? e.message : '提交失败'
+  } finally {
+    bookingSubmitting.value = false
+  }
+}
+
+/** 留言 —— **仍为入口状态，不调用写 API** ✗（R13 后续批次） */
+function action(_kind: '留言') {
   if (!auth.isLoggedIn) {
     router.push({ path: '/login', query: { redirect: route.fullPath } })
     return
@@ -142,13 +215,64 @@ onMounted(async () => {
         >
           {{ fav ? '已收藏（点击取消）' : '收藏' }}
         </el-button>
-        <el-button data-test="op-appointment" @click="action('预约')">预约</el-button>
+        <el-button data-test="op-appointment" @click="openBooking">预约</el-button>
         <el-button data-test="op-message" @click="action('留言')">留言</el-button>
       </div>
       <p class="hint">
-        收藏已接入（新增 /add，状态查 /list?counselorId=，取消使用列表返回的自有 id）；预约 / 留言仍为后续批次
+        收藏、预约已接入（预约需选择日期与时段，时段来自后端字典 time_slot）；留言仍为后续批次
       </p>
     </el-card>
+
+    <el-dialog v-model="bookingVisible" title="预约心理咨询" width="420px">
+      <el-alert
+        v-if="bookingError"
+        :title="bookingError"
+        type="error"
+        show-icon
+        :closable="false"
+        class="err"
+      />
+      <el-form label-position="top">
+        <el-form-item label="预约日期">
+          <el-date-picker
+            v-model="bookingForm.appointmentDate"
+            type="date"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            placeholder="选择日期"
+            data-test="booking-date"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="时间段">
+          <el-empty v-if="!slots.length" description="时段字典为空" :image-size="50" />
+          <el-radio-group v-else v-model="bookingForm.timeSlot" data-test="booking-slot">
+            <el-radio-button
+              v-for="s in slots"
+              :key="s.itemCode"
+              :value="s.itemCode || ''"
+              :data-test="'slot-' + s.itemCode"
+            >
+              {{ s.itemName || s.itemCode }}
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <p class="hint">
+        前端限制：仅可预约今天及以后（后端无此校验 ⚠️）；时间段来自后端字典 <code>time_slot</code>
+      </p>
+      <template #footer>
+        <el-button :disabled="bookingSubmitting" @click="bookingVisible = false">取消</el-button>
+        <el-button
+          type="primary"
+          :loading="bookingSubmitting"
+          data-test="booking-submit"
+          @click="submitBooking"
+        >
+          提交预约
+        </el-button>
+      </template>
+    </el-dialog>
 
     <p class="tip">数据来源：<code>GET /api/counselor/list</code>（G1 过渡策略；仅安全字段）</p>
   </div>
