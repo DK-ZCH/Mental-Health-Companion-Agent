@@ -213,6 +213,36 @@ public final class OwnershipGuard {
     }
 
     /**
+     * 写路径·删除授权（S2-C1，用于「学生个人数据」类资源的 {@code /delete}）。
+     *
+     * <p>语义：管理员放行；学生仅限<b>本人</b>（{@code ownerStudentId == 当前用户}）；
+     * 其余角色（含心理老师、未知 / 缺失）<b>一律拒绝</b> —— 与读路径的
+     * {@link #assertOwnership} 刻意不同：教师不是这些资源的所有者，不应具备删除权限。
+     *
+     * @param target         已按 id 查出的现有记录；{@code null}（记录不存在）→ 一律拒绝（防存在性预言机）
+     * @param ownerStudentId 目标记录所属学生 id
+     */
+    public static void assertOwnerOrAdmin(HttpServletRequest request, Object target,
+                                          Integer ownerStudentId) {
+        String role = currentRole(request);
+        Integer currentUserId = currentUserId(request);
+
+        if (ROLE_ADMIN.equals(role)) {
+            if (target == null) {
+                deny();
+            }
+            return;
+        }
+        if (ROLE_STUDENT.equals(role)) {
+            if (target != null && currentUserId != null && currentUserId.equals(ownerStudentId)) {
+                return;
+            }
+            deny();
+        }
+        deny();
+    }
+
+    /**
      * 写路径·解析本次写入**应落地的归属用户 id**。
      *
      * <p>语义（服务端说了算，而不是「客户端提交什么就是什么」）：

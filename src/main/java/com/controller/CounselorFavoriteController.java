@@ -196,8 +196,15 @@ public class CounselorFavoriteController {
     * 删除
     */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] ids){
+    public R delete(@RequestBody Integer[] ids, HttpServletRequest request){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
+        // S2-C1：owner + admin —— 学生仅本人、管理员放行、其余 403（逐条校验，堵 SEC-FAVORITE-DELETE-IDOR）
+        if(ids != null){
+            for(Integer id : ids){
+                CounselorFavoriteEntity e = xinlilaoshiCollectionService.getById(id);
+                OwnershipGuard.assertOwnerOrAdmin(request, e, e == null ? null : e.getStudentId());
+            }
+        }
         xinlilaoshiCollectionService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }

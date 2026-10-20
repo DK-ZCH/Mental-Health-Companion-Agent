@@ -181,8 +181,15 @@ public class CounselingAppointmentController {
     * 删除
     */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] ids){
+    public R delete(@RequestBody Integer[] ids, HttpServletRequest request){
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
+        // S2-C1：owner + admin —— 学生仅本人、管理员放行、其余 403（逐条校验，堵 SEC-APPOINTMENT-DELETE-IDOR）
+        if(ids != null){
+            for(Integer id : ids){
+                CounselingAppointmentEntity e = xinlilaoshiOrderService.getById(id);
+                OwnershipGuard.assertOwnerOrAdmin(request, e, e == null ? null : e.getStudentId());
+            }
+        }
         xinlilaoshiOrderService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
