@@ -91,7 +91,18 @@ public class FileController{
 			if(!upload.exists()) {
 			    upload.mkdirs();
 			}
-			File file = new File(upload.getAbsolutePath()+"/"+fileName);
+			// S2-A（A1）：路径边界约束 —— 核心是 canonical 包含校验，字符串过滤仅作辅助
+			// 说明：成功仍为 201、未命中仍走兜底 500、不改 /file/upload —— 本批不扩大行为变化
+			if (fileName == null || fileName.trim().isEmpty() || fileName.indexOf('\0') >= 0) {
+				return new ResponseEntity<byte[]>(HttpStatus.FORBIDDEN);
+			}
+			File base = upload.getCanonicalFile();
+			File file = new File(base, fileName).getCanonicalFile();
+			// 规范化后必须位于基目录之下（含基目录本身），否则拒绝
+			if (!file.getPath().equals(base.getPath())
+					&& !file.getPath().startsWith(base.getPath() + File.separator)) {
+				return new ResponseEntity<byte[]>(HttpStatus.FORBIDDEN);
+			}
 			if(file.exists()){
 				/*if(!fileService.canRead(file, SessionManager.getSessionUser())){
 					getResponse().sendError(403);
