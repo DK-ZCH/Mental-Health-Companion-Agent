@@ -96,3 +96,38 @@ export async function listWrongQuestions(): Promise<WrongQuestionItem[]> {
   const data = await unwrap<unknown>(http.get('/assessmentWrongQuestion/list'))
   return pickList<WrongQuestionItem>(data).list
 }
+
+/** 试卷项（公开只读；**不含题目内容** ✗） */
+export interface AssessmentPaperItem {
+  id?: number
+  name?: string
+  durationMinutes?: number
+  totalScore?: number
+  status?: number
+  statusLabel?: string
+}
+
+/**
+ * 试卷列表：`GET /assessmentPaper/list`（**`@IgnoreAuth` 公开** ✓，实测 `total=2`）
+ *
+ * ⚠️ R14 边界 = **试卷浏览**：
+ *  · **不调用** `/assessmentQuestion/list` —— 该端点**匿名返回 `answer` / `analysis`**（正确答案与解析）
+ *    ⇒ 为算“题量”而调用会把答案键下载进浏览器 ✗
+ *    （`SEC-QUESTION-ANSWER-PUBLIC` 🔴 P1，Identified / Unfixed）
+ *  · **不提供**开始答题 / 不创建测评记录 / 不做任何计分
+ *    （R15 暂缓：`SEC-ANSWER-SCORE-SPOOF` —— 分值由客户端提交并被服务端累加 ✗）
+ */
+export async function listPapers(): Promise<AssessmentPaperItem[]> {
+  const data = await unwrap<unknown>(http.get('/assessmentPaper/list'))
+  const raw = pickList<Record<string, unknown>>(data).list
+
+  // 字段白名单：仅试卷元信息（无题目、无答案、无 PII）
+  return raw.map((r) => ({
+    id: r.id as number | undefined,
+    name: r.name as string | undefined,
+    durationMinutes: r.durationMinutes as number | undefined,
+    totalScore: r.totalScore as number | undefined,
+    status: r.status as number | undefined,
+    statusLabel: r.statusLabel as string | undefined
+  }))
+}

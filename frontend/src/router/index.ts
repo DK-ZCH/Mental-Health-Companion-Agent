@@ -15,6 +15,7 @@ import NotificationListView from '@/views/NotificationListView.vue'
 import NotificationDetailView from '@/views/NotificationDetailView.vue'
 import CounselorListView from '@/views/CounselorListView.vue'
 import CounselorDetailView from '@/views/CounselorDetailView.vue'
+import AssessmentPaperListView from '@/views/AssessmentPaperListView.vue'
 import { TOKEN_KEY } from '@/api/http'
 
 /**
@@ -52,6 +53,9 @@ const router = createRouter({
         },
         { path: 'counselors', name: 'counselors', component: CounselorListView },
         { path: 'counselors/:id', name: 'counselorDetail', component: CounselorDetailView },
+
+        // R14 试卷浏览（公开只读；**不提供答题入口** ✗ —— R15 暂缓）
+        { path: 'assessment', name: 'assessmentPapers', component: AssessmentPaperListView },
 
         // ===== 用户中心（需登录）=====
         { path: 'me', name: 'me', component: MeView, meta: { requiresAuth: true } },
