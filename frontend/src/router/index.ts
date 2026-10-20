@@ -4,6 +4,8 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import MeView from '@/views/MeView.vue'
 import AssessmentRecordsView from '@/views/AssessmentRecordsView.vue'
+import RecordDetailView from '@/views/RecordDetailView.vue'
+import WrongQuestionListView from '@/views/WrongQuestionListView.vue'
 import KnowledgeListView from '@/views/KnowledgeListView.vue'
 import KnowledgeDetailView from '@/views/KnowledgeDetailView.vue'
 import NotificationListView from '@/views/NotificationListView.vue'
@@ -54,6 +56,18 @@ const router = createRouter({
           path: 'me/records',
           name: 'meRecords',
           component: AssessmentRecordsView,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'me/records/:recordNo',
+          name: 'meRecordDetail',
+          component: RecordDetailView,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'me/wrong-questions',
+          name: 'meWrongQuestions',
+          component: WrongQuestionListView,
           meta: { requiresAuth: true }
         },
         // 旧口径兼容：Batch 2 曾用 /assessmentRecords ⇒ 重定向到 Step 6 定义的 /me/records

@@ -33,6 +33,9 @@ function logout() {
         <router-link to="/counselors" class="nav-link" data-test="nav-counselors">老师</router-link>
         <router-link to="/me" class="nav-link" data-test="nav-me">我的信息</router-link>
         <router-link to="/me/records" class="nav-link" data-test="nav-records">我的记录</router-link>
+        <router-link to="/me/wrong-questions" class="nav-link" data-test="nav-wrong">
+          错题
+        </router-link>
       </nav>
       <div class="right">
         <span class="who">{{ displayName }}</span>
