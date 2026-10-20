@@ -8,6 +8,7 @@ import RecordDetailView from '@/views/RecordDetailView.vue'
 import WrongQuestionListView from '@/views/WrongQuestionListView.vue'
 import FavoriteListView from '@/views/FavoriteListView.vue'
 import AppointmentListView from '@/views/AppointmentListView.vue'
+import MyMessagesView from '@/views/MyMessagesView.vue'
 import KnowledgeListView from '@/views/KnowledgeListView.vue'
 import KnowledgeDetailView from '@/views/KnowledgeDetailView.vue'
 import NotificationListView from '@/views/NotificationListView.vue'
@@ -82,6 +83,12 @@ const router = createRouter({
           path: 'me/appointments',
           name: 'meAppointments',
           component: AppointmentListView,
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'me/messages',
+          name: 'meMessages',
+          component: MyMessagesView,
           meta: { requiresAuth: true }
         },
         // 旧口径兼容：Batch 2 曾用 /assessmentRecords ⇒ 重定向到 Step 6 定义的 /me/records

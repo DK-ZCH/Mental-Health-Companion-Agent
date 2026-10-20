@@ -42,6 +42,9 @@ function logout() {
         <router-link to="/me/appointments" class="nav-link" data-test="nav-appointments">
           预约
         </router-link>
+        <router-link to="/me/messages" class="nav-link" data-test="nav-messages">
+          留言
+        </router-link>
       </nav>
       <div class="right">
         <span class="who">{{ displayName }}</span>

@@ -11,6 +11,7 @@ import {
   type FavoriteItem
 } from '@/api/favorite'
 import { addAppointment } from '@/api/appointment'
+import { addMessage } from '@/api/message'
 import { listDictItems, type DictItem } from '@/api/dict'
 import { useAuthStore } from '@/stores/auth'
 
@@ -163,13 +164,43 @@ async function submitBooking() {
   }
 }
 
-/** 留言 —— **仍为入口状态，不调用写 API** ✗（R13 后续批次） */
-function action(_kind: '留言') {
+/**
+ * 留言（R13）：`POST /counselorMessage/add`
+ * · **只提交** `counselorId` + `content` ✓（`studentId` 服务端强制 ✓；不提交 `replyContent` ✗）
+ * · `replyContent` 客户端可绑定属 `SEC-MESSAGE-REPLY-SPOOF`（已实测可落库 ✗，本批不修）
+ */
+const msgVisible = ref(false)
+const msgSubmitting = ref(false)
+const msgError = ref('')
+const msgContent = ref('')
+
+function openMessage() {
   if (!auth.isLoggedIn) {
     router.push({ path: '/login', query: { redirect: route.fullPath } })
     return
   }
-  ElMessage.info('该功能将在后续批次开放')
+  msgError.value = ''
+  msgContent.value = ''
+  msgVisible.value = true
+}
+
+async function submitMessage() {
+  msgError.value = ''
+  const content = msgContent.value.trim()
+  if (!content) {
+    msgError.value = '请输入留言内容'
+    return
+  }
+  msgSubmitting.value = true
+  try {
+    await addMessage({ counselorId: id.value, content })
+    ElMessage.success('留言已提交')
+    msgVisible.value = false
+  } catch (e: unknown) {
+    msgError.value = e instanceof Error ? e.message : '提交失败'
+  } finally {
+    msgSubmitting.value = false
+  }
 }
 
 onMounted(async () => {
@@ -216,10 +247,10 @@ onMounted(async () => {
           {{ fav ? '已收藏（点击取消）' : '收藏' }}
         </el-button>
         <el-button data-test="op-appointment" @click="openBooking">预约</el-button>
-        <el-button data-test="op-message" @click="action('留言')">留言</el-button>
+        <el-button data-test="op-message" @click="openMessage">留言</el-button>
       </div>
       <p class="hint">
-        收藏、预约已接入（预约需选择日期与时段，时段来自后端字典 time_slot）；留言仍为后续批次
+        收藏、预约、留言均已接入（预约时段来自后端字典 time_slot；留言的回复由老师侧处理）
       </p>
     </el-card>
 
@@ -270,6 +301,42 @@ onMounted(async () => {
           @click="submitBooking"
         >
           提交预约
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="msgVisible" title="给老师留言" width="460px">
+      <el-alert
+        v-if="msgError"
+        :title="msgError"
+        type="error"
+        show-icon
+        :closable="false"
+        class="err"
+      />
+      <el-form label-position="top">
+        <el-form-item :label="'留言给：' + (item?.name || '')">
+          <el-input
+            v-model="msgContent"
+            type="textarea"
+            :rows="5"
+            maxlength="500"
+            show-word-limit
+            placeholder="请描述你的困扰或想咨询的问题"
+            data-test="detail-message-content"
+          />
+        </el-form-item>
+      </el-form>
+      <p class="hint">留言提交后不可修改；回复由老师侧处理，可在「我的留言」查看</p>
+      <template #footer>
+        <el-button :disabled="msgSubmitting" @click="msgVisible = false">取消</el-button>
+        <el-button
+          type="primary"
+          :loading="msgSubmitting"
+          data-test="detail-message-submit"
+          @click="submitMessage"
+        >
+          提交
         </el-button>
       </template>
     </el-dialog>
