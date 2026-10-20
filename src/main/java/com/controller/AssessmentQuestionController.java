@@ -30,7 +30,9 @@ import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
 import com.security.DataScope;
+import com.security.OwnershipGuard;
 import com.utils.R;
+import com.dto.QuestionPublicDTO;
 import com.alibaba.fastjson.*;
 
 /**
@@ -65,6 +67,32 @@ public class AssessmentQuestionController {
 
 
     /**
+     * S2-B：是否管理员 —— 身份取自服务端 {@code CurrentUserProvider}，非客户端参数。
+     * 未知/缺失角色一律落入 Public 分支（绝不因“不等于管理员”拿到不该有的数据）。
+     */
+    private boolean isAdmin(HttpServletRequest request) {
+        return OwnershipGuard.ROLE_ADMIN.equals(OwnershipGuard.currentRole(request));
+    }
+
+    /**
+     * S2-B：把题目视图投影为公开 DTO。
+     * · 结构上无 answer/analysis ✓
+     * · options 走 QuestionOptionSanitizer（codesOnly 或检测中性化，由调用方决定）
+     */
+    private QuestionPublicDTO toPublic(AssessmentQuestionView v, boolean codesOnly) {
+        QuestionPublicDTO d = new QuestionPublicDTO();
+        d.setId(v.getId());
+        d.setPaperId(v.getPaperId());
+        d.setContent(v.getContent());
+        d.setOptions(QuestionOptionSanitizer.sanitize(v.getOptions(), codesOnly));
+        d.setScore(v.getScore());
+        d.setQuestionType(v.getQuestionType());
+        d.setSortOrder(v.getSortOrder());
+        return d;
+    }
+
+
+    /**
     * 后端列表
     */
     @RequestMapping("/page")
@@ -82,6 +110,14 @@ public class AssessmentQuestionController {
         for(AssessmentQuestionView c:list){
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(c, request);
+        }
+        // S2-B：非管理员统一走公开 DTO（剥离 answer/analysis；options 检测中性化）
+        if(!isAdmin(request)){
+            List<QuestionPublicDTO> pub = new ArrayList<>();
+            for(AssessmentQuestionView c : list){
+                pub.add(toPublic(c, false));
+            }
+            page.setList(pub);
         }
         return R.ok().put("data", page);
     }
@@ -106,7 +142,11 @@ public class AssessmentQuestionController {
                 }
             //修改对应字典表字段
             dictionaryService.dictionaryConvert(view, request);
-            return R.ok().put("data", view);
+            // S2-B：管理员保留完整视图；非管理员返回公开 DTO（剥离 answer/analysis + 检测中性化）
+            if(isAdmin(request)){
+                return R.ok().put("data", view);
+            }
+            return R.ok().put("data", toPublic(view, false));
         }else {
             return R.error(511,"查不到数据");
         }
@@ -270,6 +310,12 @@ public class AssessmentQuestionController {
         List<AssessmentQuestionView> list =(List<AssessmentQuestionView>)page.getList();
         for(AssessmentQuestionView c:list)
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
+        // S2-B：/list 匿名 → 恒返回公开 DTO（codesOnly，不输出原始 options 文案）
+        List<QuestionPublicDTO> pub = new ArrayList<>();
+        for(AssessmentQuestionView c : list){
+            pub.add(toPublic(c, true));
+        }
+        page.setList(pub);
         return R.ok().put("data", page);
     }
 
@@ -295,7 +341,8 @@ public class AssessmentQuestionController {
                 }
                 //修改对应字典表字段
                 dictionaryService.dictionaryConvert(view, request);
-                return R.ok().put("data", view);
+                // S2-B：/detail 无调用方且无归属守卫 → 恒返回公开 DTO（codesOnly）
+                return R.ok().put("data", toPublic(view, true));
             }else {
                 return R.error(511,"查不到数据");
             }
