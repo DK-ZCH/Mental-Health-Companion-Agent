@@ -110,6 +110,8 @@ public class CounselorController {
     */
     @RequestMapping("/save")
     public R save(@RequestBody CounselorEntity xinlilaoshi, HttpServletRequest request){
+        // S2-D2：管理端新增老师 → 仅管理员（自助注册走 /register，不在此列）
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("save方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
 
 
@@ -177,7 +179,9 @@ public class CounselorController {
     * 删除
     */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] ids){
+    public R delete(@RequestBody Integer[] ids, HttpServletRequest request){
+        // S2-D2：删除老师账号 → 仅管理员（自助资料修改走 /update，不在此列）
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
         xinlilaoshiService.removeByIds(Arrays.asList(ids));
         return R.ok();
@@ -441,6 +445,8 @@ public class CounselorController {
     */
     @RequestMapping("/add")
     public R add(@RequestBody CounselorEntity xinlilaoshi, HttpServletRequest request){
+        // S2-D2：管理端「心理老师添加」页 → 仅管理员（自助注册走 /register，不在此列）
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("add方法:,,Controller:{},,xinlilaoshi:{}",this.getClass().getName(),xinlilaoshi.toString());
         QueryWrapper<CounselorEntity> queryWrapper = new QueryWrapper<CounselorEntity>()
             .eq("username", xinlilaoshi.getUsername())

@@ -112,6 +112,8 @@ public class StudentController {
     */
     @RequestMapping("/save")
     public R save(@RequestBody StudentEntity yonghu, HttpServletRequest request){
+        // S2-D2：管理端新增学生 → 仅管理员（自助注册走 /register，不在此列）
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("save方法:,,Controller:{},,yonghu:{}",this.getClass().getName(),yonghu.toString());
 
 
@@ -188,7 +190,9 @@ public class StudentController {
     * 删除
     */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Integer[] ids){
+    public R delete(@RequestBody Integer[] ids, HttpServletRequest request){
+        // S2-D2：删除学生账号 → 仅管理员（自助资料修改走 /update，不在此列）
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("delete:,,Controller:{},,ids:{}",this.getClass().getName(),ids.toString());
         yonghuService.removeByIds(Arrays.asList(ids));
         return R.ok();
@@ -474,6 +478,8 @@ public class StudentController {
     */
     @RequestMapping("/add")
     public R add(@RequestBody StudentEntity yonghu, HttpServletRequest request){
+        // S2-D2：管理端「学生添加」页 → 仅管理员（自助注册走 /register，不在此列）
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("add方法:,,Controller:{},,yonghu:{}",this.getClass().getName(),yonghu.toString());
         QueryWrapper<StudentEntity> queryWrapper = new QueryWrapper<StudentEntity>()
             .eq("username", yonghu.getUsername())
