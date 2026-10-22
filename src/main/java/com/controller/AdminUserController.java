@@ -58,19 +58,9 @@ public class AdminUserController {
 		return r;
 	}
 	
-	/**
-	 * 注册
-	 */
-	@IgnoreAuth
-	@PostMapping(value = "/register")
-	public R register(@RequestBody AdminUserEntity user){
-//    	ValidatorUtils.validateEntity(user);
-    	if(usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", user.getUsername())) !=null) {
-    		return R.error("学生已存在");
-    	}
-        usersService.save(user);
-        return R.ok();
-    }
+	// ── S2-D1：已【下线】匿名管理员注册端点 /adminUser/register ──
+	// 下线依据（S2-D 审计 §1）：@IgnoreAuth 匿名注册 admin，role 客户端可控 ⇒ 匿名提权入口。
+	// 处理：删除方法（管理员由部署初始化/管理端 /save 创建，无开放注册管理员业务需求）。
 
 	/**
 	 * 退出
@@ -141,12 +131,14 @@ public class AdminUserController {
      * 保存
      */
     @PostMapping("/save")
-    public R save(@RequestBody AdminUserEntity user){
-//    	ValidatorUtils.validateEntity(user);
+    public R save(@RequestBody AdminUserEntity user, HttpServletRequest request){
+        // S2-D1：管理端创建管理员账号 → 仅管理员；role 服务端固定「管理员」（防客户端注入异常 role）
+        OwnershipGuard.assertAdminOnly(request);
     	if(usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", user.getUsername())) !=null) {
     		return R.error("学生已存在");
     	}
-    	user.setPassword("123456");
+        user.setRole("管理员");
+        user.setPassword("123456");
         usersService.save(user);
         return R.ok();
     }
@@ -155,8 +147,13 @@ public class AdminUserController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody AdminUserEntity user){
-//        ValidatorUtils.validateEntity(user);
+    public R update(@RequestBody AdminUserEntity user, HttpServletRequest request){
+        // S2-D1：编辑管理员账号 → 仅管理员；role 服务端恢复库中现值（防提权，前端不提交 role）；password 保留（正常改密）
+        OwnershipGuard.assertAdminOnly(request);
+        AdminUserEntity existing = user.getId() == null ? null : usersService.getById(user.getId());
+        if (existing != null) {
+            user.setRole(existing.getRole());
+        }
         com.security.UpdateGuard.assertHasUpdatableFields(user); // T1：空更新防护（400，不进入 DAO）
         usersService.updateById(user);//全部更新
         return R.ok();
@@ -166,7 +163,9 @@ public class AdminUserController {
      * 删除
      */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] ids){
+    public R delete(@RequestBody Long[] ids, HttpServletRequest request){
+        // S2-D1：删除管理员账号 → 仅管理员
+        OwnershipGuard.assertAdminOnly(request);
         usersService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
