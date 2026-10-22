@@ -89,6 +89,10 @@ public class CounselorController {
     */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
+        // S2-D3-1：返回老师完整实体（含 username/phone/email PII）→ 仅管理员
+        // 实测消费者：Admin 管理端 4 处（编辑页需全字段）；Vue3 / 老前端 / 后端 / 测试均 0 调用
+        // 前台老师目录走 /counselor/list，不依赖本端点
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         CounselorEntity xinlilaoshi = xinlilaoshiService.getById(id);
         if(xinlilaoshi !=null){
