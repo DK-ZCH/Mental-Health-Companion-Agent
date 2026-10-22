@@ -67,6 +67,9 @@ public class CounselorController {
     */
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params, HttpServletRequest request){
+        // S2-E-2-1：完整 Counselor 实体（含 username/phone/email PII）→ 仅管理员；
+        // 公开目录走 /list 与 /detail（PublicCounselorView，8 字段）
+        OwnershipGuard.assertAdminOnly(request);
         logger.debug("page方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
         // Step 5 批4：读范围收敛（原 if/else-if 角色链）—— 未知角色由「不加过滤 → 全量」改为 fail-closed
         DataScope.apply(request, params, "studentId", "counselorId");
@@ -416,10 +419,16 @@ public class CounselorController {
         }
         PageUtils page = xinlilaoshiService.queryPage(params);
 
-        //字典表数据转换
+        // S2-E-2-1：公开目录只暴露 8 个白名单字段（username/phone/email/createdAt 不外泄）
+        // ⚠️ 顺序不可调换：必须先对 CounselorView 做字典回填（DICT_CODE 键为 Counselor.gender），
+        //    再投影到 PublicCounselorView；否则 genderLabel 会静默失效。
         List<CounselorView> list =(List<CounselorView>)page.getList();
-        for(CounselorView c:list)
+        List<PublicCounselorView> publicList = new ArrayList<>();
+        for(CounselorView c:list){
             dictionaryService.dictionaryConvert(c, request); //修改对应字典表字段
+            publicList.add(new PublicCounselorView(c));
+        }
+        page.setList(publicList);
         return R.ok().put("data", page);
     }
 
@@ -439,7 +448,8 @@ public class CounselorController {
 
                 //修改对应字典表字段
                 dictionaryService.dictionaryConvert(view, request);
-                return R.ok().put("data", view);
+                // S2-E-2-1：公开目录 DTO —— 只返回 8 个白名单字段（先回填字典，再投影，顺序不可调换）
+                return R.ok().put("data", new PublicCounselorView(view));
             }else {
                 return R.error(511,"查不到数据");
             }
