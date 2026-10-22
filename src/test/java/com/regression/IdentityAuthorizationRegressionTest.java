@@ -431,27 +431,40 @@ class IdentityAuthorizationRegressionTest {
     }
 
     @Test
-    @DisplayName("20. D7：匿名密码重置端点 /adminUser/resetPass 已下线（404，且不产生任何密码变更）")
-    void adminAccountAnonymousResetEndpointIsRemoved() throws Exception {
+    @DisplayName("20. D7+S2-F-1-1：匿名密码重置端点全部下线（admin/student/counselor → 404，且不产生密码变更）")
+    void anonymousResetEndpointsAreRemoved() throws Exception {
         String before = usersPassword("admin");
         assertThat(before).as("前置：admin 账号应存在").isNotNull();
 
-        MvcResult result = perform("/adminUser/resetPass?username=admin", null);
-        assertThat(result.getResponse().getStatus())
-                .as("该端点已下线，应为 404（而不是 200 或 403）")
+        // ① D7（既有）：管理端账号匿名重置端点
+        MvcResult adminReset = perform("/adminUser/resetPass?username=admin", null);
+        assertThat(adminReset.getResponse().getStatus())
+                .as("adminUser/resetPass 已下线，应为 404（而不是 200 或 403）")
                 .isEqualTo(404);
-
         assertThat(usersPassword("admin"))
                 .as("请求不得产生任何密码变更 —— 证明端点确实不再存在，而不只是改了返回码")
                 .isEqualTo(before);
 
-        // 对照：同名「忘记密码」端点（用户端）按 D3 保持不变 →
-        //      证明上面的 404 是「该路径被删除」，而非「所有 /resetPass 都 404」或全局 404 行为
-        MvcResult contrast = perform("/student/resetPass?username=not-exist-user-xyz", null);
-        assertThat(contrast.getResponse().getStatus())
-                .as("对照：/student/resetPass 属「忘记密码」流程，按 D3 保持存在")
-                .isNotEqualTo(404);
-        assertThat(usersPassword("admin")).as("对照请求也不得改动任何数据").isEqualTo(before);
+        // ② S2-F-1-1：学生端匿名重置端点
+        MvcResult studentReset = perform("/student/resetPass?username=not-exist-user-xyz", null);
+        assertThat(studentReset.getResponse().getStatus())
+                .as("student/resetPass 已下线（S2-F-1-1），应为 404")
+                .isEqualTo(404);
+
+        // ③ S2-F-1-1：老师端匿名重置端点
+        MvcResult counselorReset = perform("/counselor/resetPass?username=not-exist-user-xyz", null);
+        assertThat(counselorReset.getResponse().getStatus())
+                .as("counselor/resetPass 已下线（S2-F-1-1），应为 404")
+                .isEqualTo(404);
+
+        // ④ 对照锚点：仍存在的公开端点应正常返回 200 →
+        //    证明上面的 404 是「该路径被删除」，而非「整个应用都返回 404」
+        MvcResult anchor = perform("/counselor/list", null);
+        assertThat(anchor.getResponse().getStatus())
+                .as("对照：/counselor/list 仍存在且正常（200），证明 404 是该路径被删而非全局 404")
+                .isEqualTo(200);
+
+        assertThat(usersPassword("admin")).as("所有请求均不得改动任何密码").isEqualTo(before);
     }
 
     // ================== 21–24. 批 4-B：自助资料更新（业务规则 Q2） ==================

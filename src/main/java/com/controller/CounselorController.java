@@ -350,24 +350,15 @@ public class CounselorController {
     }
 
 
-    /**
-     * 忘记密码
-     */
-    @IgnoreAuth
-    @RequestMapping(value = "/resetPass")
-    public R resetPass(String username, HttpServletRequest request) {
-        CounselorEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<CounselorEntity>().eq("username", username));
-        if(xinlilaoshi!=null){
-            xinlilaoshi.setPassword("123456");
-            boolean b = xinlilaoshiService.updateById(xinlilaoshi);
-            if(!b){
-               return R.error();
-            }
-        }else{
-           return R.error("账号不存在");
-        }
-        return R.ok();
-    }
+    // ── S2-F-1-1：已【下线】匿名密码重置端点 ──
+    // 下线依据（S2-F-1-0 调用面核查，全部为零）：
+    //   Java：仅本方法定义，无内部调用；老前端 0；Vue3 0；管理端 src/dist 0；无脚本/配置引用
+    //   系统无任何找回密码身份验证基础设施（邮件 0 / 短信 0 / reset token 0 / 验证码从不校验）
+    // 风险定性：@IgnoreAuth + 仅凭 username 即可把密码重置为 123456
+    //           ⇒ 存在匿名账户接管风险（P1）。
+    // 影响面：管理端「重置密码」按钮仍走 admin-only 的 resetPassword 端点；
+    //        忘记密码能力降级为管理员介入（DEF-NO-SELF-SERVICE-PASSWORD-RECOVERY）。
+    // 回归：见 IdentityAuthorizationRegressionTest 用例 20 —— 断言该端点返回 404。
 
 
     /**

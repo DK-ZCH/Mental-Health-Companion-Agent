@@ -78,7 +78,7 @@ public class AdminUserController {
 	// 风险定性：该端点为 @IgnoreAuth（免鉴权）+ 传入 username 即可把密码重置为 123456，
 	//         而 users 表是【管理端账号】表 → 匿名即可重置管理员密码（账户接管）。
 	// 影响面：管理端「重置密码」按钮走的是 /yonghu/resetPassword、/xinlilaoshi/resetPassword
-	//         （批 2 已限管理员），与本端点无关；用户/老师端的「忘记密码」走各自的 /resetPass（按 D3 不动）。
+	//         （批 2 已限管理员），与本端点无关；用户/老师端的 /resetPass 亦已于 S2-F-1-1 下线。
 	// 回归：见 IdentityAuthorizationRegressionTest「D7」用例 —— 断言该路径返回 404。
 	
 	/**
