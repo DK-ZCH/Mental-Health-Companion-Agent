@@ -27,6 +27,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
+import com.entity.request.CounselorRegisterRequest;
 import com.service.*;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
@@ -320,8 +321,26 @@ public class CounselorController {
     */
     @IgnoreAuth
     @PostMapping(value = "/register")
-    public R register(@RequestBody CounselorEntity xinlilaoshi){
-//    	ValidatorUtils.validateEntity(user);
+    public R register(@RequestBody CounselorRegisterRequest req){
+        // S2-F-2-1：注册专用 DTO —— 让 password 真正进入 Entity。
+        // password 在 CounselorEntity 上标 @JsonIgnore（反序列化亦被忽略），直接以 Entity 接收会被静默丢弃。
+        // 仅做非空校验；密码强度/复杂度策略留待 S2-F-3/F-4 统一处理。
+        if (req.getPassword() == null || req.getPassword().isEmpty()) {
+            return R.error(511, "密码不能为空");
+        }
+
+        CounselorEntity xinlilaoshi = new CounselorEntity();
+        xinlilaoshi.setUsername(req.getUsername());
+        xinlilaoshi.setPassword(req.getPassword());
+        xinlilaoshi.setName(req.getName());
+        xinlilaoshi.setPhone(req.getPhone());
+        xinlilaoshi.setGender(req.getGender());
+        xinlilaoshi.setEmail(req.getEmail());
+        xinlilaoshi.setExpertise(req.getExpertise());
+        xinlilaoshi.setResume(req.getResume());
+        xinlilaoshi.setIntroduction(req.getIntroduction());
+        xinlilaoshi.setAvatarUrl(req.getAvatarUrl());
+
         QueryWrapper<CounselorEntity> queryWrapper = new QueryWrapper<CounselorEntity>()
             .eq("username", xinlilaoshi.getUsername())
             .or()

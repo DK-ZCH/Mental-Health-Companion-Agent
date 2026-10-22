@@ -27,6 +27,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.entity.*;
 import com.entity.view.*;
+import com.entity.request.StudentRegisterRequest;
 import com.service.*;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
@@ -340,8 +341,24 @@ public class StudentController {
     */
     @IgnoreAuth
     @PostMapping(value = "/register")
-    public R register(@RequestBody StudentEntity yonghu){
-//    	ValidatorUtils.validateEntity(user);
+    public R register(@RequestBody StudentRegisterRequest req){
+        // S2-F-2-1：注册专用 DTO —— 让 password / idCardNo 真正进入 Entity。
+        // 二者在 StudentEntity 上标 @JsonIgnore（反序列化亦被忽略），直接以 Entity 接收会被静默丢弃。
+        // 仅做非空校验；密码强度/复杂度策略留待 S2-F-3/F-4 统一处理。
+        if (req.getPassword() == null || req.getPassword().isEmpty()) {
+            return R.error(511, "密码不能为空");
+        }
+
+        StudentEntity yonghu = new StudentEntity();
+        yonghu.setUsername(req.getUsername());
+        yonghu.setPassword(req.getPassword());
+        yonghu.setName(req.getName());
+        yonghu.setPhone(req.getPhone());
+        yonghu.setIdCardNo(req.getIdCardNo());
+        yonghu.setGender(req.getGender());
+        yonghu.setEmail(req.getEmail());
+        yonghu.setAvatarUrl(req.getAvatarUrl());
+
         QueryWrapper<StudentEntity> queryWrapper = new QueryWrapper<StudentEntity>()
             .eq("username", yonghu.getUsername())
             .or()
