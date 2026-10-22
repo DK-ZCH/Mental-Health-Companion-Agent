@@ -43,6 +43,11 @@ public final class OwnershipGuard {
     public static final String ROLE_STUDENT = "学生";
     public static final String ROLE_COUNSELOR = "心理老师";
 
+    /** 身份表名字面量：与 {@code auth_token.user_type} / Session 中的取值保持一致（不改造现有取值）*/
+    public static final String TABLE_STUDENT = "student";
+    public static final String TABLE_COUNSELOR = "counselor";
+    public static final String TABLE_ADMIN_USER = "admin_user";
+
     private static final Logger logger = LoggerFactory.getLogger(OwnershipGuard.class);
 
     private OwnershipGuard() {
@@ -119,6 +124,42 @@ public final class OwnershipGuard {
             return;
         }
         deny();
+    }
+
+    /**
+     * {@code /session} 专用（S2-E-1）：当前已认证身份必须<b>同时</b>匹配 {@code role} 与 {@code tableName}。
+     *
+     * <p><b>解决的问题</b>：{@code /student/session}、{@code /counselor/session}、{@code /adminUser/session}
+     * 原先只取 Session 的 {@code userId} 直接 {@code getById}，不校验身份类型。而三张身份表的 id
+     * 是各自独立的 id 空间（实测 student/counselor 的 id 1,2,3 完全重合）⇒
+     * <b>student token 可读到 counselor 行，反之亦然</b>（双向 PII 越权）。
+     *
+     * <p><b>职责边界（刻意收窄）</b>：只做身份一致性校验 ——
+     * <b>不</b>查库、<b>不</b>判归属、<b>不</b>改 Session、<b>不</b>自动推断角色、<b>不</b>处理业务权限。
+     *
+     * <p><b>role 与 tableName 不是两个独立认证因素</b>：二者同源于服务器已校验的同一条
+     * {@code auth_token}（拦截器同时写入 Session）。此处是<b>一致性检查</b>，
+     * 用于防止「Session 内角色与表类型不一致」，不构成两层认证。
+     *
+     * <p><b>失败模式</b>：任一字段缺失或不匹配 → {@link #deny()}（HTTP 403 + code=403）。
+     * 匿名请求由拦截器先行处理（HTTP 200 + code=401），不会到达本方法。
+     *
+     * <p><b>短路顺序</b>：role 不匹配时<b>直接拒绝</b>，不再读取 tableName（保持最简逻辑）。
+     *
+     * @param expectedRole      该端点代表的角色（传 {@link #ROLE_STUDENT} / {@link #ROLE_COUNSELOR} / {@link #ROLE_ADMIN}）
+     * @param expectedTableName 该端点代表的身份表名（传 {@link #TABLE_STUDENT} / {@link #TABLE_COUNSELOR} / {@link #TABLE_ADMIN_USER}）
+     */
+    public static void assertCurrentIdentity(HttpServletRequest request,
+                                             String expectedRole,
+                                             String expectedTableName) {
+        // ① 角色一致性（常量在前，避免 currentRole() 为 null 时 NPE）
+        if (!expectedRole.equals(currentRole(request))) {
+            deny();
+        }
+        // ② 表类型一致性（同上：常量在前）
+        if (!expectedTableName.equals(CurrentUserProvider.currentTableName(request))) {
+            deny();
+        }
     }
 
     // ================== 写路径（Step 5 批 3B） ==================

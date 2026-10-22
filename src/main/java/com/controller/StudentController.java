@@ -398,6 +398,8 @@ public class StudentController {
     */
     @RequestMapping("/session")
     public R getCurrStudent(HttpServletRequest request){
+        // S2-E-1：身份一致性守卫 —— 必须早于 getById（跨表 id 空间重合，仅按 userId 查表会串角色）
+        OwnershipGuard.assertCurrentIdentity(request, OwnershipGuard.ROLE_STUDENT, OwnershipGuard.TABLE_STUDENT);
         Integer id = CurrentUserProvider.currentUserIdOrNull(request);
         StudentEntity yonghu = yonghuService.getById(id);
         if(yonghu !=null){

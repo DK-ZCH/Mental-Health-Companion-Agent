@@ -67,6 +67,23 @@ public final class CurrentUserProvider {
     }
 
     /**
+     * 当前登录用户的身份表名（{@code auth_token.user_type}），<b>允许缺失</b>（缺失时返回 {@code null}）。
+     *
+     * <p><b>用途（S2-E-1）</b>：{@code /session} 端点的身份一致性校验 ——
+     * 与 {@link #currentRole} 一起确认「当前已认证身份」是否等于该端点所代表的身份类型。
+     *
+     * <p><b>为什么读取点放在本类</b>：本类是身份读取的唯一实现。若在守卫内联读 Session，
+     * 会分裂出第二个读取入口（详见 S2-E-1 设计 §1.4 裁定 2a）。
+     *
+     * <p><b>不是独立安全因子</b>：{@code role} 与 {@code tableName} 同源于同一条 {@code auth_token}，
+     * 本方法只提供一致性检查所需的第二个字段，不构成两层认证。
+     */
+    public static String currentTableName(HttpServletRequest request) {
+        Object v = request.getSession().getAttribute("tableName");
+        return v == null ? null : String.valueOf(v);
+    }
+
+    /**
      * 当前登录用户 id，<b>必须存在</b>（写入路径的自我归属）—— 缺失时<b>拒绝</b>（fail-closed）。
      *
      * <p><b>契约（A2 裁定）</b>：缺失时抛 {@link ForbiddenException} → {@code HTTP 403 + code=403}。

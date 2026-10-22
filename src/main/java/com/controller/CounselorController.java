@@ -372,6 +372,8 @@ public class CounselorController {
     */
     @RequestMapping("/session")
     public R getCurrCounselor(HttpServletRequest request){
+        // S2-E-1：身份一致性守卫 —— 必须早于 getById（跨表 id 空间重合，仅按 userId 查表会串角色）
+        OwnershipGuard.assertCurrentIdentity(request, OwnershipGuard.ROLE_COUNSELOR, OwnershipGuard.TABLE_COUNSELOR);
         Integer id = CurrentUserProvider.currentUserIdOrNull(request);
         CounselorEntity xinlilaoshi = xinlilaoshiService.getById(id);
         if(xinlilaoshi !=null){

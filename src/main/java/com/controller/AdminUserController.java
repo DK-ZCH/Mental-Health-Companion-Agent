@@ -122,6 +122,8 @@ public class AdminUserController {
      */
     @RequestMapping("/session")
     public R getCurrUser(HttpServletRequest request){
+        // S2-E-1：身份一致性守卫 —— 必须早于 getById（跨表 id 空间重合，仅按 userId 查表会串角色）
+        OwnershipGuard.assertCurrentIdentity(request, OwnershipGuard.ROLE_ADMIN, OwnershipGuard.TABLE_ADMIN_USER);
     	Integer id = CurrentUserProvider.currentUserIdOrNull(request);
         AdminUserEntity user = usersService.getById(id);
         return R.ok().put("data", user);
