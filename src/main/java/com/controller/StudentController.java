@@ -33,6 +33,7 @@ import com.utils.PageUtils;
 import com.security.OwnershipGuard;
 import com.security.DataScope;
 import com.security.CurrentUserProvider;
+import com.security.PasswordHasher;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -133,7 +134,7 @@ public class StudentController {
         StudentEntity yonghuEntity = yonghuService.getOne(queryWrapper);
         if(yonghuEntity==null){
             yonghu.setCreatedAt(new Date());
-            yonghu.setPassword("123456");
+            yonghu.setPassword(PasswordHasher.hash("123456"));
             yonghuService.save(yonghu);
             return R.ok();
         }else {
@@ -319,7 +320,8 @@ public class StudentController {
     @RequestMapping(value = "/login")
     public R login(String username, String password, String captcha, HttpServletRequest request) {
         StudentEntity yonghu = yonghuService.getOne(new QueryWrapper<StudentEntity>().eq("username", username));
-        if(yonghu==null || !yonghu.getPassword().equals(password))
+        // S2-F-4-1：双格式校验（BCrypt 优先，历史明文兜底；空值/非法哈希一律 false）
+        if(yonghu==null || !PasswordHasher.matches(password, yonghu.getPassword()))
             return R.error("账号或密码不正确");
         //  // 获取监听器中的字典表
         // ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
@@ -351,7 +353,7 @@ public class StudentController {
 
         StudentEntity yonghu = new StudentEntity();
         yonghu.setUsername(req.getUsername());
-        yonghu.setPassword(req.getPassword());
+        yonghu.setPassword(PasswordHasher.hash(req.getPassword()));
         yonghu.setName(req.getName());
         yonghu.setPhone(req.getPhone());
         yonghu.setIdCardNo(req.getIdCardNo());
@@ -383,7 +385,7 @@ public class StudentController {
         // 属合法管理功能 → 限管理员；学生/老师调用一律 403（原先任一登录学生可重置他人密码 = 账户接管）
         OwnershipGuard.assertAdminOnly(request);
         StudentEntity yonghu = new StudentEntity();
-        yonghu.setPassword("123456");
+        yonghu.setPassword(PasswordHasher.hash("123456"));
         yonghu.setId(id);
         yonghuService.updateById(yonghu);
         return R.ok();
@@ -502,7 +504,7 @@ public class StudentController {
         StudentEntity yonghuEntity = yonghuService.getOne(queryWrapper);
         if(yonghuEntity==null){
             yonghu.setCreatedAt(new Date());
-        yonghu.setPassword("123456");
+        yonghu.setPassword(PasswordHasher.hash("123456"));
         yonghuService.save(yonghu);
             return R.ok();
         }else {

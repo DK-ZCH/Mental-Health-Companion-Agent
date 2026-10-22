@@ -33,6 +33,7 @@ import com.utils.PageUtils;
 import com.security.OwnershipGuard;
 import com.security.DataScope;
 import com.security.CurrentUserProvider;
+import com.security.PasswordHasher;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -136,7 +137,7 @@ public class CounselorController {
         CounselorEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity==null){
             xinlilaoshi.setCreatedAt(new Date());
-            xinlilaoshi.setPassword("123456");
+            xinlilaoshi.setPassword(PasswordHasher.hash("123456"));
             xinlilaoshiService.save(xinlilaoshi);
             return R.ok();
         }else {
@@ -299,7 +300,8 @@ public class CounselorController {
     @RequestMapping(value = "/login")
     public R login(String username, String password, String captcha, HttpServletRequest request) {
         CounselorEntity xinlilaoshi = xinlilaoshiService.getOne(new QueryWrapper<CounselorEntity>().eq("username", username));
-        if(xinlilaoshi==null || !xinlilaoshi.getPassword().equals(password))
+        // S2-F-4-1：双格式校验（BCrypt 优先，历史明文兜底；空值/非法哈希一律 false）
+        if(xinlilaoshi==null || !PasswordHasher.matches(password, xinlilaoshi.getPassword()))
             return R.error("账号或密码不正确");
         //  // 获取监听器中的字典表
         // ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
@@ -331,7 +333,7 @@ public class CounselorController {
 
         CounselorEntity xinlilaoshi = new CounselorEntity();
         xinlilaoshi.setUsername(req.getUsername());
-        xinlilaoshi.setPassword(req.getPassword());
+        xinlilaoshi.setPassword(PasswordHasher.hash(req.getPassword()));
         xinlilaoshi.setName(req.getName());
         xinlilaoshi.setPhone(req.getPhone());
         xinlilaoshi.setGender(req.getGender());
@@ -362,7 +364,7 @@ public class CounselorController {
         // Step 5 批2：归属授权 —— 管理端「重置密码」按钮的调用目标（xinlilaoshi/list.vue:750）→ 限管理员
         OwnershipGuard.assertAdminOnly(request);
         CounselorEntity xinlilaoshi = new CounselorEntity();
-        xinlilaoshi.setPassword("123456");
+        xinlilaoshi.setPassword(PasswordHasher.hash("123456"));
         xinlilaoshi.setId(id);
         xinlilaoshiService.updateById(xinlilaoshi);
         return R.ok();
@@ -483,7 +485,7 @@ public class CounselorController {
         CounselorEntity xinlilaoshiEntity = xinlilaoshiService.getOne(queryWrapper);
         if(xinlilaoshiEntity==null){
             xinlilaoshi.setCreatedAt(new Date());
-        xinlilaoshi.setPassword("123456");
+        xinlilaoshi.setPassword(PasswordHasher.hash("123456"));
         xinlilaoshiService.save(xinlilaoshi);
             return R.ok();
         }else {

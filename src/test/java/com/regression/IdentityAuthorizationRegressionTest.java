@@ -15,6 +15,7 @@ import com.service.CounselorFavoriteService;
 import com.service.CounselorMessageService;
 import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
+import com.security.PasswordHasher;
 import com.service.CounselorService;
 import com.service.StudentService;
 
@@ -228,16 +229,25 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("9. 管理员重置密码仍可用（管理端按钮的真实调用路径），且不产生意外变更")
     void passwordReset_adminCanStillResetWithoutUnexpectedChange() throws Exception {
-        // 安全性关键：种子密码本就是 123456，因此「重置」在数据层是幂等的。
+        // 安全性关键：种子密码本就是 123456，因此「重置」不会改变【可用密码】。
         // 若某天种子数据变了，下面这条断言会【先】失败 —— 从而避免测试真的改掉任何人的密码。
-        assertThat(studentPassword(3)).as("前置条件：student 3 初始密码应为 123456").isEqualTo("123456");
-        assertThat(counselorPassword(3)).as("前置条件：counselor 3 初始密码应为 123456").isEqualTo("123456");
+        // S2-F-4-1 起：密码存储可能是 BCrypt 或历史明文 ⇒ 断言改为「可用 123456 匹配」，
+        //               不再比较字符串（重置会写入新的随机盐哈希，字符串必然变化）。
+        assertThat(PasswordHasher.matches("123456", studentPassword(3)))
+                .as("前置条件：student 3 初始密码应可用 123456 匹配（明文或 BCrypt）").isTrue();
+        assertThat(PasswordHasher.matches("123456", counselorPassword(3)))
+                .as("前置条件：counselor 3 初始密码应可用 123456 匹配（明文或 BCrypt）").isTrue();
 
         assertAllowed(perform("/student/resetPassword?id=3", adminToken), "管理员重置学生密码");
         assertAllowed(perform("/counselor/resetPassword?id=3", adminToken), "管理员重置老师密码");
 
-        assertThat(studentPassword(3)).as("重置后密码仍应为 123456（无意外变更）").isEqualTo("123456");
-        assertThat(counselorPassword(3)).as("重置后密码仍应为 123456（无意外变更）").isEqualTo("123456");
+        // 重置后必须落 BCrypt（写路径已改为 PasswordHasher.hash），且「可用密码」不变
+        assertThat(studentPassword(3)).as("重置后应落 BCrypt").startsWith("$2");
+        assertThat(counselorPassword(3)).as("重置后应落 BCrypt").startsWith("$2");
+        assertThat(PasswordHasher.matches("123456", studentPassword(3)))
+                .as("重置后密码仍应为 123456（无意外变更）").isTrue();
+        assertThat(PasswordHasher.matches("123456", counselorPassword(3)))
+                .as("重置后密码仍应为 123456（无意外变更）").isTrue();
     }
 
     @Test

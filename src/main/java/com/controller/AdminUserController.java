@@ -25,6 +25,7 @@ import com.utils.MPUtil;
 import com.utils.PageUtils;
 import com.security.OwnershipGuard;
 import com.security.CurrentUserProvider;
+import com.security.PasswordHasher;
 import com.utils.R;
 
 /**
@@ -47,7 +48,8 @@ public class AdminUserController {
 	@PostMapping(value = "/login")
 	public R login(String username, String password, String captcha, HttpServletRequest request) {
 		AdminUserEntity user = usersService.getOne(new QueryWrapper<AdminUserEntity>().eq("username", username));
-		if(user==null || !user.getPassword().equals(password)) {
+		// S2-F-4-1：双格式校验（BCrypt 优先，历史明文兜底；空值/非法哈希一律 false）
+		if(user==null || !PasswordHasher.matches(password, user.getPassword())) {
 			return R.error("账号或密码不正确");
 		}
 		String token = tokenService.generateToken(user.getId(),username, "admin_user", user.getRole());
@@ -140,7 +142,7 @@ public class AdminUserController {
     		return R.error("学生已存在");
     	}
         user.setRole("管理员");
-        user.setPassword("123456");
+        user.setPassword(PasswordHasher.hash("123456"));
         usersService.save(user);
         return R.ok();
     }
