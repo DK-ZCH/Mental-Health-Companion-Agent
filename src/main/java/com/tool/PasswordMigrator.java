@@ -250,7 +250,9 @@ public final class PasswordMigrator {
         } catch (Exception e) {
             try {
                 conn.rollback();    // ← 覆盖所有异常
-                System.out.println("  ROLLBACK 完成：0 行变更，数据库保持迁移前状态");
+                // 措辞：不是"0 行变更"（UPDATE 可能已执行过 N 次），而是"N 次执行 + 0 持久化"
+                System.out.println("  ROLLBACK 完成：" + done + " 次 UPDATE 已执行，最终持久化变更 = 0，"
+                        + "数据库保持迁移前状态");
             } catch (SQLException re) {
                 System.err.println("  [严重] ROLLBACK 失败: " + re.getMessage());
             }
