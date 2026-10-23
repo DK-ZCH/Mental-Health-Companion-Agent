@@ -12,19 +12,20 @@ import java.util.regex.Pattern;
  * <p><b>职责</b>：全项目密码「写入」与「校验」的唯一入口 ——
  * 业务代码不得直接调用 {@code BCrypt.hashpw/checkpw}，避免 9 个写入点各写一套。
  *
- * <p><b>双格式兼容（迁移窗口）</b>：
+ * <p><b>只接受 BCrypt（F-4-3 起）</b>：
  * <ul>
- *   <li>BCrypt（{@code $2} 家族）→ {@code checkpw}</li>
- *   <li>历史明文 → {@code equals}（兜底，正常不应再触发；命中即 WARN）</li>
+ *   <li>BCrypt（{@code $2} 家族 + 结构合法）→ {@code checkpw}</li>
+ *   <li><b>其余一律拒绝</b>：历史明文兼容分支已在 F-4-3 删除，
+ *       命中时记录 {@code [SEC][NON-BCRYPT-STORED]} 并返回 {@code false}</li>
  * </ul>
- * 明文分支将在独立批次 F-4-3 中删除。
+ * 前置条件：DB 已全量 BCrypt（F-4-2 完成，{@code plain=0}）。
  *
  * <p><b>关键安全语义（fail-closed）</b>：
  * <ol>
  *   <li>空凭据（{@code null} / {@code ""}）在最前短路 → {@code false}，不参与任何比较；</li>
  *   <li>判定为 BCrypt 家族后，解析失败 <b>绝不回退明文比较</b>
  *       （否则非法 hash 可被当作明文匹配 = 认证绕过）；</li>
- *   <li>只有「不像 BCrypt」的值才允许进入明文分支。</li>
+ *   <li>非 BCrypt 值同样 <b>直接拒绝</b>（F-4-3 起无任何明文比对路径）。</li>
  * </ol>
  *
  * <p><b>实测依据（Hutool 5.8.25）</b>：{@code $2a$/$2b$/$2x$/$2y$} 均被 {@code checkpw} 支持；
@@ -43,11 +44,13 @@ public final class PasswordHasher {
      * BCrypt <b>候选结构</b>（仅用于「是否尝试 BCrypt 解析」，<b>不代表</b>哈希合法）：
      * {@code $2[abxy]?$<2位cost>$<53字符salt+hash>}，共 60 字符（{@code $2$} 为 59）。
      *
-     * <p>结构匹配后仍必须交给 {@code checkpw} 判定；匹配失败不代表是明文，
-     * 只是「不像 BCrypt」。
+     * <p>cost 限定 {@code 04–31}（F-4-3 起，与 {@code PasswordMigrator} 口径一致）：
+     * 超出范围的 {@code $2a$99$...} 属无效 cost，直接拒绝可省去一次无意义的 BCrypt 计算。
+     *
+     * <p>结构匹配后仍必须交给 {@code checkpw} 判定。
      */
     private static final Pattern BCRYPT_SHAPE =
-            Pattern.compile("^\\$2[abxy]?\\$\\d{2}\\$[./A-Za-z0-9]{53}$");
+            Pattern.compile("^\\$2[abxy]?\\$(?:0[4-9]|[12]\\d|3[01])\\$[./A-Za-z0-9]{53}$");
 
     private PasswordHasher() {
     }
@@ -68,11 +71,11 @@ public final class PasswordHasher {
     }
 
     /**
-     * 校验密码（BCrypt 优先，历史明文兜底）。
+     * 校验密码（<b>仅接受 BCrypt</b>；历史明文兼容分支已由 F-4-3 删除）。
      *
      * @param rawPassword    用户提交的原始密码
-     * @param storedPassword 数据库中的存储值（BCrypt 哈希或历史明文）
-     * @return 匹配为 {@code true}；任何空值 / 非法哈希 / 不匹配均为 {@code false}
+     * @param storedPassword 数据库中的存储值（必须是合法 BCrypt）
+     * @return 匹配为 {@code true}；任何空值 / 非法哈希 / 非 BCrypt 存储值 / 不匹配均为 {@code false}
      */
     public static boolean matches(String rawPassword, String storedPassword) {
         // ① fail-closed：空凭据一律拒绝，先于任何比较逻辑
@@ -100,13 +103,12 @@ public final class PasswordHasher {
             }
         }
 
-        // ③ 历史明文（兼容窗口，F-4-3 删除）
-        boolean matched = storedPassword.equals(rawPassword);
-        if (matched) {
-            logger.warn("[SEC][PLAINTEXT-PASSWORD-HIT] 命中历史明文密码，该账号尚未迁移为 BCrypt。storedLen={}",
-                    storedPassword.length());
-        }
-        return matched;
+        // ③ 非 BCrypt 家族 ⇒ 一律拒绝（F-4-3 已切断明文 fallback）
+        //    该分支意味着 DB 中存在脏数据（明文/未知格式），属安全事件，需运维重置该账号密码。
+        //    ⚠️ 日志只记长度，不记任何内容片段 —— 存储值可能就是明文密码本身。
+        logger.warn("[SEC][NON-BCRYPT-STORED] 存储值不是合法 BCrypt，拒绝比对（该账号需重置密码）。storedLen={}",
+                storedPassword.length());
+        return false;
     }
 
     /** BCrypt 家族前缀：{@code $2} / {@code $2a} / {@code $2b} / {@code $2x} / {@code $2y} */

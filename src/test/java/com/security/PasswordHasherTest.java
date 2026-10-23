@@ -12,15 +12,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p><b>覆盖重点</b>（这些分支无法通过真实 HTTP 构造，只能单测）：
  * <ul>
  *   <li>fail-closed：空凭据一律 false，且先于任何比较；</li>
- *   <li><b>用例 10</b>：{@code $} 开头的历史明文必须可登录（防误杀）；</li>
- *   <li><b>用例 11</b>：形似 BCrypt 的非法值<b>不得</b>回退明文比较（防认证绕过）。</li>
+ *   <li><b>用例 11</b>：形似 BCrypt 的非法值<b>不得</b>回退明文比较（防认证绕过）；</li>
+ *   <li><b>用例 14</b>：【F-4-3 核心】普通明文存储值即使完全相同也必须拒绝；</li>
+ *   <li><b>用例 15/16</b>：cost 限定 04–31，越界直接拒绝、边界内交由 checkpw。</li>
  * </ul>
  *
  * <p>实测依据（Hutool 5.8.25，见 S2-F-4-1 报告）：{@code $2a$/$2b$/$2x$/$2y$} 均支持；
  * {@code $2$} 不支持；非法形态返回 {@code false} 而非抛异常；
  * {@code checkpw("123456","123456")} 为 {@code false} ⇒ 明文兼容必须显式 equals。
  */
-@DisplayName("S2-F-4-1 PasswordHasher")
+@DisplayName("S2-F-4-1 / F-4-3 PasswordHasher")
 class PasswordHasherTest {
 
     private static final String RAW = "123456";
@@ -97,10 +98,12 @@ class PasswordHasherTest {
     // ================== matches()：兼容窗口（关键护栏）==================
 
     @Test
-    @DisplayName("10. 【护栏】$ 开头的历史明文仍可登录（不得被误判为 BCrypt）")
-    void matches_dollarPrefixedPlaintext_true() {
-        // 若判定条件退化为 startsWith("$")，该账号将被永久锁死
-        assertThat(PasswordHasher.matches("$password123", "$password123")).isTrue();
+    @DisplayName("10. 【护栏】$ 开头的历史明文不再可登录（F-4-3 已切断明文分支）")
+    void matches_dollarPrefixedPlaintext_false() {
+        // F-4-1 时此处为 true（兼容窗口）；F-4-3 起 fallback 已删除 ⇒ 必须 false
+        assertThat(PasswordHasher.matches("$password123", "$password123"))
+                .as("明文 fallback 已删除：即使完全相同也不得通过")
+                .isFalse();
         assertThat(PasswordHasher.matches("$2abc", "$2abc"))
                 .as("$2 开头但非 BCrypt 结构：属家族 ⇒ 拒绝（不回退明文）")
                 .isFalse();
@@ -130,11 +133,49 @@ class PasswordHasherTest {
     }
 
     @Test
-    @DisplayName("13. 非 BCrypt 家族的 $ 前缀（$1$/$5$/$6$）按明文处理")
-    void matches_nonBcryptDollarFamilies_treatedAsPlaintext() {
+    @DisplayName("13. 非 BCrypt 家族的 $ 前缀（$1$/$5$/$6$）同样拒绝")
+    void matches_nonBcryptDollarFamilies_false() {
         assertThat(PasswordHasher.matches("123456", "$1$abc")).isFalse();
         assertThat(PasswordHasher.matches("$1$abc", "$1$abc"))
-                .as("本项目无此格式；按明文等值处理")
-                .isTrue();
+                .as("F-4-3 起无明文分支：即使是其他 KDF 格式也不得通过")
+                .isFalse();
+    }
+
+    // ================== F-4-3：明文 fallback 已删除 ==================
+
+    @Test
+    @DisplayName("14. 【F-4-3 核心】普通明文存储值即使完全相同也必须拒绝")
+    void matches_plaintextStored_false() {
+        assertThat(PasswordHasher.matches("123456", "123456"))
+                .as("DB 中若残留明文，登录必须失败（不再静默兼容）")
+                .isFalse();
+        assertThat(PasswordHasher.matches("admin", "admin")).isFalse();
+        assertThat(PasswordHasher.matches(RAW, RAW.toUpperCase())).isFalse();
+    }
+
+    @Test
+    @DisplayName("15. 【F-4-3】cost 超出 04–31 视为结构非法 ⇒ false（不做无意义 BCrypt 计算）")
+    void matches_costOutOfRange_false() {
+        String body = "$" + "A".repeat(53);
+        assertThat(PasswordHasher.matches(RAW, "$2a$99" + body)).as("cost=99 越界").isFalse();
+        assertThat(PasswordHasher.matches(RAW, "$2a$03" + body)).as("cost=03 越界").isFalse();
+        assertThat(PasswordHasher.matches(RAW, "$2a$32" + body)).as("cost=32 越界").isFalse();
+    }
+
+    @Test
+    @DisplayName("16. 【F-4-3】cost 在 04–31 边界内：结构通过后交由 checkpw 判定（不抛异常）")
+    void matches_costBoundaryWithinRange_noException() {
+        String body = "$" + "A".repeat(53);
+        // 结构合法但内容非真实哈希 ⇒ checkpw 必然 false；此处只验证「不抛异常、不误判通过」
+        assertThat(PasswordHasher.matches(RAW, "$2a$04" + body)).isFalse();
+        assertThat(PasswordHasher.matches(RAW, "$2a$31" + body)).isFalse();
+        // 真实哈希（cost=10）仍正常通过
+        assertThat(PasswordHasher.matches(RAW, PasswordHasher.hash(RAW))).isTrue();
+
+        // ⚠️ 实现细节（已实测，Hutool 5.8.25）：cost=31 不会真的跑 2^31 轮 ——
+        //    jBCrypt 的 rounds = 1 << log_rounds，int 左移溢出后为 -2147483648（负数），
+        //    内层循环条件立即为假 ⇒ 该分支恒返回 false 且耗时约 0ms（实测 0ms，cost=10 为 83ms）。
+        //    ⇒ 本用例不会给测试套件埋下慢用例；
+        //    ⇒ cost=31 在本实现下并非「可用但慢」，而是「空转返回 false」，属已登记的已知边界。
     }
 }
