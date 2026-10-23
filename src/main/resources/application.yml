@@ -24,6 +24,11 @@ spring:
                 options:
                     model: deepseek-chat
                     temperature: 0.3
+        # Tool 异常必须向上抛出，不得被转换成「正常 ToolResult」回喂模型。
+        # Step 11 依赖此项让「身份上下文非法」终止 Agent 调用（AgentController → code=500）。
+        # ⚠️ 这是 Step 11 单 Tool 阶段的最小实现，不是全局异常治理的最终契约。
+        tools:
+            throw-exception-on-error: true
 
     servlet:
       multipart:
