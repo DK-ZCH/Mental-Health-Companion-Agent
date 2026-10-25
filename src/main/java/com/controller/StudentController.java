@@ -469,6 +469,15 @@ public class StudentController {
     public R detail(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("detail方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         StudentEntity yonghu = yonghuService.getById(id);
+        // 学生跨用户 IDOR 修复（P1）：授权行为与 /info/{id} 完全一致，最小改动。
+        //   · 学生     → 仅本人（本表 id 即学生 id）；读他人 → 403
+        //   · 管理员   → 放行
+        //   · 心理老师 → 本批【仍放行】（实体无 counselor 归属字段，ownerCounselorId=null）
+        //                ⚠️ 这不代表「咨询师全量读取学生资料」已被认定合理 ——
+        //                   属遗留风险，待 student 行级规则裁定后统一处理。
+        //   · 记录不存在 → 403（与 /info 一致；修复前为 200 + code=511）
+        // ⚠️ 刻意【不】修改 OwnershipGuard 的全局逻辑，避免扩大影响面。
+        OwnershipGuard.assertOwnership(request, yonghu, id.intValue(), null);
             if(yonghu !=null){
 
 
