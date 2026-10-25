@@ -2,6 +2,7 @@ package com.agent;
 
 import com.security.BadRequestException;
 import com.security.CurrentUserProvider;
+import com.security.ForbiddenException;
 import com.utils.R;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -71,9 +72,22 @@ public class AgentController {
         // 身份解析：缺失时抛 ForbiddenException → HTTP 403（不在 try 内，保持既有语义）
         Integer userId = CurrentUserProvider.requireCurrentUserId(httpRequest);
 
+        // 身份域（Step 12 · L1 准入）—— 白名单制。
+        // 来源唯一：CurrentUserProvider（本层【不】直接读 Session，否则会出现第二个身份来源）。
+        // 当前仅 student 可用 Agent；counselor / admin_user / null / 未来新增值一律拒绝。
+        // 拒绝发生在调用模型【之前】⇒ 不消耗 token，也不进入 LLM。
+        String userTable = CurrentUserProvider.currentTableName(httpRequest);
+        if (!AgentIdentity.TABLE_STUDENT.equals(userTable)) {
+            // ⚠️ 只记录身份域，不记录 userId
+            logger.warn("[AGENT][SEC] 身份域不被允许（userTable={}），拒绝进入 Agent", userTable);
+            throw new ForbiddenException();
+        }
+
+        AgentIdentity identity = new AgentIdentity(userId, userTable);
+
         long startMs = System.currentTimeMillis();
         try {
-            String answer = agentService.chat(message, userId);
+            String answer = agentService.chat(message, identity);
             // 观测性：只记录长度与耗时，不记录消息与回答内容（隐私）
             logger.info("[AGENT] 对话成功 userId={} msgLen={} answerLen={} elapsed={}ms",
                     userId, message.length(),

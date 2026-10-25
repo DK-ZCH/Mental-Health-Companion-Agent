@@ -7,7 +7,8 @@ import java.util.Map;
  *
  * <p><b>职责（仅三件）</b>：
  * <ol>
- *   <li>把已认证的 {@code userId} 装入 {@link org.springframework.ai.chat.model.ToolContext}；</li>
+ *   <li>把已认证的<b>二元身份</b>（{@link AgentIdentity}：userId + userTable）
+ *       装入 {@link org.springframework.ai.chat.model.ToolContext}；</li>
  *   <li>调用 {@link AgentModel}；</li>
  *   <li>返回模型文本。</li>
  * </ol>
@@ -34,20 +35,27 @@ public class AgentService {
     /**
      * 单轮对话（无历史，Step 11 不做 ChatMemory）。
      *
-     * @param message 用户输入（已由 Controller 校验长度与空值）
-     * @param userId  已认证用户 id（来自 {@code CurrentUserProvider}）
+     * <p><b>Step 12 起身份为二元组</b>：{@link AgentIdentity}（{@code userId} + {@code userTable}）
+     * 一并写入 {@code ToolContext}。只传 id 会让 Tool 无法区分
+     * 「学生 1」与「咨询师 1」—— 这正是 Step 11 串读缺陷的根源。
+     *
+     * @param message  用户输入（已由 Controller 校验长度与空值）
+     * @param identity 已认证身份（来自 {@code CurrentUserProvider}）
      * @return 模型生成的回答
      */
-    public String chat(String message, Integer userId) {
-        if (userId == null) {
+    public String chat(String message, AgentIdentity identity) {
+        if (identity == null) {
             // 编程契约：调用方必须先完成身份解析；此处仅防御性检查，不兜底
-            throw new IllegalArgumentException("userId 不得为空");
+            throw new IllegalArgumentException("identity 不得为空");
         }
         return agentModel.answer(
                 AgentPrompts.SYSTEM,
                 message,
                 assessmentTools,
-                Map.of(AssessmentTools.CTX_USER_ID, userId)
+                Map.of(
+                        AgentIdentity.CTX_USER_ID, identity.userId(),
+                        AgentIdentity.CTX_USER_TABLE, identity.userTable()
+                )
         );
     }
 }

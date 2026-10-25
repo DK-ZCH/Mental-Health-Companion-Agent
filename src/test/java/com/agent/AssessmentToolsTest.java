@@ -76,22 +76,91 @@ class AssessmentToolsTest {
     @Test
     @DisplayName("3. userId 类型不是 Integer（String / Long）→ 抛异常（不做类型强转兜底）")
     void wrongUserIdType_throws() {
+        // 域给合法的 student，确保失败原因是【id 类型】而非「缺域」—— 否则本用例测不到目标分支
+        String student = AgentIdentity.TABLE_STUDENT;
         assertThatThrownBy(() -> tools.getMyAssessmentRecords(
-                new ToolContext(Map.of(AssessmentTools.CTX_USER_ID, "1"))))
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, "1",
+                        AgentIdentity.CTX_USER_TABLE, student))))
                 .isInstanceOf(IllegalStateException.class);
 
         assertThatThrownBy(() -> tools.getMyAssessmentRecords(
-                new ToolContext(Map.of(AssessmentTools.CTX_USER_ID, 1L))))
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, 1L,
+                        AgentIdentity.CTX_USER_TABLE, student))))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    // ================== Step 12：二元身份（域）fail-closed ==================
+
+    @Test
+    @DisplayName("3.1 【Step 12】有 userId 但缺 userTable → 抛异常（绝不默认当学生）")
+    void missingUserTable_throws() {
+        assertThatThrownBy(() -> tools.getMyAssessmentRecords(
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("identity");
+    }
+
+    @Test
+    @DisplayName("3.2 【Step 12】userTable 为空白 → 抛异常")
+    void blankUserTable_throws() {
+        for (String blank : new String[]{"", "   ", "\t"}) {
+            assertThatThrownBy(() -> tools.getMyAssessmentRecords(
+                    new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID,
+                            AgentIdentity.CTX_USER_TABLE, blank))))
+                    .as("空白域不得被 trim 后当作合法值：'%s'", blank)
+                    .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Test
+    @DisplayName("3.3 【Step 12】userTable 类型不是 String → 抛异常（不做类型强转兜底）")
+    void wrongUserTableType_throws() {
+        assertThatThrownBy(() -> tools.getMyAssessmentRecords(
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID,
+                        AgentIdentity.CTX_USER_TABLE, 1))))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    @DisplayName("3.4 🔴【Step 12 核心】userId 合法 + userTable=counselor → 抛异常（防伪造/错配域）")
+    void counselorDomain_throws_evenWithValidUserId() {
+        // 这是 Step 11 串读缺陷的直接复现入口：
+        // counselor id=1 与 student id=1 是【不同的两个人】，
+        // 若只校验 userId 而不校验域，就会读到学生 1 的测评记录。
+        assertThatThrownBy(() -> tools.getMyAssessmentRecords(
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID,
+                        AgentIdentity.CTX_USER_TABLE, "counselor"))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("domain");
+    }
+
+    @Test
+    @DisplayName("3.5 🔴【Step 12 核心】userId 合法 + userTable=admin_user → 抛异常（管理员默认拒绝）")
+    void adminDomain_throws_evenWithValidUserId() {
+        assertThatThrownBy(() -> tools.getMyAssessmentRecords(
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID,
+                        AgentIdentity.CTX_USER_TABLE, "admin_user"))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("domain");
+    }
+
+    @Test
+    @DisplayName("3.6 【Step 12】未知域（未来新增 user_type）→ 抛异常（白名单而非黑名单）")
+    void unknownDomain_throws() {
+        assertThatThrownBy(() -> tools.getMyAssessmentRecords(
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID,
+                        AgentIdentity.CTX_USER_TABLE, "some_future_role"))))
                 .isInstanceOf(IllegalStateException.class);
     }
 
     // ================== 正常查询 ==================
 
     @Test
-    @DisplayName("4. 学生 a1 查询 → 1 条记录，试卷1 / 15 分 / 满分 100，未截断")
+    @DisplayName("4. 学生 a1 + student 域 → 1 条记录，试卷1 / 15 分 / 满分 100，未截断")
     void studentA1_seesOwnRecord() {
         AssessmentRecordToolResult result = tools.getMyAssessmentRecords(
-                new ToolContext(Map.of(AssessmentTools.CTX_USER_ID, STUDENT_A1_ID)));
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID,
+                        AgentIdentity.CTX_USER_TABLE, AgentIdentity.TABLE_STUDENT)));
 
         assertThat(result.error()).isNull();
         assertThat(result.total()).isEqualTo(1L);
@@ -105,10 +174,11 @@ class AssessmentToolsTest {
     }
 
     @Test
-    @DisplayName("5. 学生 a2 查询 → 空列表 + total=0（不是报错，也不编造）")
+    @DisplayName("5. 学生 a2 + student 域 → 空列表 + total=0（不是报错，也不编造）")
     void studentA2_seesNothing() {
         AssessmentRecordToolResult result = tools.getMyAssessmentRecords(
-                new ToolContext(Map.of(AssessmentTools.CTX_USER_ID, STUDENT_A2_ID)));
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A2_ID,
+                        AgentIdentity.CTX_USER_TABLE, AgentIdentity.TABLE_STUDENT)));
 
         assertThat(result.error()).isNull();
         assertThat(result.total()).isZero();

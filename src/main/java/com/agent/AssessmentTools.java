@@ -17,15 +17,20 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 测评记录查询工具（Phase 4 / Step 11 的唯一 Tool）。
+ * 测评记录查询工具（Phase 4 / Step 11，Step 12 加入身份域校验）。
  *
  * <p><b>职责边界（严格）</b>：
  * <ol>
- *   <li>从 {@link ToolContext} 取当前登录用户 id（服务端注入）；</li>
+ *   <li>从 {@link ToolContext} 解析<b>二元身份</b>（{@link AgentIdentity}：userId + userTable）；</li>
+ *   <li>校验身份域∈{@link #ALLOWED_TABLE}（不符 → 抛异常终止，fail-closed）；</li>
  *   <li>按该 id 查询本人记录；</li>
  *   <li>把业务实体转成 LLM-safe DTO（{@link AssessmentRecordView}）。</li>
  * </ol>
  * <b>不做</b>：业务权限规则分支（如 {@code if (userId == 1)}）、写操作、SQL 拼接、身份兜底。
+ *
+ * <p><b>为什么必须有第 2 步</b>：{@code student.id} 与 {@code counselor.id} 取值重叠
+ * （均是 1/2/3），只按 id 查询会使咨询师读到学生的心理测评 ——
+ * 这是 Step 11 引入、Step 12 修复的跨角色串读。
  *
  * <p><b>为什么不用 {@code queryPage}（既有分页入口）</b>：
  * 其 {@code selectListView} 会 JOIN {@code student} 表并带出
@@ -45,8 +50,24 @@ public class AssessmentTools {
 
     private static final Logger logger = LoggerFactory.getLogger(AssessmentTools.class);
 
-    /** ToolContext 中承载当前登录用户 id 的键 —— 服务端注入，不进入模型视野 */
-    public static final String CTX_USER_ID = "userId";
+    /**
+     * ToolContext 中承载当前登录用户 id 的键 —— 服务端注入，不进入模型视野。
+     *
+     * <p>Step 12 起统一由 {@link AgentIdentity} 定义（身份是二元组），此处仅保留别名。
+     */
+    public static final String CTX_USER_ID = AgentIdentity.CTX_USER_ID;
+
+    /**
+     * 本工具<b>允许</b>的身份域（Step 12）。
+     *
+     * <p>当前<b>仅学生</b>：{@code assessment_record.student_id} 只能由学生本人查询。
+     * 咨询师 / 管理员在本批<b>一律拒绝</b> —— 白名单制而非黑名单：
+     * 未来新增的 {@code user_type} 也会自动被拒，不会默认放行。
+     *
+     * <p>咨询师能看哪些学生属<b>业务规则待定项</b>（见
+     * {@code PHASE4-ROADMAP-REVIEW.md} §三），不由本工具猜测。
+     */
+    static final String ALLOWED_TABLE = AgentIdentity.TABLE_STUDENT;
 
     /**
      * 单次返回记录上限（工程约束）。
@@ -59,6 +80,9 @@ public class AssessmentTools {
     /** 身份上下文非法的异常消息（固定英文，避免把内部语义与中文文案耦合） */
     private static final String ERR_IDENTITY_CONTEXT_INVALID = "agent identity context invalid";
 
+    /** 身份域不被本工具允许的异常消息 */
+    private static final String ERR_IDENTITY_DOMAIN_DENIED = "agent identity domain not allowed";
+
     private static final String UNKNOWN_PAPER = "未知试卷";
 
     private final AssessmentRecordService recordService;
@@ -70,19 +94,24 @@ public class AssessmentTools {
     }
 
     /**
-     * 查询当前登录用户自己的心理测评记录。
+     * 查询<b>当前登录学生本人</b>的心理测评记录。
      *
-     * <p><b>方法签名中不存在 userId 参数</b> —— 因此模型收到的 JSON Schema 里
-     * 没有可填写的身份字段，从结构上消除「由 LLM 指定用户」的可能。
+     * <p><b>方法签名中不存在 userId / userTable 参数</b> —— 因此模型收到的 JSON Schema 里
+     * 没有可填写的身份字段，从结构上消除「由 LLM 指定用户或角色」的可能。
      *
-     * @param toolContext 框架注入的工具上下文（{@code userId}），不发送给模型
+     * <p><b>Step 12 起为二元身份校验</b>（{@code userId} + {@code userTable}）：
+     * 只校验 id 不足以区分「学生 1」与「咨询师 1」（二者是不同的人），
+     * 因此域不符同样按安全失败终止。
+     *
+     * @param toolContext 框架注入的工具上下文（{@code userId} / {@code userTable}），不发送给模型
      */
     @Tool(description = "查询当前登录用户自己的心理测评记录。"
             + "返回最近若干条记录的试卷名称、得分与满分，以及该用户的记录总数与是否被截断。"
             + "无需任何参数。")
     public AssessmentRecordToolResult getMyAssessmentRecords(ToolContext toolContext) {
-        Integer userId = resolveUserId(toolContext);
-        if (userId == null) {
+        // ① 解析【二元身份】—— 缺任一项即视为非法上下文
+        AgentIdentity identity = AgentIdentity.from(toolContext);
+        if (identity == null) {
             // fail-closed（安全失败语义）：身份不可信属于 Agent 执行安全错误，
             // 必须以异常【终止本次 Agent 调用】，不得作为「正常业务结果」回喂模型 ——
             // 否则模型可能把安全失败包装成「抱歉暂时无法查询」，最终对外表现为 HTTP 200 + code=0，
@@ -90,9 +119,22 @@ public class AssessmentTools {
             // 生效前提：spring.ai.tools.throw-exception-on-error=true（异常穿透至 AgentController）。
             // ⚠️ 日志只记录上下文形态，不记录其内容（可能含身份字段）。
             logger.error("[AGENT][SEC] 身份上下文非法（{}），终止本次 Agent 调用",
-                    toolContext == null ? "toolContext=null" : "missing-or-invalid-userId");
+                    toolContext == null ? "toolContext=null" : "missing-or-invalid-identity");
             throw new IllegalStateException(ERR_IDENTITY_CONTEXT_INVALID);
         }
+
+        // ② 身份域校验（Step 12 核心）：userId 合法【不代表】可查。
+        //    例如 counselor id=1 与 student id=1 是不同的人，若只校验 id，
+        //    咨询师会读到学生的心理测评（Step 11 已实测的跨角色串读）。
+        //    因此域不符同样按安全失败终止，绝不降级为「按 userId 直接查」。
+        // ⚠️ 只记录身份域，不记录 userId。
+        if (!ALLOWED_TABLE.equals(identity.userTable())) {
+            logger.error("[AGENT][SEC] 身份域不符（该工具仅允许 {}，实际 {}），终止本次 Agent 调用",
+                    ALLOWED_TABLE, identity.userTable());
+            throw new IllegalStateException(ERR_IDENTITY_DOMAIN_DENIED);
+        }
+
+        int userId = identity.userId();
 
         long total = recordService.lambdaQuery()
                 .eq(AssessmentRecordEntity::getStudentId, userId)
@@ -126,15 +168,6 @@ public class AssessmentTools {
                 userId, total, views.size());
 
         return AssessmentRecordToolResult.ok(views, total);
-    }
-
-    /** 从 ToolContext 取 userId；任何异常形态一律返回 {@code null}（由调用方 fail-closed） */
-    private Integer resolveUserId(ToolContext toolContext) {
-        if (toolContext == null) {
-            return null;
-        }
-        Object value = toolContext.getContext().get(CTX_USER_ID);
-        return (value instanceof Integer) ? (Integer) value : null;
     }
 
     /** 批量取试卷名与满分，避免逐条查询（N+1） */
