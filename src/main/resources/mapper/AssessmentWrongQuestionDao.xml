@@ -30,10 +30,7 @@
         ,assessment_question.question_type as questionType
         ,assessment_question.sort_order as questionSortOrder
         ,student.name as studentName
-        ,student.phone as studentPhone
-        ,student.id_card_no as studentIdCardNo
         ,student.avatar_url as studentAvatarUrl
-        ,student.email as studentEmail
 
         FROM assessment_wrong_question  a
         left JOIN assessment_paper assessment_paper ON a.paper_id = assessment_paper.id

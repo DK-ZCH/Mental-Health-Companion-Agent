@@ -23,10 +23,7 @@
         ,assessment_paper.status as paperStatus
         ,assessment_paper.is_deleted as paperIsDeleted
         ,student.name as studentName
-        ,student.phone as studentPhone
-        ,student.id_card_no as studentIdCardNo
         ,student.avatar_url as studentAvatarUrl
-        ,student.email as studentEmail
 
         FROM assessment_record  a
         left JOIN assessment_paper assessment_paper ON a.paper_id = assessment_paper.id

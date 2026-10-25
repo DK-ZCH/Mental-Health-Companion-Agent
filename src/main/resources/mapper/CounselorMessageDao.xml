@@ -19,10 +19,7 @@
 
 --         级联表的字段
         ,student.name as studentName
-        ,student.phone as studentPhone
-        ,student.id_card_no as studentIdCardNo
         ,student.avatar_url as studentAvatarUrl
-        ,student.email as studentEmail
         ,counselor.name as counselorName
         ,counselor.phone as counselorPhone
         ,counselor.avatar_url as counselorAvatarUrl

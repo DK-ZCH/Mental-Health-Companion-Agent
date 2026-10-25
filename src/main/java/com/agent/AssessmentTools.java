@@ -33,9 +33,10 @@ import java.util.Set;
  * 这是 Step 11 引入、Step 12 修复的跨角色串读。
  *
  * <p><b>为什么不用 {@code queryPage}（既有分页入口）</b>：
- * 其 {@code selectListView} 会 JOIN {@code student} 表并带出
- * {@code studentName / studentPhone / studentIdCardNo / studentEmail}。
- * Tool 走那条路径会把<b>敏感信息载入内存</b>，即使最终不返回也存在泄露与误用风险。
+ * 其 {@code selectListView} 会 JOIN {@code student} / {@code assessment_paper} 表，
+ * 带出 {@code studentName / studentAvatarUrl} 等整套展示字段与试卷侧冗余列。
+ * Tool 走那条路径会把<b>远超所需的数据载入内存</b>；且该 View 的列集会随管理端
+ * 展示需求增长 —— 若将来重新加入联系方式等敏感列，Tool 会<b>被动继承</b>该暴露面。
  * 因此这里用 {@code lambdaQuery().select(...)} <b>只查两列</b>，从源头收敛数据面。
  *
  * <p><b>数据范围说明</b>：{@code eq("student_id", userId)} 与既有 {@code DataScope}

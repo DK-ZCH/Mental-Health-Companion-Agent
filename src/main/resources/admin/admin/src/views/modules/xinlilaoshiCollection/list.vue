@@ -221,10 +221,7 @@
             json_fields: {
                 //级联表字段
                      '学生姓名': 'studentName',
-                     '学生手机号': 'studentPhone',
-                     '学生身份证号': 'studentIdCardNo',
                      '学生头像': 'studentAvatarUrl',
-                     '电子邮箱': 'studentEmail',
                      '心理老师姓名': 'counselorName',
                      '心理老师手机号': 'counselorPhone',
                      '心理老师头像': 'counselorAvatarUrl',

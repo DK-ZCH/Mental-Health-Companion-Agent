@@ -25,10 +25,7 @@
         ,assessment_question.question_type as questionType
         ,assessment_question.sort_order as questionSortOrder
         ,student.name as studentName
-        ,student.phone as studentPhone
-        ,student.id_card_no as studentIdCardNo
         ,student.avatar_url as studentAvatarUrl
-        ,student.email as studentEmail
 
         FROM assessment_answer  a
         left JOIN assessment_question assessment_question ON a.question_id = assessment_question.id

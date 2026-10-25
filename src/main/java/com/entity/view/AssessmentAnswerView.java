@@ -62,21 +62,9 @@ public class AssessmentAnswerView extends AssessmentAnswerEntity implements Seri
 			*/
 			private String studentName;
 			/**
-			* 学生手机号
-			*/
-			private String studentPhone;
-			/**
-			* 学生身份证号
-			*/
-			private String studentIdCardNo;
-			/**
 			* 学生头像
 			*/
 			private String studentAvatarUrl;
-			/**
-			* 电子邮箱
-			*/
-			private String studentEmail;
 
 	public AssessmentAnswerView() {
 
@@ -248,33 +236,6 @@ public class AssessmentAnswerView extends AssessmentAnswerEntity implements Seri
 					}
 
 					/**
-					* 获取： 学生手机号
-					*/
-					public String getStudentPhone() {
-						return studentPhone;
-					}
-					/**
-					* 设置： 学生手机号
-					*/
-					public void setStudentPhone(String studentPhone) {
-						this.studentPhone = studentPhone;
-					}
-
-					/**
-					* 获取： 学生身份证号
-					*/
-					@JsonIgnore
-					public String getStudentIdCardNo() {
-						return studentIdCardNo;
-					}
-					/**
-					* 设置： 学生身份证号
-					*/
-					public void setStudentIdCardNo(String studentIdCardNo) {
-						this.studentIdCardNo = studentIdCardNo;
-					}
-
-					/**
 					* 获取： 学生头像
 					*/
 					public String getStudentAvatarUrl() {
@@ -285,19 +246,6 @@ public class AssessmentAnswerView extends AssessmentAnswerEntity implements Seri
 					*/
 					public void setStudentAvatarUrl(String studentAvatarUrl) {
 						this.studentAvatarUrl = studentAvatarUrl;
-					}
-
-					/**
-					* 获取： 电子邮箱
-					*/
-					public String getStudentEmail() {
-						return studentEmail;
-					}
-					/**
-					* 设置： 电子邮箱
-					*/
-					public void setStudentEmail(String studentEmail) {
-						this.studentEmail = studentEmail;
 					}
 
 
