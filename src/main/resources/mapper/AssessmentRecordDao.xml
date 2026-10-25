@@ -47,6 +47,23 @@
                     a.student_id = #{params.studentId}
                 )
             </if>
+
+            <!-- ③ Counselor Assessment Access Rule v1：
+                 心理老师仅可访问与其存在【已同意预约】的学生的测评记录。
+                 status 由 Java 常量传入（params.approvedStatus），此处不写死数字，
+                 避免规则在两处漂移（见 STEP13-COUNSELOR-ASSESSMENT-SCOPE-DESIGN.md §4.3）。
+                 EXISTS 语义 = 「至少存在一条满足条件的预约」，多预约 / 历史预约天然正确。
+                 仅 counselor 会进入本分支（学生不传 counselorId；管理员被 DataScope 直接放行）。
+                 若 approvedStatus 漏传 ⇒ 条件恒不匹配 ⇒ 查不到数据（fail-closed，方向安全）。 -->
+            <if test="params.counselorId != null and params.counselorId != ''">
+                and exists (
+                    select 1
+                    from counseling_appointment ca
+                    where ca.student_id   = a.student_id
+                      and ca.counselor_id = #{params.counselorId}
+                      and ca.status       = #{params.approvedStatus}
+                )
+            </if>
             <if test="params.paperId != null and params.paperId != ''">
                 and (
                     a.paper_id = #{params.paperId}

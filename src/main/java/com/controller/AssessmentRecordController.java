@@ -31,6 +31,7 @@ import com.utils.PageUtils;
 import com.security.OwnershipGuard;
 import com.security.CurrentUserProvider;
 import com.security.DataScope;
+import com.security.CounselorAssessmentScope;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -48,6 +49,10 @@ public class AssessmentRecordController {
 
     @Autowired
     private AssessmentRecordService examrecordService;
+
+    /** ③ Counselor Assessment Access Rule v1：心理老师访问测评记录的授权判定 */
+    @Autowired
+    private CounselorAssessmentScope counselorAssessmentScope;
 
 
     @Autowired
@@ -73,6 +78,10 @@ public class AssessmentRecordController {
         logger.debug("page方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
         // Step 5 批4：读范围收敛（原 if/else-if 角色链）—— 未知角色由「不加过滤 → 全量」改为 fail-closed
         DataScope.apply(request, params, "studentId", "counselorId");
+        // ③ C1 规则：把「已同意」状态常量传给 Mapper（XML 内不写死数字，规则口径只在一处定义）。
+        //    仅 counselor 会进入 XML 的 counselorId 分支；学生不传 counselorId、管理员被 DataScope 直接放行。
+        params.put(CounselorAssessmentScope.PARAM_APPROVED_STATUS,
+                CounselorAssessmentScope.STATUS_APPROVED);
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -94,10 +103,14 @@ public class AssessmentRecordController {
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         AssessmentRecordEntity examrecord = examrecordService.getById(id);
-        // Step 5 批1：归属授权 —— 学生匹配 studentId；管理员放行
-        // 注：assessment_record 无 counselor_id 字段，教师侧归属规则无 schema 依据，暂维持现状
-        OwnershipGuard.assertOwnership(request, examrecord,
-                examrecord == null ? null : examrecord.getStudentId(), null);
+        // ③ C1：授权入口【唯一】—— 归属判定与关系判定一次完成，Controller 不再串联第二个 Guard。
+        //     · 学生 / 管理员：由 OwnershipGuard 既有语义决定（不触发回调）
+        //     · 心理老师 + 实体无 counselor_id（本表正是如此）：由回调判定
+        //       「是否与该学生存在已同意预约」，无关系 → 403
+        //    ⚠️ 若只改列表 SQL 而不加这一处，则「列表看不到、详情能打开」= 修了一半。
+        Integer targetStudentId = examrecord == null ? null : examrecord.getStudentId();
+        OwnershipGuard.assertOwnership(request, examrecord, targetStudentId, null,
+                req -> counselorAssessmentScope.hasApprovedAppointment(req, targetStudentId));
         if(examrecord !=null){
             //entity转view
             AssessmentRecordView view = new AssessmentRecordView();
@@ -288,8 +301,11 @@ public class AssessmentRecordController {
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
 
         // D2-2b：读范围收敛（与 /page 同款，两入口共用同一条 selectListView 的 params 条件）
-        // 学生侧生效（XML 有 params.studentId）；教师侧无声（本表无 counselor_id，XML 亦无该条件）→ 维持现状，G3 挂账
+        // ③ C1：教师侧原先「XML 无 counselor_id 条件 → 条件被静默丢弃」（G3 挂账）已由
+        //    XML 的 EXISTS 子查询补齐；学生侧语义不变。两个入口共用此 SQL ⇒ 改一处同时生效。
         DataScope.apply(request, params, "studentId", "counselorId");
+        params.put(CounselorAssessmentScope.PARAM_APPROVED_STATUS,
+                CounselorAssessmentScope.STATUS_APPROVED);
 
         // 没有指定排序字段就默认id倒序
         if(StringUtil.isEmpty(String.valueOf(params.get("orderBy")))){

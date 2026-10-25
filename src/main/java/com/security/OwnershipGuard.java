@@ -26,12 +26,23 @@ import org.slf4j.LoggerFactory;
  *   <tr><td><b>其他 / null / 空</b></td><td><b>默认拒绝</b>（fail-closed —— 不沿用「else 即全量」的旧写法）</td></tr>
  * </table>
  *
- * <p>⚠️ <b>已知未收敛项（登记于批 1 报告，不凭空发明规则）</b>：
- * {@code assessment_record} / {@code assessment_redetail} / {@code assessment_wrong_question} 三张表
- * <b>只有 {@code student_id}、没有 {@code counselor_id}</b>，
- * 因此「心理老师能看到哪些学生的测评」这一业务规则**在代码与数据中都没有依据**。
- * 本批对这 3 个端点（及 {@code /yonghu/info/{id}}）**保持现状、不做教师侧收敛**，
- * 待有明确业务证据后再决定（避免「为修安全问题而凭空创造业务规则」，也不会误伤老师端页面）。
+ * <p>⚠️ <b>「实体无 {@code counselor_id} 字段」组合的处置（③ 起演进）</b>：
+ * {@code assessment_record} / {@code assessment_answer} / {@code assessment_wrong_question}
+ * 等表<b>只有 {@code student_id}、没有 {@code counselor_id}</b>，
+ * 无法用「字段相等」判定心理老师是否有权访问。
+ *
+ * <p>本类<b>不</b>内置任何具体业务规则（那会污染通用原语），而是提供
+ * {@link RelationChecker} <b>关系回调</b>：
+ * <ul>
+ *   <li><b>未传回调</b> → 维持原语义（放行）—— 19 处既有调用点<b>行为零变化</b>；</li>
+ *   <li><b>传了回调</b> → 由调用方判定关系（如「与该学生有已同意预约」），
+ *       关系成立放行、否则拒绝。</li>
+ * </ul>
+ *
+ * <p>当前已接入回调的端点：{@code /assessmentRecord/info/{id}}
+ * （规则见 {@link CounselorAssessmentScope}）。
+ * 其余同类端点仍维持原语义，待各自业务规则明确后逐个接入
+ * （<b>禁止</b>把某类数据的规则自动套用到其他敏感数据）。
  *
  * <p>本类的「学生侧」规则是全量生效的 —— 第一阶段实测证实的那条越权链
  * （学生 a1 读取 student 2/3 的留言与收藏）在本批被彻底堵住。
@@ -54,6 +65,37 @@ public final class OwnershipGuard {
     }
 
     /**
+     * 通用「关系授权」回调（③ 引入）。
+     *
+     * <p><b>解决的问题</b>：某些实体本身<b>没有</b> {@code counselor_id} 字段
+     * （如 {@code assessment_record}），无法用「字段相等」判定心理老师是否有权访问；
+     * 但业务上确实存在另一条关系链（如「与该学生有已同意预约」）。
+     * 本回调让<b>调用方</b>提供这条关系的判定，
+     * {@link OwnershipGuard} 只负责「<b>何时</b>该问」与「问到之后<b>如何处置</b>」。
+     *
+     * <p><b>刻意不做（防止通用原语被业务污染）</b>：本接口<b>不</b>感知任何具体业务 ——
+     * 不出现 assessment / appointment / status / 测评 / 预约 等概念。
+     * 具体关系如何判定，完全由调用方（如 {@code CounselorAssessmentScope}）实现。
+     *
+     * <p><b>触发条件（仅在必要时调用）</b>：
+     * <ul>
+     *   <li>管理员 → <b>不调用</b>（本就放行）</li>
+     *   <li>学生 → <b>不调用</b>（按 {@code studentId} 字段判定）</li>
+     *   <li>心理老师 + 实体<b>有</b> {@code counselor_id} → <b>不调用</b>（按字段相等判定）</li>
+     *   <li>心理老师 + 实体<b>无</b> {@code counselor_id} → <b>调用</b></li>
+     * </ul>
+     */
+    @FunctionalInterface
+    public interface RelationChecker {
+
+        /**
+         * @param request 当前请求（身份来源于 Session，由拦截器写入）
+         * @return {@code true} = 关系成立（放行）；{@code false} = 不成立（拒绝）
+         */
+        boolean hasRelation(HttpServletRequest request);
+    }
+
+    /**
      * 便捷重载：目标对象<b>不存在</b>时一律拒绝。
      *
      * <p>目的：避免用「200 无数据」与「403」的差异探测某个 id 是否存在（存在性预言机）。
@@ -64,10 +106,28 @@ public final class OwnershipGuard {
                                        Object target,
                                        Integer ownerStudentId,
                                        Integer ownerCounselorId) {
+        assertOwnership(request, target, ownerStudentId, ownerCounselorId, null);
+    }
+
+    /**
+     * 带<b>关系回调</b>的重载（③ 引入）。
+     *
+     * <p>与上一重载唯一区别：当「心理老师 + 实体无 {@code counselor_id} 字段」时，
+     * 不再<b>默认放行</b>，而是交由 {@code relationChecker} 判定。
+     *
+     * <p>传 {@code null} 等价于旧行为 ⇒ <b>19 处既有调用点无需任何改动</b>。
+     *
+     * @param relationChecker 关系判定回调；{@code null} = 不启用（维持既有语义）
+     */
+    public static void assertOwnership(HttpServletRequest request,
+                                       Object target,
+                                       Integer ownerStudentId,
+                                       Integer ownerCounselorId,
+                                       RelationChecker relationChecker) {
         if (target == null) {
             deny();
         }
-        assertOwnership(request, ownerStudentId, ownerCounselorId);
+        assertOwnership(request, ownerStudentId, ownerCounselorId, relationChecker);
     }
 
     /**
@@ -81,15 +141,31 @@ public final class OwnershipGuard {
     public static void assertOwnership(HttpServletRequest request,
                                        Integer ownerStudentId,
                                        Integer ownerCounselorId) {
+        // 显式转型：否则 null 同时匹配 (Object,Integer,Integer) 与 (Integer,Integer,RelationChecker)
+        assertOwnership(request, ownerStudentId, ownerCounselorId, (RelationChecker) null);
+    }
+
+    /**
+     * 完整实现（③ 起）：带<b>可选关系回调</b>。
+     *
+     * <p>回调<b>只在一种组合</b>下被调用：<b>心理老师</b> + 实体<b>无</b> {@code counselor_id} 字段。
+     * 其余角色/组合一律走既有判定，<b>回调不参与</b>（避免无意义的额外查询）。
+     *
+     * @param relationChecker 关系判定回调；{@code null} = 维持既有语义（默认放行该组合）
+     */
+    public static void assertOwnership(HttpServletRequest request,
+                                       Integer ownerStudentId,
+                                       Integer ownerCounselorId,
+                                       RelationChecker relationChecker) {
         String role = currentRole(request);
         Integer currentUserId = currentUserId(request);
 
-        // ① 管理员：显式放行（不是 else 兜底）
+        // ① 管理员：显式放行（不是 else 兜底）—— 不触发回调
         if (ROLE_ADMIN.equals(role)) {
             return;
         }
 
-        // ② 学生：必须归属自己
+        // ② 学生：必须归属自己 —— 不触发回调
         if (ROLE_STUDENT.equals(role)) {
             if (currentUserId != null && currentUserId.equals(ownerStudentId)) {
                 return;
@@ -97,13 +173,22 @@ public final class OwnershipGuard {
             deny();
         }
 
-        // ③ 心理老师：仅当实体存在 counselorId 归属字段时才做归属判定
+        // ③ 心理老师
         if (ROLE_COUNSELOR.equals(role)) {
-            if (ownerCounselorId == null) {
-                // 实体无 counselor_id 字段 → 无依据判定 → 维持现状（见类注释 ⚠️）
+            if (ownerCounselorId != null) {
+                // 实体有 counselor_id → 走既有「字段相等」判定，不触发回调
+                if (currentUserId != null && currentUserId.equals(ownerCounselorId)) {
+                    return;
+                }
+                deny();
+            }
+            // 实体无 counselor_id 字段（如 assessment_record）：
+            //   · 未提供回调（19 处既有调用点）→ 维持现状放行，行为零变化
+            //   · 提供了回调 → 由调用方判定（关系成立放行，否则拒绝）
+            if (relationChecker == null) {
                 return;
             }
-            if (currentUserId != null && currentUserId.equals(ownerCounselorId)) {
+            if (relationChecker.hasRelation(request)) {
                 return;
             }
             deny();
