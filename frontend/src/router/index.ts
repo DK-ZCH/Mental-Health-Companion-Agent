@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import PublicLayout from '@/layouts/PublicLayout.vue'
-import HomeView from '@/views/HomeView.vue'
+// Step 8：`/` 改为分流壳（未登录 → 访客首页；已登录 → Dashboard）
+import HomeEntryView from '@/views/HomeEntryView.vue'
 import LoginView from '@/views/LoginView.vue'
 import MeView from '@/views/MeView.vue'
 import AssessmentRecordsView from '@/views/AssessmentRecordsView.vue'
@@ -40,7 +41,8 @@ const router = createRouter({
       path: '/',
       component: PublicLayout,
       children: [
-        { path: '', name: 'home', component: HomeView },
+        // Step 8：`/` 由 HomeEntryView 按登录态分流（访客首页 / Dashboard）
+        { path: '', name: 'home', component: HomeEntryView },
 
         // ===== 访客内容浏览（Batch 3 · R4–R9，全部公开）=====
         { path: 'knowledge', name: 'knowledge', component: KnowledgeListView },
