@@ -212,6 +212,36 @@ public final class OwnershipGuard {
     }
 
     /**
+     * 资源级拒绝：该资源<b>整体不向心理老师开放</b>（用户 2026-10-25 裁定 B）。
+     *
+     * <p><b>与 {@link #assertOwnership} 的区别（不要混用）</b>：
+     * <ul>
+     *   <li>{@code assertOwnership} 判「<b>这一条记录</b>是否属于你」—— 需要目标对象；
+     *       同一角色对不同记录可能结论不同。</li>
+     *   <li>本方法判「<b>这类资源</b>你是否有资格访问」—— 与具体记录<b>无关</b>，
+     *       因此不会因「记录存在 / 不存在」产生差异（<b>无存在性预言机</b>）。</li>
+     * </ul>
+     *
+     * <p><b>为什么逐题作答/错题用本方法，而不是关系回调</b>：
+     * 「有权查看测评成绩」<b>不能</b>自动推导出「有权查看每一道题的作答与错题」。
+     * 逐题数据包含比总分更细致的心理状态信息，其授权规则<b>尚未被产品明确</b>；
+     * 按最小权限原则<b>默认拒绝</b>，待规则明确后再单独设计（含授权状态、范围与撤销）。
+     *
+     * <p><b>失败模式</b>：心理老师 → {@link #deny()}（HTTP 403 + code=403）；
+     * 其余角色<b>不在此处判定</b>（继续走各自既有规则），避免本方法被当成通用放行口。
+     *
+     * <p>⚠️ 本方法<b>只覆盖「有没有资格访问」</b>，不替代 {@code DataScope} 的行级收敛，
+     * 也不修补 {@code DataScope} 的「参数被静默丢弃」契约缺口（后者属独立批次）。
+     *
+     * @param request 当前请求（身份取自 Session）
+     */
+    public static void assertCounselorNotAllowed(HttpServletRequest request) {
+        if (ROLE_COUNSELOR.equals(currentRole(request))) {
+            deny();
+        }
+    }
+
+    /**
      * {@code /session} 专用（S2-E-1）：当前已认证身份必须<b>同时</b>匹配 {@code role} 与 {@code tableName}。
      *
      * <p><b>解决的问题</b>：{@code /student/session}、{@code /counselor/session}、{@code /adminUser/session}

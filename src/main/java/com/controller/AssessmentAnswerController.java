@@ -71,6 +71,10 @@ public class AssessmentAnswerController {
     @RequestMapping("/page")
     public R page(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("page方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
+        // ⛔ 逐题作答整体不向心理老师开放（用户 2026-10-25 裁定 B：不做「已同意预约即可见」的推导）。
+        //    必须放在 DataScope 之前：DataScope 对 counselor 会 put counselorId，
+        //    而本表 selectListView 无该分支 ⇒ 参数被静默丢弃 ⇒ 修复前实测返回全量。
+        OwnershipGuard.assertCounselorNotAllowed(request);
         // Step 5 批4：读范围收敛（原 if/else-if 角色链）—— 未知角色由「不加过滤 → 全量」改为 fail-closed
         DataScope.apply(request, params, "studentId", "counselorId");
         if(params.get("orderBy")==null || params.get("orderBy")==""){
@@ -93,6 +97,10 @@ public class AssessmentAnswerController {
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
+        // ⛔ 同上：修复前本路径单独泄露 —— 下方 assertOwnership 在
+        //    「心理老师 + 实体无 counselor_id + 未传回调」组合下会【放行】，
+        //    因此必须在此处先行整体拒绝，不能只依赖归属判定。
+        OwnershipGuard.assertCounselorNotAllowed(request);
         AssessmentAnswerEntity examredetails = examredetailsService.getById(id);
         // Step 5 批1：归属授权 —— 学生匹配 studentId；管理员放行
         // 注：assessment_answer 无 counselor_id 字段，教师侧归属规则无 schema 依据，暂维持现状
@@ -288,8 +296,12 @@ public class AssessmentAnswerController {
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
 
+        // ⛔ 逐题作答整体不向心理老师开放（裁定 B）。/list 与 /page 共用同一条 selectListView，
+        //    两者都必须拦 —— 只修 /page 会留下等效入口。
+        OwnershipGuard.assertCounselorNotAllowed(request);
+
         // D2-2b：读范围收敛（与 /page 同款，两入口共用同一条 selectListView 的 params 条件）
-        // 学生侧生效（表自带 student_id，XML 有 params.studentId）；教师侧无声（无 counselor_id）→ 维持现状，G3 挂账
+        // 学生侧生效（表自带 student_id，XML 有 params.studentId）
         DataScope.apply(request, params, "studentId", "counselorId");
 
         // 没有指定排序字段就默认id倒序
