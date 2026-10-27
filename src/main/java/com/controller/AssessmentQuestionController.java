@@ -31,6 +31,7 @@ import com.service.*;
 import com.utils.PageUtils;
 import com.security.DataScope;
 import com.security.OwnershipGuard;
+import com.security.ResourceVisibility;
 import com.utils.R;
 import com.dto.QuestionPublicDTO;
 import com.alibaba.fastjson.*;
@@ -100,6 +101,8 @@ public class AssessmentQuestionController {
         logger.debug("page方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
         // Step 5 批4：读范围收敛（原 if/else-if 角色链）—— 未知角色由「不加过滤 → 全量」改为 fail-closed
         DataScope.apply(request, params, "studentId", "counselorId");
+        // 资源可见性（用户 2026-10-27 裁定 A）：题目【继承父卷】状态，管理视角不注入。
+        ResourceVisibility.applyPublicScope(request, params);
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -129,13 +132,22 @@ public class AssessmentQuestionController {
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         AssessmentQuestionEntity examquestion = examquestionService.getById(id);
+        // ⛔ 可见性（用户 2026-10-27 裁定 A）：题目【继承父卷】状态 —— 题目本身没有 status/is_deleted，
+        //    只看题目自身的删除标记是不够的：父卷已删除/禁用时，逐题内容同样不得对外。
+        //    修复前本方法无任何状态守卫 ⇒ 已知 id 即可直读已删除试卷下的题目。
+        //    「题目不存在」/「父卷缺失」/「父卷不可见」统一 403（避免存在性预言机）。
+        Integer parentPaperId = examquestion == null ? null : examquestion.getPaperId();
+        AssessmentPaperEntity parentPaper = parentPaperId == null ? null : exampaperService.getById(parentPaperId);
+        ResourceVisibility.assertDetailAccessible(request,
+                parentPaper == null ? null : parentPaper.getStatus(),
+                parentPaper == null ? null : parentPaper.getIsDeleted());
         if(examquestion !=null){
             //entity转view
             AssessmentQuestionView view = new AssessmentQuestionView();
             BeanUtils.copyProperties( examquestion , view );//把实体数据重构到view中
 
-                //级联表
-                AssessmentPaperEntity exampaper = exampaperService.getById(examquestion.getPaperId());
+                //级联表（复用上方为可见性判定已加载的父卷，避免重复查询）
+                AssessmentPaperEntity exampaper = parentPaper;
                 if(exampaper != null){
                     BeanUtils.copyProperties( exampaper , view ,new String[]{ "id", "createdAt", "insertTime", "repliedAt"});//把级联的数据添加到view中,并排除id和创建时间字段
                     view.setPaperId(exampaper.getId());
@@ -301,6 +313,9 @@ public class AssessmentQuestionController {
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
 
+        // 资源可见性（裁定 A）：本端点是 @IgnoreAuth ⇒ 匿名无 role，必须用「是否管理员」二分，
+        // 匿名自动落入公共视角；题目可见性由父卷状态决定。
+        ResourceVisibility.applyPublicScope(request, params);
         // 没有指定排序字段就默认id倒序
         if(StringUtil.isEmpty(String.valueOf(params.get("orderBy")))){
             params.put("orderBy","id");

@@ -187,13 +187,17 @@ class Phase2CoreRegressionTest {
     }
 
     @Test
-    @DisplayName("3. 测评试卷列表：返回基线数量")
+    @DisplayName("3. 测评试卷列表：已删除试卷对匿名不可见（基线 " + BASELINE_ASSESSMENT_PAPERS + " 条全部 is_deleted=1 ⇒ 0）")
     void assessmentPaperList_returnsBaselineCount() throws Exception {
         JsonNode body = getJson("/assessmentPaper/list", null);
         assertThat(body.path("code").asInt()).isZero();
+        // ⚠️ 2026-10-27 可见性批次：种子数据 BASELINE_ASSESSMENT_PAPERS 条试卷【全部 is_deleted=1】，
+        //    公共视角（匿名/学生）只允许「status=1 且 is_deleted=0」⇒ 期望 0 条。
+        //    这【不是】数据丢失或查询损坏：管理员视角仍为 BASELINE_ASSESSMENT_PAPERS 条，
+        //    由 PaperQuestionVisibilityTest#adminStillSeesAllPapers 反向自检兜底。
         assertThat(body.path("data").path("total").asInt())
-                .as("assessment_paper 基线数量")
-                .isEqualTo(BASELINE_ASSESSMENT_PAPERS);
+                .as("已删除试卷不得对匿名可见（规则生效）")
+                .isZero();
     }
 
     @Test

@@ -31,6 +31,7 @@ import com.service.*;
 import com.utils.PageUtils;
 import com.security.DataScope;
 import com.security.OwnershipGuard;
+import com.security.ResourceVisibility;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -71,6 +72,9 @@ public class AssessmentPaperController {
         logger.debug("page方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
         // Step 5 批4：读范围收敛（原 if/else-if 角色链）—— 未知角色由「不加过滤 → 全量」改为 fail-closed
         DataScope.apply(request, params, "studentId", "counselorId");
+        // 资源可见性（用户 2026-10-27 裁定 A）：管理视角不注入；公共视角（含【匿名】）只读「启用 + 未删除」。
+        // 与下方 exampaperDeleteStart/End 硬编码（管理端既有行为）叠加时结果为交集，不会反向放宽。
+        ResourceVisibility.applyPublicScope(request, params);
         params.put("exampaperDeleteStart",1);params.put("exampaperDeleteEnd",1);
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
@@ -93,6 +97,12 @@ public class AssessmentPaperController {
     public R info(@PathVariable("id") Long id, HttpServletRequest request){
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         AssessmentPaperEntity exampaper = exampaperService.getById(id);
+        // ⛔ 可见性（用户 2026-10-27 裁定 A）：非管理视角只能读「启用 + 未删除」。
+        //    修复前本方法【无任何守卫】⇒ 已知 id 即可直读已删除试卷（等效旁路，只修列表无效）。
+        //    「不存在」与「存在但不可见」统一 403，避免用状态码差异枚举 id。
+        ResourceVisibility.assertDetailAccessible(request,
+                exampaper == null ? null : exampaper.getStatus(),
+                exampaper == null ? null : exampaper.getIsDeleted());
         if(exampaper !=null){
             //entity转view
             AssessmentPaperView view = new AssessmentPaperView();
@@ -256,6 +266,9 @@ public class AssessmentPaperController {
     public R list(@RequestParam Map<String, Object> params, HttpServletRequest request){
         logger.debug("list方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
 
+        // 资源可见性（裁定 A）：本端点是 @IgnoreAuth ⇒ 匿名没有 role，
+        // 因此不能写成「非管理员之外的角色枚举」—— 必须用「是否管理员」二分，匿名自动落入公共视角。
+        ResourceVisibility.applyPublicScope(request, params);
         // 没有指定排序字段就默认id倒序
         if(StringUtil.isEmpty(String.valueOf(params.get("orderBy")))){
             params.put("orderBy","id");

@@ -171,11 +171,9 @@ class IdentityAuthorizationRegressionTest {
     }
 
     @Test
-    @DisplayName("4. 6 个内容类端点【不受本批影响】：仍是 200 + code=0")
+    @DisplayName("4. 内容类端点【不受身份授权批影响】：知识/公告/字典/配置仍 200；试卷/试题改由可见性规则判定")
     void contentEndpointsAreUnaffected() throws Exception {
         String[] contentEndpoints = {
-                "/assessmentPaper/info/1",
-                "/assessmentQuestion/info/1",
                 "/knowledgeArticle/info/1",
                 "/notification/info/1",
                 "/sysDictItem/info/1",
@@ -184,6 +182,14 @@ class IdentityAuthorizationRegressionTest {
         for (String uri : contentEndpoints) {
             assertAllowed(perform(uri, studentToken), "内容类端点 " + uri);
         }
+
+        // ⚠️ 2026-10-27 起，以下两个端点对学生返回 403 —— 原因【不是】身份授权变更，而是【资源可见性】：
+        //    种子数据两张试卷均为 is_deleted=1，ResourceVisibility 要求非管理视角只能读「启用 + 未删除」。
+        //    它们因此从上面的「不受影响」清单中移出，行为由 PaperQuestionVisibilityTest 单独断言。
+        assertDenied(perform("/assessmentPaper/info/1", studentToken),
+                "已删除试卷对学生不可见（可见性规则，非身份规则）");
+        assertDenied(perform("/assessmentQuestion/info/1", studentToken),
+                "已删除试卷下的题目不可见（继承父卷状态）");
     }
 
     // ================== 2. 拒绝路径（本批要堵的越权） ==================

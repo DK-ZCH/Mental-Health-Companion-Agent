@@ -108,12 +108,18 @@ export interface AssessmentPaperItem {
 }
 
 /**
- * 试卷列表：`GET /assessmentPaper/list`（**`@IgnoreAuth` 公开** ✓，实测 `total=2`）
+ * 试卷列表：`GET /assessmentPaper/list`（**`@IgnoreAuth` 公开** ✓）
+ *
+ * ⚠️ 2026-10-27「资源可见性」批次后，本端点对**非管理视角**只返回
+ *    「`status=1(启用)` 且 `is_deleted=0(未删除)`」的试卷。
+ *    当前种子数据两张试卷均为 `is_deleted=1` ⇒ 实测 `total=0`
+ *    —— 这是**规则生效**，不是接口故障（管理员视角仍可见全部）。
  *
  * ⚠️ R14 边界 = **试卷浏览**：
- *  · **不调用** `/assessmentQuestion/list` —— 该端点**匿名返回 `answer` / `analysis`**（正确答案与解析）
- *    ⇒ 为算“题量”而调用会把答案键下载进浏览器 ✗
- *    （`SEC-QUESTION-ANSWER-PUBLIC` 🔴 P1，Identified / Unfixed）
+ *  · **不调用** `/assessmentQuestion/list` —— 题目内容不属于「试卷浏览」所需
+ *    （该端点的 `answer` / `analysis` 现已被 `QuestionPublicDTO` 剥离，
+ *      `SEC-QUESTION-ANSWER-PUBLIC` 状态由 `Unfixed` 更正为
+ *      **PENDING REVIEW / 待复核关闭**；但「不需要就不调用」的边界不变）
  *  · **不提供**开始答题 / 不创建测评记录 / 不做任何计分
  *    （R15 暂缓：`SEC-ANSWER-SCORE-SPOOF` —— 分值由客户端提交并被服务端累加 ✗）
  */

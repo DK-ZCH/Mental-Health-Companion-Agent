@@ -60,6 +60,13 @@
              <if test="params.isDeleted != null and params.isDeleted != ''">
                 and a.is_deleted = #{params.isDeleted}
              </if>
+            <!-- 资源可见性（用户 2026-10-27 裁定 A）：仅公共视角注入；管理视角不注入。
+                 条件值来自 ResourceVisibility 常量，SQL 不写死数字。
+                 以 AND 追加 ⇒ 只能收窄：客户端传 isDeleted/status 无法扩大范围。 -->
+            <if test="params.scopePublic != null">
+                and a.status = #{params.publicStatus}
+                and a.is_deleted = #{params.publicNotDeleted}
+            </if>
 
         </where>
 

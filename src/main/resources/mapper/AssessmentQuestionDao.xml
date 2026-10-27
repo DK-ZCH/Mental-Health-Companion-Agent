@@ -113,6 +113,15 @@
             <if test="params.paperIsDeleted != null  and params.paperIsDeleted != '' ">
                 and assessment_paper.is_deleted = #{params.paperIsDeleted}
             </if>
+            <!-- 资源可见性：题目【继承父卷】状态（用户 2026-10-27 裁定 A）。
+                 修复前本文件已 JOIN 试卷并投影 paperStatus/paperIsDeleted，但没有任何 WHERE 使用它们
+                 ⇒ 只修 /assessmentPaper/* 会留下本文件这条等效旁路。
+                 left JOIN ⇒ 父卷缺失时 status 为 NULL，条件不成立 ⇒ fail-closed。 -->
+            <if test="params.scopePublic != null">
+                and assessment_paper.status = #{params.publicStatus}
+                and assessment_paper.is_deleted = #{params.publicNotDeleted}
+                and a.paper_id is not null
+            </if>
         </where>
 
         order by a.${params.orderBy} desc 
