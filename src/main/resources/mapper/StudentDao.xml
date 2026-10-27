@@ -32,7 +32,22 @@
             </if>
             <!-- D2-2b-G2：读范围收敛 —— 学生表以【自身主键 id】作为归属字段（表内无 student_id / counselor_id） -->
             <!-- 服务端由 DataScope 注入 params.studentId = 当前登录学生 userId；管理员不注入 => 条件不生效（保持全量） -->
-            <!-- 注意：教师侧不映射（counselor 与 student 是两个实体，无 student.id = counselor.id 的证据）—— 挂 G3 -->
+            <!-- 教师侧映射（AUTHZ-COUNSELOR-STUDENT-SCOPE，原 G3 挂账）：
+                 心理老师仅可访问与其存在【已批准预约】的学生。
+                 · 关联字段为 counseling_appointment.student_id / counselor_id，
+                   绝不使用 student.id = counselor.id（两者是独立 id 空间）
+                 · status 由 Java 常量经 params.approvedStatus 传入，SQL 中不写死数字
+                 · 若 approvedStatus 漏传 ⇒ 条件恒不匹配 ⇒ 查不到数据（fail-closed，方向安全）
+                 · 语义与 AssessmentRecordDao 的同名规则一致（同一 EXISTS 判定口径） -->
+            <if test="params.counselorId != null and params.counselorId != ''">
+                and exists (
+                    select 1
+                    from counseling_appointment ca
+                    where ca.student_id   = a.id
+                      and ca.counselor_id = #{params.counselorId}
+                      and ca.status       = #{params.approvedStatus}
+                )
+            </if>
             <if test="params.studentId != null and params.studentId != ''">
                 and a.id = #{params.studentId}
             </if>

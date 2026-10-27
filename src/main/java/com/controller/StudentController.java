@@ -34,6 +34,7 @@ import com.security.OwnershipGuard;
 import com.security.DataScope;
 import com.security.CurrentUserProvider;
 import com.security.PasswordHasher;
+import com.security.CounselorStudentScope;
 import com.utils.R;
 import com.alibaba.fastjson.*;
 
@@ -51,6 +52,10 @@ public class StudentController {
 
     @Autowired
     private StudentService yonghuService;
+
+    /** 咨询师读取学生资料的访问规则（AUTHZ-COUNSELOR-STUDENT-SCOPE） */
+    @Autowired
+    private CounselorStudentScope counselorStudentScope;
 
 
     @Autowired
@@ -72,6 +77,9 @@ public class StudentController {
         logger.debug("page方法:,,Controller:{},,params:{}",this.getClass().getName(),JSONObject.toJSONString(params));
         // Step 5 批4：读范围收敛（原 if/else-if 角色链）—— 未知角色由「不加过滤 → 全量」改为 fail-closed
         DataScope.apply(request, params, "studentId", "counselorId");
+        // AUTHZ-COUNSELOR-STUDENT-SCOPE：把「已批准」状态常量传给 Mapper（XML 不写死数字）。
+        //   仅 counselor 会进入 StudentDao 的 counselorId 分支；学生不传、管理员被 DataScope 直接放行。
+        params.put(CounselorStudentScope.PARAM_APPROVED_STATUS, CounselorStudentScope.STATUS_APPROVED);
         if(params.get("orderBy")==null || params.get("orderBy")==""){
             params.put("orderBy","id");
         }
@@ -94,7 +102,10 @@ public class StudentController {
         logger.debug("info方法:,,Controller:{},,id:{}",this.getClass().getName(),id);
         StudentEntity yonghu = yonghuService.getById(id);
         // Step 5 批1：归属授权 —— 学生仅可读自己的资料（记录 id 即学生 id）；管理员放行
-        OwnershipGuard.assertOwnership(request, yonghu, id.intValue(), null);
+        // AUTHZ-COUNSELOR-STUDENT-SCOPE：心理老师 → 仅「已批准预约关系」的学生。
+        //   ⚠️ 必须传【非空】回调：OwnershipGuard 在 relationChecker == null 时会直接 return（放行）。
+        OwnershipGuard.assertOwnership(request, yonghu, id.intValue(), null,
+                req -> counselorStudentScope.hasApprovedRelation(req, id.intValue()));
         if(yonghu !=null){
             //entity转view
             StudentView view = new StudentView();
@@ -448,6 +459,9 @@ public class StudentController {
         // D2-2b-G2-A：读范围收敛（与 /page 同款）—— 与 G2-B(/page) 共同依赖 StudentDao.xml 的 owner 条件
         // （缺 XML 条件时注入会被静默忽略：这正是 G2-B /page 的历史缺口）
         DataScope.apply(request, params, "studentId", "counselorId");
+        // AUTHZ-COUNSELOR-STUDENT-SCOPE：/list 与 /page 共用同一条 selectListView，
+        //   两入口必须注入相同常量，避免「修了 /page 留下 /list 旁路」。
+        params.put(CounselorStudentScope.PARAM_APPROVED_STATUS, CounselorStudentScope.STATUS_APPROVED);
 
         // 没有指定排序字段就默认id倒序
         if(StringUtil.isEmpty(String.valueOf(params.get("orderBy")))){
@@ -472,12 +486,12 @@ public class StudentController {
         // 学生跨用户 IDOR 修复（P1）：授权行为与 /info/{id} 完全一致，最小改动。
         //   · 学生     → 仅本人（本表 id 即学生 id）；读他人 → 403
         //   · 管理员   → 放行
-        //   · 心理老师 → 本批【仍放行】（实体无 counselor 归属字段，ownerCounselorId=null）
-        //                ⚠️ 这不代表「咨询师全量读取学生资料」已被认定合理 ——
-        //                   属遗留风险，待 student 行级规则裁定后统一处理。
+        //   · 心理老师 → AUTHZ-COUNSELOR-STUDENT-SCOPE：仅「已批准预约关系」的学生；
+        //                与 /info/{id} 使用【同一个】关系回调 ⇒ 两入口判定一致
         //   · 记录不存在 → 403（与 /info 一致；修复前为 200 + code=511）
         // ⚠️ 刻意【不】修改 OwnershipGuard 的全局逻辑，避免扩大影响面。
-        OwnershipGuard.assertOwnership(request, yonghu, id.intValue(), null);
+        OwnershipGuard.assertOwnership(request, yonghu, id.intValue(), null,
+                req -> counselorStudentScope.hasApprovedRelation(req, id.intValue()));
             if(yonghu !=null){
 
 

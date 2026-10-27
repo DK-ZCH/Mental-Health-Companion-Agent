@@ -127,13 +127,28 @@ class StudentDetailIdorRegressionTest {
     // ================== T3 / T4：既有合法访问不得被打断 ==================
 
     @Test
-    @DisplayName("T3. 咨询师读学生 → 200（本批与 /info 保持一致；遗留风险见报告）")
-    void counselor_allowed_forNow() throws Exception {
+    @DisplayName("T3. 咨询师读【无已批准关系】的学生 → 403（AUTHZ-COUNSELOR-STUDENT-SCOPE）")
+    void counselor_denied_forUnrelatedStudent() throws Exception {
         MvcResult result = detail(counselorToken, OTHER_ID);
 
-        // ⚠️ 本断言描述的是【修复后与 /info 一致】的现状，
-        //    【不等于】咨询师全量读取权限已被认定合理。
-        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+        // 本用例原为「咨询师 → 200」，那是把【越权行为当成基线】固化下来的写法。
+        // 用户 2026-10-25 裁定：咨询师仅可访问存在 status=2 已批准预约的学生
+        // ⇒ 该断言必须改为 403。counselor a1 与 student 2 之间无任何预约记录。
+        assertThat(result.getResponse().getStatus())
+                .as("无已批准预约关系 ⇒ 不得读取该学生资料")
+                .isEqualTo(403);
+    }
+
+    @Test
+    @DisplayName("T3b. 🔴 咨询师读【已批准关系】的学生 → 200（防「一律 403」式假通过）")
+    void counselor_allowed_forApprovedStudent() throws Exception {
+        MvcResult result = detail(counselorToken, SELF_ID);
+
+        // 反向自检：counselor a1 与 student 1 存在 status=2 的预约 ⇒ 必须放行。
+        // 若此用例也变 403，说明收窄过头（误伤），而非修复成功。
+        assertThat(result.getResponse().getStatus())
+                .as("存在 status=2 已批准预约 ⇒ 应可读该学生资料")
+                .isEqualTo(200);
     }
 
     @Test
