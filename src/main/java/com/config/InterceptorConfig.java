@@ -31,10 +31,17 @@ public class InterceptorConfig extends WebMvcConfigurationSupport{
 	 */
 	@Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		// 🔒 已移除 classpath:/admin/（2026-10-27 收尾批次）：
+		//    该 location 会把 resources/admin/admin/ 整棵旧 Vue2 源码工程（30,476 文件，
+		//    含 node_modules/、package.json、*.bat、src/**）匿名暴露为 /admin/**。
+		//    取证：/admin/package.json、/admin/node_modules/vue/package.json 等均返回 200。
+		//    同时该 dist 构建于 2022-03-30、调用的是改名前的旧路径（/yonghu/*、/exampaper/*）
+		//    ⇒ 管理端实际不可用（POST /yonghu/login = 404），保留它只剩披露价值。
+		//    ⚠️ 若将来重建管理端（Step 10 / Legacy Admin Build Recovery），
+		//    应挂载【新的构建产物目录】，不要恢复本行 —— 否则源码会再次整体可读。
 		registry.addResourceHandler("/**")
         .addResourceLocations("classpath:/resources/")
         .addResourceLocations("classpath:/static/")
-        .addResourceLocations("classpath:/admin/")
         .addResourceLocations("classpath:/img/")
         .addResourceLocations("classpath:/front/")
         .addResourceLocations("classpath:/public/");
