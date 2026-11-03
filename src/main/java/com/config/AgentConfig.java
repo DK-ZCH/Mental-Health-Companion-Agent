@@ -8,6 +8,8 @@ import com.agent.AssessmentTools;
 import com.agent.CounselorCatalogTools;
 import com.agent.FavoriteTools;
 import com.agent.MessageTools;
+import com.agent.SafetyResources;
+import com.agent.SafetyRules;
 import com.agent.SpringAiAgentModel;
 import com.agent.TrendTools;
 import com.agent.WrongQuestionTools;
@@ -102,8 +104,32 @@ public class AgentConfig {
         return new FavoriteTools(favoriteService, counselorService, labels);
     }
 
+    /**
+     * 安全规则（Round 3 · 用户 Q3 裁定：常量类，不进 DB 字典）。
+     *
+     * <p>规则变更必须走「代码 + 评审 + 测试」—— 不给线上留「静默放宽安全规则」的入口。
+     */
+    @Bean
+    public SafetyRules safetyRules() {
+        return new SafetyRules();
+    }
+
+    /**
+     * 危机转介资源（Round 3 · 用户 Q2 裁定：第一版无号码）。
+     *
+     * <p>⚠️ <b>当前是 {@code unconfigured()}</b>：不含任何号码（含 120）。
+     * 新增真实资源时，必须改用 {@code SafetyResources.configured(...)}
+     * 并填写 {@code verifiedBy / verifiedAt / source}；<b>不得</b>在此处直接硬编码号码。
+     */
+    @Bean
+    public SafetyResources safetyResources() {
+        return SafetyResources.unconfigured();
+    }
+
     @Bean
     public AgentService agentService(AgentModel agentModel,
+                                     SafetyRules safetyRules,
+                                     SafetyResources safetyResources,
                                      AssessmentTools assessmentTools,
                                      AppointmentTools appointmentTools,
                                      MessageTools messageTools,
@@ -111,7 +137,7 @@ public class AgentConfig {
                                      CounselorCatalogTools counselorCatalogTools,
                                      TrendTools trendTools,
                                      FavoriteTools favoriteTools) {
-        return new AgentService(agentModel,
+        return new AgentService(agentModel, safetyRules, safetyResources,
                 assessmentTools, appointmentTools, messageTools, wrongQuestionTools, counselorCatalogTools,
                 trendTools, favoriteTools);
     }

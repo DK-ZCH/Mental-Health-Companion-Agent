@@ -1,5 +1,8 @@
 package com.agent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 
 /**
@@ -10,7 +13,8 @@ import java.util.Map;
  *   <li>把已认证的<b>二元身份</b>（{@link AgentIdentity}：userId + userTable）
  *       装入 {@link org.springframework.ai.chat.model.ToolContext}；</li>
  *   <li>调用 {@link AgentModel}；</li>
- *   <li>返回模型文本。</li>
+ *   <li>按 {@link SafetyRules} 判定是否命中，命中则<b>追加</b> {@link SafetyResources} 指引，
+ *       并返回 {@link AgentReply}（回答 + 结构化安全状态）。</li>
  * </ol>
  *
  * <p><b>刻意不做</b>：
@@ -24,7 +28,15 @@ import java.util.Map;
  */
 public class AgentService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AgentService.class);
+
     private final AgentModel agentModel;
+
+    /** 确定性输入规则（Round 3 · Q3 常量类）*/
+    private final SafetyRules safetyRules;
+
+    /** 危机转介资源（Round 3 · Q2）：未确认时只给无号码指引 */
+    private final SafetyResources safetyResources;
 
     /**
      * 本轮可用的全部 Tool 对象（Phase 4 / Round 1 起为多个）。
@@ -35,8 +47,16 @@ public class AgentService {
      */
     private final Object[] tools;
 
-    public AgentService(AgentModel agentModel, Object... tools) {
+    public AgentService(AgentModel agentModel, SafetyRules safetyRules, SafetyResources safetyResources,
+                        Object... tools) {
+        if (safetyRules == null || safetyResources == null) {
+            // fail-closed：缺安全组件时【不允许】退化成「没有兜底」的 Agent ——
+            // 那会让「忘记装配」变成静默的安全降级。
+            throw new IllegalArgumentException("safetyRules / safetyResources 不得为空");
+        }
         this.agentModel = agentModel;
+        this.safetyRules = safetyRules;
+        this.safetyResources = safetyResources;
         this.tools = tools == null ? new Object[0] : tools.clone();
     }
 
@@ -51,12 +71,12 @@ public class AgentService {
      * @param identity 已认证身份（来自 {@code CurrentUserProvider}）
      * @return 模型生成的回答
      */
-    public String chat(String message, AgentIdentity identity) {
+    public AgentReply chat(String message, AgentIdentity identity) {
         if (identity == null) {
             // 编程契约：调用方必须先完成身份解析；此处仅防御性检查，不兜底
             throw new IllegalArgumentException("identity 不得为空");
         }
-        return agentModel.answer(
+        String modelAnswer = agentModel.answer(
                 AgentPrompts.SYSTEM,
                 message,
                 tools,
@@ -65,5 +85,34 @@ public class AgentService {
                         AgentIdentity.CTX_USER_TABLE, identity.userTable()
                 )
         );
+
+        SafetyRules.SafetyDecision decision = safetyRules.evaluate(message);
+        SafetyNotice safety = new SafetyNotice(decision.triggered(), safetyResources.status());
+
+        if (!decision.triggered()) {
+            return new AgentReply(modelAnswer == null ? "" : modelAnswer, safety);
+        }
+
+        // 只记录规则 id：不记录用户原文（隐私），也不把规则 id 返回给客户端（防绕过）
+        logger.info("[AGENT][SAFETY] 命中安全兜底 rule={} resourceStatus={}",
+                decision.ruleId(), safety.resourceStatus());
+
+        return new AgentReply(appendResources(modelAnswer), safety);
+    }
+
+    /**
+     * 在模型回答<b>之后</b>追加资源指引。
+     *
+     * <p><b>为什么在服务端拼接、而不是写进 Prompt</b>：
+     * 写进 Prompt 时，模型拒答、被注入或「忘记」都会让资源消失；
+     * 服务端追加则与模型输出无关 —— 这是本轮要证明的核心。
+     *
+     * <p><b>为什么是追加而非替换</b>：用户的正常回答不应被安全文案覆盖，
+     * 否则会给人「刚说的话被系统顶掉了」的体验。
+     */
+    private String appendResources(String modelAnswer) {
+        String base = modelAnswer == null ? "" : modelAnswer.stripTrailing();
+        String card = safetyResources.guidanceText();
+        return base.isEmpty() ? card : base + "\n\n" + card;
     }
 }

@@ -87,13 +87,16 @@ public class AgentController {
 
         long startMs = System.currentTimeMillis();
         try {
-            String answer = agentService.chat(message, identity);
-            // 观测性：只记录长度与耗时，不记录消息与回答内容（隐私）
-            logger.info("[AGENT] 对话成功 userId={} msgLen={} answerLen={} elapsed={}ms",
+            AgentReply reply = agentService.chat(message, identity);
+            // 观测性：只记录长度、耗时与安全触发标记，不记录消息与回答内容（隐私）
+            String answer = reply.answer();
+            logger.info("[AGENT] 对话成功 userId={} msgLen={} answerLen={} safetyTriggered={} elapsed={}ms",
                     userId, message.length(),
                     answer == null ? 0 : answer.length(),
+                    reply.safety() != null && reply.safety().triggered(),
                     System.currentTimeMillis() - startMs);
-            return R.ok().put("answer", answer);
+            // safety 为结构化标记（前端可忽略）：不影响既有 answer 契约
+            return R.ok().put("answer", answer).put("safety", reply.safety());
         } catch (Exception e) {
             // 只记录长度与异常类型，不记录消息内容与堆栈中的敏感数据
             logger.error("[AGENT] 对话失败 userId={} msgLen={} elapsed={}ms ex={}",
