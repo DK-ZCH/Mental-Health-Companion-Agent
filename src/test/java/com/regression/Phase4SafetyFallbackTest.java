@@ -320,7 +320,9 @@ class Phase4SafetyFallbackTest {
         assertThat(fakeModel.invocationCount)
                 .as("安全兜底是【追加】，不是【短路】—— 不能因此跳过模型的正常回答")
                 .isEqualTo(1);
-        assertThat(fakeModel.lastTools).hasSize(7);
+        assertThat(fakeModel.lastTools)
+                .as("Round 4：8 个 Tool 类（T7 一个类含预览/确认两个方法）")
+                .hasSize(8);
     }
 
     // ================== J. Prompt 层约束（R3-Q4 裁定 B） ==================

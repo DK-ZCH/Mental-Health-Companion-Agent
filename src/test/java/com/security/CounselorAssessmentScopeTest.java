@@ -94,9 +94,9 @@ class CounselorAssessmentScopeTest {
     @Test
     @DisplayName("5. 🔴 多预约，仅其中一条 status=2 → 仍有权限（EXISTS 语义，非「全部必须为 2」）")
     void multipleAppointments_oneApproved_returnsTrue() {
-        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 1);   // 历史：待审核
-        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 3);   // 历史：拒绝
-        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 2);   // 当前：同意
+        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 1, 1);   // 历史：待审核
+        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 3, 2);   // 历史：拒绝
+        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 2, 3);   // 当前：同意
 
         assertThat(scope.hasApprovedAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY))
                 .as("只要存在【至少一条】status=2 即授权成立 —— 否则重新预约会误拒")
@@ -106,8 +106,8 @@ class CounselorAssessmentScopeTest {
     @Test
     @DisplayName("6. 🔴 多预约，无任何 status=2 → 无权限")
     void multipleAppointments_noneApproved_returnsFalse() {
-        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 1);
-        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 3);
+        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 1, 1);
+        insertAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY, 3, 2);
 
         assertThat(scope.hasApprovedAppointment(COUNSELOR_APPROVED, STUDENT_WITHOUT_ANY))
                 .as("只有待审核与拒绝 ⇒ 不得授权")
@@ -162,11 +162,16 @@ class CounselorAssessmentScopeTest {
 
     /** 插入临时预约（随事务回滚，生产库不变） */
     private void insertAppointment(int counselorId, int studentId, int status) {
+        insertAppointment(counselorId, studentId, status, 1);
+    }
+
+    /** Round 4 起 (counselor_id, appointment_date, time_slot) 有唯一约束 ⇒ 同一用例内需错开时段 */
+    private void insertAppointment(int counselorId, int studentId, int status, int timeSlot) {
         CounselingAppointmentEntity entity = new CounselingAppointmentEntity();
         entity.setCounselorId(counselorId);
         entity.setStudentId(studentId);
         entity.setStatus(status);
-        entity.setTimeSlot(1);
+        entity.setTimeSlot(timeSlot);
         entity.setAppointmentDate(new Date());
         entity.setAppliedAt(new Date());
         entity.setAppointmentNo("TEST-" + System.nanoTime());

@@ -3,7 +3,10 @@ package com.config;
 import com.agent.AgentDictLabels;
 import com.agent.AgentModel;
 import com.agent.AgentService;
+import com.agent.AppointmentBookingTools;
+import com.agent.AppointmentConfirmToken;
 import com.agent.AppointmentTools;
+import com.agent.AppointmentWriteService;
 import com.agent.AssessmentTools;
 import com.agent.CounselorCatalogTools;
 import com.agent.FavoriteTools;
@@ -13,8 +16,10 @@ import com.agent.SafetyRules;
 import com.agent.SpringAiAgentModel;
 import com.agent.TrendTools;
 import com.agent.WrongQuestionTools;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.AssessmentPaperService;
 import com.service.AssessmentQuestionService;
+import com.service.CounselingAppointmentService;
 import com.service.AssessmentRecordService;
 import com.service.AssessmentWrongQuestionService;
 import com.service.CounselingAppointmentService;
@@ -24,6 +29,7 @@ import com.service.CounselorService;
 import com.service.SysDictItemService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -126,6 +132,37 @@ public class AgentConfig {
         return SafetyResources.unconfigured();
     }
 
+    /**
+     * 预约写入边界（Round 4）：Tool 不直接操作 Mapper。
+     */
+    @Bean
+    public AppointmentWriteService appointmentWriteService(CounselingAppointmentService appointmentService) {
+        return new AppointmentWriteService(appointmentService);
+    }
+
+    /**
+     * 确认凭证签发/校验（Round 4）。
+     *
+     * <p>⚠️ {@code agent.confirm.secret} 未配置时生成随机运行时密钥并 WARN
+     * —— <b>WARN 不含密钥本身</b>；重启后旧凭证失效属可接受降级。
+     */
+    @Bean
+    public AppointmentConfirmToken appointmentConfirmToken(
+            ObjectMapper objectMapper,
+            @Value("${agent.confirm.secret:}") String secret,
+            @Value("${agent.confirm.ttl-seconds:300}") int ttlSeconds) {
+        return new AppointmentConfirmToken(secret, objectMapper, ttlSeconds);
+    }
+
+    @Bean
+    public AppointmentBookingTools appointmentBookingTools(AppointmentWriteService appointmentWriteService,
+                                                          AppointmentConfirmToken appointmentConfirmToken,
+                                                          CounselorService counselorService,
+                                                          AgentDictLabels labels) {
+        return new AppointmentBookingTools(appointmentWriteService, appointmentConfirmToken,
+                counselorService, labels);
+    }
+
     @Bean
     public AgentService agentService(AgentModel agentModel,
                                      SafetyRules safetyRules,
@@ -136,9 +173,10 @@ public class AgentConfig {
                                      WrongQuestionTools wrongQuestionTools,
                                      CounselorCatalogTools counselorCatalogTools,
                                      TrendTools trendTools,
-                                     FavoriteTools favoriteTools) {
+                                     FavoriteTools favoriteTools,
+                                     AppointmentBookingTools appointmentBookingTools) {
         return new AgentService(agentModel, safetyRules, safetyResources,
                 assessmentTools, appointmentTools, messageTools, wrongQuestionTools, counselorCatalogTools,
-                trendTools, favoriteTools);
+                trendTools, favoriteTools, appointmentBookingTools);
     }
 }

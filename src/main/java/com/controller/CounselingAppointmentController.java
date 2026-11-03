@@ -28,6 +28,7 @@ import com.entity.*;
 import com.entity.view.*;
 import com.service.*;
 import com.utils.PageUtils;
+import com.security.AppointmentStatusPolicy;
 import com.security.OwnershipGuard;
 import com.security.CurrentUserProvider;
 import com.security.DataScope;
@@ -137,6 +138,16 @@ public class CounselingAppointmentController {
         else if("学生".equals(role))
             xinlilaoshiOrder.setStudentId(CurrentUserProvider.requireCurrentUserId(request));
 
+        // Round 4 / Q3-c：创建路径的 status 由服务端固定为「待审核」，忽略客户端提交值；
+        // 若带 id（少见），按更新语义处理 —— 避免把已有记录的状态静默重置为 1。
+        if (xinlilaoshiOrder.getId() == null) {
+            AppointmentStatusPolicy.forceCreateStatus(xinlilaoshiOrder);
+        } else {
+            CounselingAppointmentEntity existing = xinlilaoshiOrderService.getById(xinlilaoshiOrder.getId());
+            AppointmentStatusPolicy.resolveUpdateStatus(xinlilaoshiOrder,
+                    existing == null ? null : existing.getStatus(), role);
+        }
+
         xinlilaoshiOrder.setAppliedAt(new Date());
         xinlilaoshiOrder.setCreatedAt(new Date());
         xinlilaoshiOrderService.save(xinlilaoshiOrder);
@@ -161,6 +172,12 @@ public class CounselingAppointmentController {
         //    注：counselorId 属 C 类「页面选择的目标老师」，本批保留客户端值（批 4 一并处理）
         xinlilaoshiOrder.setStudentId(OwnershipGuard.resolveWriteOwner(request,
                 OwnershipGuard.AdminWriteOperation.UPDATE_APPOINTMENT, xinlilaoshiOrder.getStudentId()));
+        // Round 4 / Q3-c：状态来源与合法转换
+        //  · 学生提交的 status 被忽略（保留原值），不影响其它字段更新
+        //  · 心理老师 / 管理员仅允许 1→2、1→3；2→1、2→3、3→1、3→2 一律 403
+        AppointmentStatusPolicy.resolveUpdateStatus(xinlilaoshiOrder,
+                existing == null ? null : existing.getStatus(),
+                CurrentUserProvider.currentRole(request));
         //根据字段查询是否有相同数据
         QueryWrapper<CounselingAppointmentEntity> queryWrapper = new QueryWrapper<CounselingAppointmentEntity>()
             .eq("id",0)
@@ -353,6 +370,8 @@ public class CounselingAppointmentController {
             Integer userId = CurrentUserProvider.requireCurrentUserId(request);
             xinlilaoshiOrder.setStudentId(userId); //设置订单支付人id
             xinlilaoshiOrder.setAppointmentNo(String.valueOf(new Date().getTime()));
+            // Round 4 / Q3-c：创建路径的 status 由服务端固定为「待审核」，忽略客户端提交值
+            AppointmentStatusPolicy.forceCreateStatus(xinlilaoshiOrder);
             xinlilaoshiOrder.setAppliedAt(new Date());
             xinlilaoshiOrder.setCreatedAt(new Date());
                 xinlilaoshiOrderService.save(xinlilaoshiOrder);//新增订单

@@ -169,9 +169,12 @@ class Phase4ToolDataBoundaryTest {
         int existing = count("SELECT COUNT(*) FROM counseling_appointment WHERE student_id = ?", STUDENT_1);
         for (int i = 0; i < 12; i++) {
             jdbcTemplate.update(
+                    // Round 4 起 (counselor_id, appointment_date, time_slot) 有唯一约束：
+                    // 原实现 12 条全用 CURDATE()+slot1 会撞键；改为逐日错开，保持「条数」意图不变
                     "INSERT INTO counseling_appointment (id, appointment_no, counselor_id, student_id, "
-                            + "appointment_date, time_slot, status, applied_at) VALUES (?, ?, ?, ?, CURDATE(), ?, ?, NOW())",
-                    9100 + i, "FIXTURE-" + (9100 + i), 1, STUDENT_1, 1, 1);
+                            + "appointment_date, time_slot, status, applied_at) "
+                            + "VALUES (?, ?, ?, ?, DATE_ADD(CURDATE(), INTERVAL ? DAY), ?, ?, NOW())",
+                    9100 + i, "FIXTURE-" + (9100 + i), 1, STUDENT_1, i, 1, 1);
         }
 
         AppointmentToolResult result = appointmentTools.getMyAppointments(student(STUDENT_1));

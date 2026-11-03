@@ -40,6 +40,29 @@ public record AgentIdentity(int userId, String userTable) {
     public static final String CTX_USER_TABLE = "userTable";
 
     /**
+     * {@code ToolContext} 中承载「待确认预约草稿」的键（Round 4 · R4-Q5）。
+     *
+     * <p>只用于跨请求编排，<b>不是</b>身份或授权信息；内容不发送给模型。
+     */
+    public static final String CTX_PENDING_DRAFT = "pendingAppointmentDraft";
+
+    /**
+     * {@code ToolContext} 中承载「当前 Session 里待确认 token」的键（Round 4 · R4-Q5）。
+     *
+     * <p>由 Controller 从 {@code HttpSession} 读出后放入；Tool 只用它调用 confirm，
+     * 模型无法提供或篡改。
+     */
+    public static final String CTX_PENDING_TOKEN = "pendingAppointmentToken";
+
+    /**
+     * {@code ToolContext} 中承载「服务端 system 提示」的键（Round 4 · R4-Q6 试验）。
+     *
+     * <p>由 Controller 追加到 system prompt 末尾（<b>不改用户输入</b>）。
+     * 仅用于告知模型「当前会话存在待确认草稿」这类服务端状态。
+     */
+    public static final String CTX_SYSTEM_HINT = "systemHint";
+
+    /**
      * 从 {@link ToolContext} 解析身份。
      *
      * <p><b>刻意返回 {@code null} 而不是抛异常</b>：本方法只做「解析」，

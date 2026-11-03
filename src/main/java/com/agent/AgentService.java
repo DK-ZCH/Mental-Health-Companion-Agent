@@ -72,19 +72,41 @@ public class AgentService {
      * @return 模型生成的回答
      */
     public AgentReply chat(String message, AgentIdentity identity) {
+        return chat(message, identity, Map.of());
+    }
+
+    /**
+     * 单轮对话（可携带<b>服务端</b>附加上下文）。
+     *
+     * <p><b>为什么需要 {@code extraContext}</b>：Round 4 的「待确认预约草稿」需要跨请求传递，
+     * 而 Tool 层拿不到 {@code HttpServletRequest}。Controller 把草稿/凭证放进上下文，
+     * Tool 只读不写身份 —— 身份键在下方<b>最后</b>写入，外部无法覆盖。
+     *
+     * <p>⚠️ {@code extraContext} <b>只能</b>由 Controller 提供服务端数据；
+     * 绝不来自请求体（模型/客户端都无法注入）。
+     */
+    public AgentReply chat(String message, AgentIdentity identity, Map<String, Object> extraContext) {
         if (identity == null) {
             // 编程契约：调用方必须先完成身份解析；此处仅防御性检查，不兜底
             throw new IllegalArgumentException("identity 不得为空");
         }
-        String modelAnswer = agentModel.answer(
-                AgentPrompts.SYSTEM,
-                message,
-                tools,
-                Map.of(
-                        AgentIdentity.CTX_USER_ID, identity.userId(),
-                        AgentIdentity.CTX_USER_TABLE, identity.userTable()
-                )
-        );
+
+        Map<String, Object> context = new java.util.HashMap<>();
+        if (extraContext != null) {
+            context.putAll(extraContext);
+        }
+        // 身份最后写入 ⇒ 外部上下文无法覆盖身份（防越权）
+        context.put(AgentIdentity.CTX_USER_ID, identity.userId());
+        context.put(AgentIdentity.CTX_USER_TABLE, identity.userTable());
+
+        // 服务端状态提示（可选）：只追加到 system prompt 末尾，不修改用户输入。
+        // 用途：无状态 Agent 无法得知「上一轮留下了待确认草稿」，需要服务端告知。
+        Object hint = context.remove(AgentIdentity.CTX_SYSTEM_HINT);
+        String systemPrompt = (hint instanceof String text && !text.isBlank())
+                ? AgentPrompts.SYSTEM + "\n\n" + text
+                : AgentPrompts.SYSTEM;
+
+        String modelAnswer = agentModel.answer(systemPrompt, message, tools, context);
 
         SafetyRules.SafetyDecision decision = safetyRules.evaluate(message);
         SafetyNotice safety = new SafetyNotice(decision.triggered(), safetyResources.status());

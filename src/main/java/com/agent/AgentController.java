@@ -5,6 +5,7 @@ import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
 import com.utils.R;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,6 +45,14 @@ public class AgentController {
     static final int MAX_MESSAGE_LENGTH = 1000;
 
     private static final String MSG_UPSTREAM_FAILED = "服务暂时不可用，请稍后再试";
+
+    /**
+     * Session 中保存「待确认预约草稿」的键（Round 4 · R4-Q5 裁定 C）。
+     *
+     * <p><b>只保留一个</b>：新的预览覆盖旧的，避免「先预览 A 再预览 B 然后说确认」的歧义。
+     * <p><b>它不是授权依据</b>：值只是一个签名 token，确认时仍要完整验签与重新校验。
+     */
+    static final String SESSION_PENDING_APPOINTMENT = "PENDING_APPOINTMENT_CONFIRMATION";
 
     private final AgentService agentService;
 
@@ -85,9 +94,35 @@ public class AgentController {
 
         AgentIdentity identity = new AgentIdentity(userId, userTable);
 
+        // R4-Q5（C）：Session 只负责「跨请求保存编排状态」——
+        //   · 预览产生 token ⇒ 写入草稿；
+        //   · 任何一次确认尝试 ⇒ 清理草稿（成功/过期/冲突都清）。
+        // 它不是授权依据：confirm 仍以签名 token 为准，全部重新验签 + 重新校验。
+        HttpSession session = httpRequest.getSession(true);
+        String pendingToken = (String) session.getAttribute(SESSION_PENDING_APPOINTMENT);
+        PendingAppointmentDraft draft = new PendingAppointmentDraft();
+
+        java.util.Map<String, Object> extraContext = new java.util.HashMap<>();
+        extraContext.put(AgentIdentity.CTX_PENDING_DRAFT, draft);
+        if (pendingToken != null) {
+            extraContext.put(AgentIdentity.CTX_PENDING_TOKEN, pendingToken);
+            // 无状态 Agent 不知道「上一轮留下了草稿」；由服务端在 system prompt 末尾告知（不改用户输入）
+            extraContext.put(AgentIdentity.CTX_SYSTEM_HINT,
+                    "当前会话存在一条【待确认的预约草稿】（5 分钟内有效）。"
+                            + "如果用户表示确认（如「确认」「好的」「可以」「就这样」），"
+                            + "请直接调用 confirmAppointment（无需任何参数），不要重复追问老师/日期/时段。");
+        }
+
         long startMs = System.currentTimeMillis();
         try {
-            AgentReply reply = agentService.chat(message, identity);
+            AgentReply reply = agentService.chat(message, identity, extraContext);
+            if (draft.consumed()) {
+                session.removeAttribute(SESSION_PENDING_APPOINTMENT);
+                logger.info("[AGENT][CONFIRM] 已清理待确认草稿 userId={}", userId);
+            } else if (draft.issuedToken() != null) {
+                session.setAttribute(SESSION_PENDING_APPOINTMENT, draft.issuedToken());
+                logger.info("[AGENT][CONFIRM] 已写入待确认草稿 userId={}", userId);
+            }
             // 观测性：只记录长度、耗时与安全触发标记，不记录消息与回答内容（隐私）
             String answer = reply.answer();
             logger.info("[AGENT] 对话成功 userId={} msgLen={} answerLen={} safetyTriggered={} elapsed={}ms",
