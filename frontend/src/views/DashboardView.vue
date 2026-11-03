@@ -18,7 +18,13 @@ import { listAssessmentRecords, type AssessmentRecord } from '@/api/assessment'
 import { listMyAppointments, type AppointmentItem } from '@/api/appointment'
 import { listMyMessages, type MessageItem } from '@/api/message'
 import { listKnowledge, type KnowledgeArticle } from '@/api/content'
-import { askAgent } from '@/api/agent'
+import {
+  askAgent,
+  listConversations,
+  getConversationMessages,
+  deleteConversation,
+  type AgentConversationItem,
+} from '@/api/agent'
 import SectionCard from '@/components/dashboard/SectionCard.vue'
 import StatCard from '@/components/dashboard/StatCard.vue'
 import EmptyBlock from '@/components/dashboard/EmptyBlock.vue'
@@ -319,12 +325,40 @@ function renderAgentText(markdown: string): string {
   return text
 }
 
-// ==================== AI 区块（手动触发） ====================
+// ==================== AI 区块（多轮会话 · 手动触发） ====================
+
+interface AgentChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
 
 const aiInput = ref('')
-const aiAnswer = ref('')
 const aiError = ref('')
 const aiLoading = ref(false)
+
+/** 当前会话的完整消息流（历史 + 本轮）——渲染唯一来源 */
+const agentMessages = ref<AgentChatMessage[]>([])
+/** 会话列表（仅本人；按最近消息倒序） */
+const conversations = ref<AgentConversationItem[]>([])
+const conversationsLoading = ref(false)
+/** 当前会话 id；null = 新会话（服务端在下一次请求时创建并返回 id） */
+const currentConversationId = ref<number | null>(null)
+const historyLoading = ref(false)
+
+async function loadConversations() {
+  conversationsLoading.value = true
+  try {
+    conversations.value = await listConversations()
+  } catch {
+    // 历史加载失败静默：不影响「发起新对话」主流程
+  } finally {
+    conversationsLoading.value = false
+  }
+}
+
+onMounted(() => {
+  void loadConversations()
+})
 
 async function sendToAgent() {
   const message = aiInput.value.trim()
@@ -337,9 +371,12 @@ async function sendToAgent() {
 
   aiLoading.value = true
   aiError.value = ''
-  aiAnswer.value = ''
+  agentMessages.value.push({ role: 'user', content: message })
   try {
-    aiAnswer.value = await askAgent(message)
+    const result = await askAgent(message, currentConversationId.value ?? undefined)
+    currentConversationId.value = result.conversationId ?? currentConversationId.value
+    agentMessages.value.push({ role: 'assistant', content: result.answer })
+    void loadConversations()   // 会话标题/时间可能变化
   } catch {
     // 不透传后端/网络原始错误信息
     aiError.value = MSG_AI_FAILED
@@ -348,8 +385,51 @@ async function sendToAgent() {
   }
 }
 
-/** 已转义 + 极简渲染后的安全 HTML（只会包含 <strong> / <code>） */
-const renderedAnswer = computed(() => renderAgentText(aiAnswer.value))
+async function openConversation(conv: AgentConversationItem) {
+  if (historyLoading.value || conv.id === currentConversationId.value) return
+  historyLoading.value = true
+  aiError.value = ''
+  try {
+    const items = await getConversationMessages(conv.id)
+    agentMessages.value = items.map((m) => ({ role: m.role, content: m.content }))
+    currentConversationId.value = conv.id
+  } catch {
+    aiError.value = MSG_LOAD_FAILED
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+function startNewConversation() {
+  currentConversationId.value = null
+  agentMessages.value = []
+  aiError.value = ''
+}
+
+async function removeConversation(conv: AgentConversationItem) {
+  if (historyLoading.value) return
+  historyLoading.value = true
+  try {
+    await deleteConversation(conv.id)
+    conversations.value = conversations.value.filter((c) => c.id !== conv.id)
+    if (conv.id === currentConversationId.value) {
+      currentConversationId.value = null
+      agentMessages.value = []
+    }
+  } catch {
+    aiError.value = MSG_LOAD_FAILED
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+/** 渲染：assistant 走极简安全渲染；user 只做转义（用户输入不解析任何标记） */
+const renderedMessages = computed(() =>
+  agentMessages.value.map((m) => ({
+    role: m.role,
+    html: m.role === 'assistant' ? renderAgentText(m.content) : escapeHtml(m.content),
+  }))
+)
 </script>
 
 <template>
@@ -412,6 +492,47 @@ const renderedAnswer = computed(() => renderAgentText(aiAnswer.value))
     <!-- ③ AI 助手（入口卡片；不自动调用） -->
     <SectionCard title="AI 助手">
       <div class="ai-box" data-test="ai-box">
+        <!-- 历史会话（仅本人；标题来自首条消息前 20 字） -->
+        <div class="ai-history" v-if="conversations.length || currentConversationId" data-test="ai-history">
+          <div class="ai-history-head">
+            <span class="ai-history-title">
+              历史会话（{{ conversations.length }}）<span v-if="historyLoading">· 加载中…</span>
+            </span>
+            <el-button
+              size="small"
+              text
+              type="primary"
+              :disabled="aiLoading || historyLoading"
+              @click="startNewConversation"
+              data-test="ai-new-conversation"
+            >
+              新会话
+            </el-button>
+          </div>
+          <div class="ai-history-list">
+            <div
+              v-for="c in conversations"
+              :key="c.id"
+              class="ai-history-item"
+              :class="{ active: c.id === currentConversationId }"
+              @click="openConversation(c)"
+              data-test="ai-conversation-item"
+            >
+              <span class="ai-history-name">{{ c.title || '（无标题）' }}</span>
+              <el-button
+                size="small"
+                text
+                type="danger"
+                :disabled="historyLoading"
+                @click.stop="removeConversation(c)"
+                data-test="ai-conversation-delete"
+              >
+                删除
+              </el-button>
+            </div>
+          </div>
+        </div>
+
         <el-input
           v-model="aiInput"
           type="textarea"
@@ -444,12 +565,18 @@ const renderedAnswer = computed(() => renderAgentText(aiAnswer.value))
           class="ai-result"
           data-test="ai-error"
         />
-        <div
-          v-else-if="aiAnswer"
-          class="ai-answer"
-          data-test="ai-answer"
-          v-html="renderedAnswer"
-        ></div>
+        <!-- 会话消息流（历史 + 本轮；assistant 走安全渲染，user 仅转义） -->
+        <div v-if="renderedMessages.length" class="ai-transcript" data-test="ai-transcript">
+          <div
+            v-for="(m, i) in renderedMessages"
+            :key="i"
+            class="ai-msg"
+            :class="'ai-msg-' + m.role"
+          >
+            <div class="ai-msg-role">{{ m.role === 'user' ? '我' : 'AI 助手' }}</div>
+            <div class="ai-msg-content" v-html="m.html"></div>
+          </div>
+        </div>
       </div>
     </SectionCard>
 
@@ -589,6 +716,78 @@ const renderedAnswer = computed(() => renderAgentText(aiAnswer.value))
   color: #303133;
   font-size: 14px;
   line-height: 1.6;
+}
+.ai-history {
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.ai-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.ai-history-title {
+  color: #909399;
+  font-size: 12px;
+}
+.ai-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.ai-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #303133;
+}
+.ai-history-item:hover {
+  background: #f5f7fa;
+}
+.ai-history-item.active {
+  background: #ecf5ff;
+  color: #409eff;
+}
+.ai-history-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ai-transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-msg {
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ai-msg-user {
+  background: #ecf5ff;
+  color: #303133;
+}
+.ai-msg-assistant {
+  background: #f5f7fa;
+  color: #303133;
+}
+.ai-msg-role {
+  font-size: 12px;
+  color: #909399;
+  margin-bottom: 2px;
+}
+.ai-msg-content {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .ai-result {
   margin: 0;

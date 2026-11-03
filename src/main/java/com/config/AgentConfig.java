@@ -13,6 +13,7 @@ import com.agent.FavoriteTools;
 import com.agent.MessageTools;
 import com.agent.SafetyResources;
 import com.agent.SafetyRules;
+import com.agent.AgentChatMemoryRepository;
 import com.agent.SpringAiAgentModel;
 import com.agent.ToolCallRecorder;
 import com.agent.TrendTools;
@@ -20,6 +21,7 @@ import com.agent.WrongQuestionTools;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.AssessmentPaperService;
 import com.service.AssessmentQuestionService;
+import com.service.AgentConversationService;
 import com.service.CounselingAppointmentService;
 import com.service.AssessmentRecordService;
 import com.service.AssessmentWrongQuestionService;
@@ -29,9 +31,11 @@ import com.service.CounselorMessageService;
 import com.service.CounselorService;
 import com.service.SysDictItemService;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -57,9 +61,29 @@ public class AgentConfig {
         return new ToolCallRecorder();
     }
 
+    /**
+     * 会话存储适配层（Step ⑤ · D1=A 自建）：实现 Spring AI {@code ChatMemoryRepository}，
+     * 让「conversation → student」的归属落在可控的表结构里，且零新增依赖。
+     */
     @Bean
-    public AgentModel agentModel(ChatModel chatModel, ToolCallRecorder toolCallRecorder) {
-        return new SpringAiAgentModel(ChatClient.builder(chatModel).build(), toolCallRecorder);
+    public AgentChatMemoryRepository agentChatMemoryRepository(JdbcTemplate jdbcTemplate) {
+        return new AgentChatMemoryRepository(jdbcTemplate);
+    }
+
+    /**
+     * 模型上下文窗口（D5，读取侧生效）：最多 20 条消息；
+     * {@code agent_message} 始终保存完整聊天历史（写入侧不裁剪）。
+     * 🔴 不用 {@code MessageWindowChatMemory}：1.1.8 的它只在写入侧裁剪，读取不裁
+     *    （Spike 事实 #5，T9 实测 25 条历史整段进入上下文）。
+     */
+    @Bean
+    public ChatMemory agentChatMemory(AgentChatMemoryRepository repository) {
+        return new com.agent.AgentWindowChatMemory(repository, 20);
+    }
+
+    @Bean
+    public AgentModel agentModel(ChatModel chatModel, ToolCallRecorder toolCallRecorder, ChatMemory chatMemory) {
+        return new SpringAiAgentModel(ChatClient.builder(chatModel).build(), toolCallRecorder, chatMemory);
     }
 
     @Bean

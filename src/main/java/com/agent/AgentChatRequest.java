@@ -14,11 +14,28 @@ public class AgentChatRequest {
     /** 用户输入的自然语言消息 */
     private String message;
 
+    /**
+     * 会话 id（可选，Step ⑤ 多轮会话）。
+     *
+     * <p>缺省 ⇒ 服务端创建新会话并在响应中返回；
+     * 提供时必须属于当前登录学生，否则 403（归属校验在 Controller）。
+     * <b>它是资源 id，不是身份</b> —— 身份仍只来自服务端登录态。
+     */
+    private Long conversationId;
+
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Long getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(Long conversationId) {
+        this.conversationId = conversationId;
     }
 }

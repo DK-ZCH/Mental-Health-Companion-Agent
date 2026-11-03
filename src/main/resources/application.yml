@@ -68,6 +68,11 @@ mybatis-plus:
     jdbc-type-for-null: 'null'
 
 # 打印 SQL 语句
+# ⚠️ com.dao: debug 会把所有 mapper 的 SQL 参数打进日志（含会话内容等敏感数据）。
+#    Agent 会话的两个新 mapper 刻意降级为 warn（T12 隐私断言）；
+#    其余既有 mapper 的 DEBUG 参数日志属既有行为，登记为 DEBT-MAPPER-SQL-PARAM-LOGS。
 logging:
   level:
     com.dao: debug
+    com.dao.AgentConversationDao: warn
+    com.dao.AgentMessageDao: warn

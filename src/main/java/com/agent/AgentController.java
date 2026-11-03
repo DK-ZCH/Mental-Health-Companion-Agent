@@ -3,11 +3,16 @@ package com.agent;
 import com.security.BadRequestException;
 import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
+import com.service.AgentConversationService;
+import com.service.AgentMessageService;
 import com.utils.R;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,9 +60,15 @@ public class AgentController {
     static final String SESSION_PENDING_APPOINTMENT = "PENDING_APPOINTMENT_CONFIRMATION";
 
     private final AgentService agentService;
+    private final AgentConversationService agentConversationService;
+    private final AgentMessageService agentMessageService;
 
-    public AgentController(AgentService agentService) {
+    public AgentController(AgentService agentService,
+                           AgentConversationService agentConversationService,
+                           AgentMessageService agentMessageService) {
         this.agentService = agentService;
+        this.agentConversationService = agentConversationService;
+        this.agentMessageService = agentMessageService;
     }
 
     /**
@@ -102,8 +113,18 @@ public class AgentController {
         String pendingToken = (String) session.getAttribute(SESSION_PENDING_APPOINTMENT);
         PendingAppointmentDraft draft = new PendingAppointmentDraft();
 
+        // Step ⑤：会话生命周期 —— 传了 conversationId 则校验归属，否则创建新会话。
+        // studentId 永远来自登录态；conversationId 是资源 id，不是身份。
+        Long conversationId;
+        if (request.getConversationId() != null) {
+            conversationId = agentConversationService.requireOwned(request.getConversationId(), userId).getId();
+        } else {
+            conversationId = agentConversationService.create(userId, message);
+        }
+
         java.util.Map<String, Object> extraContext = new java.util.HashMap<>();
         extraContext.put(AgentIdentity.CTX_PENDING_DRAFT, draft);
+        extraContext.put(AgentIdentity.CTX_CONVERSATION_ID, conversationId);
         if (pendingToken != null) {
             extraContext.put(AgentIdentity.CTX_PENDING_TOKEN, pendingToken);
             // 无状态 Agent 不知道「上一轮留下了草稿」；由服务端在 system prompt 末尾告知（不改用户输入）
@@ -131,7 +152,11 @@ public class AgentController {
                     reply.safety() != null && reply.safety().triggered(),
                     System.currentTimeMillis() - startMs);
             // safety 为结构化标记（前端可忽略）：不影响既有 answer 契约
-            return R.ok().put("answer", answer).put("safety", reply.safety());
+            // conversationId：多轮会话必需，前端下次请求带回
+            return R.ok()
+                    .put("answer", answer)
+                    .put("safety", reply.safety())
+                    .put("conversationId", conversationId);
         } catch (Exception e) {
             // 只记录长度与异常类型，不记录消息内容与堆栈中的敏感数据
             logger.error("[AGENT] 对话失败 userId={} msgLen={} elapsed={}ms ex={}",
@@ -139,5 +164,33 @@ public class AgentController {
                     e.getClass().getName(), e);
             return R.error(MSG_UPSTREAM_FAILED);
         }
+    }
+
+    // ================== Step ⑤：会话生命周期（全部要求归属） ==================
+
+    /** 我的会话列表（按最近消息倒序）；不返回任何其他学生的会话 */
+    @GetMapping("/conversations")
+    public R conversations(HttpServletRequest httpRequest) {
+        Integer userId = CurrentUserProvider.requireCurrentUserId(httpRequest);
+        return R.ok().put("data", agentConversationService.listMine(userId));
+    }
+
+    /** 某会话的历史消息（时间正序）；归属不符 ⇒ 403 */
+    @GetMapping("/conversations/{id}/messages")
+    public R conversationMessages(@PathVariable("id") Long id, HttpServletRequest httpRequest) {
+        Integer userId = CurrentUserProvider.requireCurrentUserId(httpRequest);
+        agentConversationService.requireOwned(id, userId);
+        return R.ok()
+                .put("conversationId", id)
+                .put("data", agentMessageService.listByConversation(id));
+    }
+
+    /** 删除会话（物理删除，含全部消息）；归属不符 ⇒ 403 */
+    @DeleteMapping("/conversations/{id}")
+    public R deleteConversation(@PathVariable("id") Long id, HttpServletRequest httpRequest) {
+        Integer userId = CurrentUserProvider.requireCurrentUserId(httpRequest);
+        agentConversationService.deleteOwned(id, userId);
+        logger.info("[AGENT][CONFIRM] 会话已删除 userId={}（不记录会话 id）", userId);
+        return R.ok();
     }
 }

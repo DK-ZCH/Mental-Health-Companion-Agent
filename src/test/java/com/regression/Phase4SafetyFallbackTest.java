@@ -48,6 +48,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @SpringBootTest(properties = "spring.ai.deepseek.api-key=test-only")
 @AutoConfigureMockMvc
+@org.springframework.transaction.annotation.Transactional
 @DisplayName("Phase4 Round3 安全兜底")
 class Phase4SafetyFallbackTest {
 

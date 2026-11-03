@@ -1,6 +1,8 @@
 package com.agent;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 
@@ -24,14 +26,16 @@ public class SpringAiAgentModel implements AgentModel {
 
     private final ChatClient chatClient;
     private final ToolCallRecorder recorder;
+    private final ChatMemory chatMemory;
 
     /** 回调缓存：AgentService 持有固定的 tools 数组，按其身份缓存，避免每轮反射重建 */
     private volatile Object[] cachedTools;
     private volatile ToolCallback[] cachedCallbacks;
 
-    public SpringAiAgentModel(ChatClient chatClient, ToolCallRecorder recorder) {
+    public SpringAiAgentModel(ChatClient chatClient, ToolCallRecorder recorder, ChatMemory chatMemory) {
         this.chatClient = chatClient;
         this.recorder = recorder;
+        this.chatMemory = chatMemory;
     }
 
     /**
@@ -74,12 +78,22 @@ public class SpringAiAgentModel implements AgentModel {
      */
     @Override
     public String answer(String systemPrompt, String userMessage, Object[] tools, Map<String, Object> toolContext) {
-        return chatClient.prompt()
+        // Step ⑤：有会话 id 时挂 Memory Advisor（历史以独立 messages 注入，不污染 system）
+        Object conversationId = toolContext == null ? null : toolContext.get(AgentIdentity.CTX_CONVERSATION_ID);
+
+        var spec = chatClient.prompt()
                 .system(systemPrompt)
                 .user(userMessage)
                 .toolCallbacks(callbacks(tools))   // ⚠️ 必须用 toolCallbacks，不能用 tools
-                .toolContext(toolContext)
-                .call()
-                .content();
+                .toolContext(toolContext);
+
+        if (conversationId != null) {
+            MessageChatMemoryAdvisor advisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
+            spec = spec.advisors(advisors -> advisors
+                    .param(ChatMemory.CONVERSATION_ID, String.valueOf(conversationId))
+                    .advisors(advisor));
+        }
+
+        return spec.call().content();
     }
 }

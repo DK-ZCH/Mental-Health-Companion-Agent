@@ -55,6 +55,15 @@ public record AgentIdentity(int userId, String userTable) {
     public static final String CTX_PENDING_TOKEN = "pendingAppointmentToken";
 
     /**
+     * {@code ToolContext} 中承载「当前会话 id」的键（Step ⑤ 多轮会话）。
+     *
+     * <p>由 Controller 校验归属/创建会话后放入；仅用于
+     * {@code MessageChatMemoryAdvisor} 的 conversationId 参数，
+     * <b>不进入</b>模型视野，也<b>不进入</b>观测日志（可关联到具体会话）。
+     */
+    public static final String CTX_CONVERSATION_ID = "conversationId";
+
+    /**
      * {@code ToolContext} 中承载「服务端 system 提示」的键（Round 4 · R4-Q6 试验）。
      *
      * <p>由 Controller 追加到 system prompt 末尾（<b>不改用户输入</b>）。
