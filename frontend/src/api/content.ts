@@ -24,9 +24,11 @@ export interface NotificationItem {
   createdAt?: string
 }
 
-/** 健康知识列表：GET /knowledgeArticle/list（@IgnoreAuth 公开 ✓） */
+/** 健康知识列表：GET /knowledgeArticle/list（@IgnoreAuth 公开 ✓）
+ *  Step ⑥：该接口为分页（service 缺省 page=1/limit=10），语料超过 10 篇后会溢出第一页 ⇒
+ *  显式传 page/limit 一次拉全（裁定 A：仅此处最小修改，不加分页 UI、不动后端） */
 export async function listKnowledge(): Promise<KnowledgeArticle[]> {
-  const data = await unwrap<unknown>(http.get('/knowledgeArticle/list'))
+  const data = await unwrap<unknown>(http.get('/knowledgeArticle/list', { params: { page: 1, limit: 100 } }))
   return pickList<KnowledgeArticle>(data).list
 }
 

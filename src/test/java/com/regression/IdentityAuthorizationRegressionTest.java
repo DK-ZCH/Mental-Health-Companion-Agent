@@ -6,6 +6,7 @@ import com.entity.AdminUserEntity;
 import com.entity.CounselorFavoriteEntity;
 import com.entity.CounselorEntity;
 import com.entity.CounselorMessageEntity;
+import com.entity.KnowledgeArticleEntity;
 import com.entity.StudentEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,7 @@ import com.security.CurrentUserProvider;
 import com.security.ForbiddenException;
 import com.security.PasswordHasher;
 import com.service.CounselorService;
+import com.service.KnowledgeArticleService;
 import com.service.StudentService;
 
 import java.util.Date;
@@ -110,6 +112,10 @@ class IdentityAuthorizationRegressionTest {
     @Autowired
     private CounselorFavoriteService xinlilaoshiCollectionService;
 
+    /** Step ⑥：语料入库后占位文章 id=1 不复存在，内容端点测试改用现存语料的真实 id */
+    @Autowired
+    private KnowledgeArticleService jiankangzhishiService;
+
     @Autowired
     private AuthTokenService tokenService;
 
@@ -183,8 +189,11 @@ class IdentityAuthorizationRegressionTest {
     @Test
     @DisplayName("4. 内容类端点【不受身份授权批影响】：知识/公告/字典/配置仍 200；试卷/试题改由可见性规则判定")
     void contentEndpointsAreUnaffected() throws Exception {
+        // Step ⑥（2026-11-03）：占位文章（id=1..5）已被 12 篇语料替换（自增 id 从 90016 起），
+        // 固定 id=1 会命中「查不到数据」的 511 —— 改为动态取现存任一语料的真实 id。
+        long knowledgeId = jiankangzhishiService.list().get(0).getId();
         String[] contentEndpoints = {
-                "/knowledgeArticle/info/1",
+                "/knowledgeArticle/info/" + knowledgeId,
                 "/notification/info/1",
                 "/sysDictItem/info/1",
                 "/config/info/1"

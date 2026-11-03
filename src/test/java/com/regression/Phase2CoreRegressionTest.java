@@ -50,8 +50,10 @@ class Phase2CoreRegressionTest {
 
     // ================== 基线常量（当前种子数据的期望值） ==================
 
-    /** 心理健康知识文章数（knowledge_article） */
-    private static final int BASELINE_KNOWLEDGE_ARTICLES = 5;
+    /** 心理健康知识文章数（knowledge_article）
+     *  Step ⑥（2026-11-03）：5 条占位假数据已被 12 篇人工逐篇审核的语料替换（用户裁定 D3），
+     *  基线由 5 → 12；后续新增语料须同步更新本常量。 */
+    private static final int BASELINE_KNOWLEDGE_ARTICLES = 12;
     /** 测评试卷数（assessment_paper） */
     private static final int BASELINE_ASSESSMENT_PAPERS = 2;
     /** 学生数（student） */
