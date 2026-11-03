@@ -25,11 +25,19 @@ import java.util.Map;
 public class AgentService {
 
     private final AgentModel agentModel;
-    private final AssessmentTools assessmentTools;
 
-    public AgentService(AgentModel agentModel, AssessmentTools assessmentTools) {
+    /**
+     * 本轮可用的全部 Tool 对象（Phase 4 / Round 1 起为多个）。
+     *
+     * <p>刻意用 {@code Object[]} 而非具体类型：Tool 数量会随批次增长，
+     * 每次新增都改构造器签名会牵连所有调用点；保持 {@code Object...} 可扩展。
+     * <b>不</b>在此处做任何 Tool 过滤/权限判断 —— 域校验收在 {@code AgentToolGuard}。
+     */
+    private final Object[] tools;
+
+    public AgentService(AgentModel agentModel, Object... tools) {
         this.agentModel = agentModel;
-        this.assessmentTools = assessmentTools;
+        this.tools = tools == null ? new Object[0] : tools.clone();
     }
 
     /**
@@ -51,7 +59,7 @@ public class AgentService {
         return agentModel.answer(
                 AgentPrompts.SYSTEM,
                 message,
-                assessmentTools,
+                tools,
                 Map.of(
                         AgentIdentity.CTX_USER_ID, identity.userId(),
                         AgentIdentity.CTX_USER_TABLE, identity.userTable()

@@ -26,12 +26,22 @@ public class SpringAiAgentModel implements AgentModel {
         this.chatClient = chatClient;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>🔴 <b>形参必须是 {@code Object[]} 而不是 {@code Object}</b>：
+     * {@code ChatClient.tools(Object...)} 是可变参数，
+     * 若把数组装进一个 {@code Object} 再传，Spring AI 会把<b>整个数组</b>当成一个工具对象，
+     * 抛出 {@code No @Tool annotated methods found in [Ljava.lang.Object;}。
+     * 该缺陷在单测中不可见（测试用 {@code FakeAgentModel} 绕过了本类），
+     * 由运行时冒烟测试发现（2026-11-03）。
+     */
     @Override
-    public String answer(String systemPrompt, String userMessage, Object tools, Map<String, Object> toolContext) {
+    public String answer(String systemPrompt, String userMessage, Object[] tools, Map<String, Object> toolContext) {
         return chatClient.prompt()
                 .system(systemPrompt)
                 .user(userMessage)
-                .tools(tools)
+                .tools(tools)   // Object[] 在此展开为可变参数
                 .toolContext(toolContext)
                 .call()
                 .content();

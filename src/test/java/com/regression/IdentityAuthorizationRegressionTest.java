@@ -32,6 +32,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,6 +71,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+// 🔴 类级事务隔离（2026-11-03 修复，用户批准）：
+// 本类验证【真实写端点】的授权（/counselorMessage/update、/counselorMessage/add、
+// /student/update、/counselor/update 等）。修复前这些请求直接作用正式库且不回滚 ——
+// 每次 mvn test 都会把 counselor_message.id=2.replied_at 改写为当前时间
+// （CounselorMessageController#update 无条件 setRepliedAt(new Date())）。
+// 根因已确定性复现（单跑本类 → 时间戳随执行时刻变化）。
+// 加类级 @Transactional 后 MockMvc 在同一事务内执行，写操作测试结束自动回滚。
+// ⚠️ 边界：仅保证本类回滚；其他测试类新增写路径仍需各自隔离。
+@Transactional
 class IdentityAuthorizationRegressionTest {
 
     /** 期望被拒绝：HTTP 403 + body.code=403 */

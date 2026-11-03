@@ -22,9 +22,9 @@ public interface AgentModel {
      *
      * @param systemPrompt 系统提示词（服务端固定常量，不含用户数据）
      * @param userMessage  用户输入（已做长度校验）
-     * @param tools        挂载的工具对象（当前为 {@code AssessmentTools}）
+     * @param tools        挂载的工具对象（Phase 4 / Round 1 起为数组：T0 + T1–T4）
      * @param toolContext  工具上下文（含 {@code userId}，<b>不会发送给模型</b>）
      * @return 模型生成的最终自然语言回答
      */
-    String answer(String systemPrompt, String userMessage, Object tools, Map<String, Object> toolContext);
+    String answer(String systemPrompt, String userMessage, Object[] tools, Map<String, Object> toolContext);
 }

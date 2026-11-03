@@ -81,13 +81,13 @@ class AgentControllerRegressionTest {
 
         String lastSystemPrompt;
         String lastUserMessage;
-        Object lastTools;
+        Object[] lastTools;
         Map<String, Object> lastToolContext;
         RuntimeException failWith;
         String reply = "这是测试回答";
 
         @Override
-        public String answer(String systemPrompt, String userMessage, Object tools,
+        public String answer(String systemPrompt, String userMessage, Object[] tools,
                              Map<String, Object> toolContext) {
             invocationCount++;          // ← 方法入口：先计数，再做任何事
             this.lastSystemPrompt = systemPrompt;
@@ -252,13 +252,23 @@ class AgentControllerRegressionTest {
     }
 
     @Test
-    @DisplayName("6. 【安全】模型层只拿到 AssessmentTools，且 system prompt 为服务端常量")
+    @DisplayName("6. 【安全】模型层只拿到服务端装配的 5 个 Tool，且 system prompt 为服务端常量")
     void toolsAndPromptAreServerControlled() throws Exception {
         chat("{\"message\":\"你好\"}", studentToken);
 
+        // ⚠️ Phase 4 Round 1 起由 1 个 Tool 扩为 5 个（T0 + T1–T4）。
+        //    本断言的原意不变：**工具集合由服务端装配**，与请求体/模型输出无关。
         assertThat(fakeModel.lastTools)
-                .as("Step 11 只挂载一个只读工具")
-                .isInstanceOf(AssessmentTools.class);
+                .as("工具集合以数组形式传入（数量随批次增长）")
+                .isInstanceOf(Object[].class);
+
+        Object[] tools = (Object[]) fakeModel.lastTools;
+        assertThat(tools).as("Round 1 共 5 个只读 Tool").hasSize(5);
+        assertThat(java.util.Arrays.stream(tools).map(tool -> tool.getClass().getSimpleName()).toList())
+                .as("必须且只能是这 5 个；出现其他类型说明有人绕过 AgentConfig 注入")
+                .containsExactlyInAnyOrder("AssessmentTools", "AppointmentTools", "MessageTools",
+                        "WrongQuestionTools", "CounselorCatalogTools");
+
         assertThat(fakeModel.lastSystemPrompt)
                 .as("system prompt 必须来自服务端常量，不得拼接用户输入")
                 .isEqualTo(AgentPrompts.SYSTEM);
