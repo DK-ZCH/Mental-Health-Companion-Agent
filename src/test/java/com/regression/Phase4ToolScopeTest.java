@@ -3,7 +3,9 @@ package com.regression;
 import com.agent.AgentIdentity;
 import com.agent.AppointmentTools;
 import com.agent.CounselorCatalogTools;
+import com.agent.FavoriteTools;
 import com.agent.MessageTools;
+import com.agent.TrendTools;
 import com.agent.WrongQuestionTools;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,6 +59,12 @@ class Phase4ToolScopeTest {
     @Autowired
     private CounselorCatalogTools counselorCatalogTools;
 
+    @Autowired
+    private TrendTools trendTools;
+
+    @Autowired
+    private FavoriteTools favoriteTools;
+
     // ================== A. 角色域拒绝 ==================
 
     @Test
@@ -95,6 +103,8 @@ class Phase4ToolScopeTest {
         assertThatCode(() -> messageTools.getMyMessages(context)).doesNotThrowAnyException();
         assertThatCode(() -> wrongQuestionTools.getMyWrongQuestionSummary(context)).doesNotThrowAnyException();
         assertThatCode(() -> counselorCatalogTools.listAvailableCounselors(context)).doesNotThrowAnyException();
+        assertThatCode(() -> trendTools.getMyAssessmentTrend(context)).doesNotThrowAnyException();
+        assertThatCode(() -> favoriteTools.getMyFavorites(context)).doesNotThrowAnyException();
     }
 
     // ================== G. 签名契约 ==================
@@ -106,13 +116,16 @@ class Phase4ToolScopeTest {
         assertSignature(MessageTools.class.getMethod("getMyMessages", ToolContext.class));
         assertSignature(WrongQuestionTools.class.getMethod("getMyWrongQuestionSummary", ToolContext.class));
         assertSignature(CounselorCatalogTools.class.getMethod("listAvailableCounselors", ToolContext.class));
+        assertSignature(TrendTools.class.getMethod("getMyAssessmentTrend", ToolContext.class));
+        assertSignature(FavoriteTools.class.getMethod("getMyFavorites", ToolContext.class));
     }
 
     @Test
     @DisplayName("G2. 四个 Tool 类均为纯 POJO（无 Spring 注解），由 AgentConfig 装配")
     void toolsArePlainPojos() {
         for (Class<?> type : List.of(AppointmentTools.class, MessageTools.class,
-                WrongQuestionTools.class, CounselorCatalogTools.class)) {
+                WrongQuestionTools.class, CounselorCatalogTools.class,
+                TrendTools.class, FavoriteTools.class)) {
             assertThat(type.getAnnotations())
                     .as("%s 不应带 Spring 注解（保持可 new 出来做单测）", type.getSimpleName())
                     .isEmpty();
@@ -140,6 +153,12 @@ class Phase4ToolScopeTest {
                 .isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> counselorCatalogTools.listAvailableCounselors(context))
                 .as("%s → T4 必须抛异常（fail-closed）", label)
+                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> trendTools.getMyAssessmentTrend(context))
+                .as("%s → T5 必须抛异常（fail-closed）", label)
+                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> favoriteTools.getMyFavorites(context))
+                .as("%s → T6 必须抛异常（fail-closed）", label)
                 .isInstanceOf(IllegalStateException.class);
     }
 

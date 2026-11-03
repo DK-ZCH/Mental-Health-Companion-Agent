@@ -6,14 +6,17 @@ import com.agent.AgentService;
 import com.agent.AppointmentTools;
 import com.agent.AssessmentTools;
 import com.agent.CounselorCatalogTools;
+import com.agent.FavoriteTools;
 import com.agent.MessageTools;
 import com.agent.SpringAiAgentModel;
+import com.agent.TrendTools;
 import com.agent.WrongQuestionTools;
 import com.service.AssessmentPaperService;
 import com.service.AssessmentQuestionService;
 import com.service.AssessmentRecordService;
 import com.service.AssessmentWrongQuestionService;
 import com.service.CounselingAppointmentService;
+import com.service.CounselorFavoriteService;
 import com.service.CounselorMessageService;
 import com.service.CounselorService;
 import com.service.SysDictItemService;
@@ -84,14 +87,32 @@ public class AgentConfig {
      *
      * <p>新增 Tool 时在此追加一个参数即可；域校验收在 {@code AgentToolGuard}，不在此处过滤。
      */
+    /** T5：测评趋势（只读，基于本人记录 + 试卷满分归一化）*/
+    @Bean
+    public TrendTools trendTools(AssessmentRecordService recordService,
+                                 AssessmentPaperService paperService) {
+        return new TrendTools(recordService, paperService);
+    }
+
+    /** T6：我的收藏（只读，按 counselorId 聚合，白名单字段）*/
+    @Bean
+    public FavoriteTools favoriteTools(CounselorFavoriteService favoriteService,
+                                       CounselorService counselorService,
+                                       AgentDictLabels labels) {
+        return new FavoriteTools(favoriteService, counselorService, labels);
+    }
+
     @Bean
     public AgentService agentService(AgentModel agentModel,
                                      AssessmentTools assessmentTools,
                                      AppointmentTools appointmentTools,
                                      MessageTools messageTools,
                                      WrongQuestionTools wrongQuestionTools,
-                                     CounselorCatalogTools counselorCatalogTools) {
+                                     CounselorCatalogTools counselorCatalogTools,
+                                     TrendTools trendTools,
+                                     FavoriteTools favoriteTools) {
         return new AgentService(agentModel,
-                assessmentTools, appointmentTools, messageTools, wrongQuestionTools, counselorCatalogTools);
+                assessmentTools, appointmentTools, messageTools, wrongQuestionTools, counselorCatalogTools,
+                trendTools, favoriteTools);
     }
 }

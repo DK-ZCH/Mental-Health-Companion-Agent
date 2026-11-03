@@ -263,11 +263,11 @@ class AgentControllerRegressionTest {
                 .isInstanceOf(Object[].class);
 
         Object[] tools = (Object[]) fakeModel.lastTools;
-        assertThat(tools).as("Round 1 共 5 个只读 Tool").hasSize(5);
+        assertThat(tools).as("Round 2 共 7 个只读 Tool").hasSize(7);
         assertThat(java.util.Arrays.stream(tools).map(tool -> tool.getClass().getSimpleName()).toList())
-                .as("必须且只能是这 5 个；出现其他类型说明有人绕过 AgentConfig 注入")
+                .as("必须且只能是这 7 个；出现其他类型说明有人绕过 AgentConfig 注入")
                 .containsExactlyInAnyOrder("AssessmentTools", "AppointmentTools", "MessageTools",
-                        "WrongQuestionTools", "CounselorCatalogTools");
+                        "WrongQuestionTools", "CounselorCatalogTools", "TrendTools", "FavoriteTools");
 
         assertThat(fakeModel.lastSystemPrompt)
                 .as("system prompt 必须来自服务端常量，不得拼接用户输入")
