@@ -1,6 +1,8 @@
 package com.agent;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 
 import java.util.Map;
 
@@ -21,9 +23,43 @@ import java.util.Map;
 public class SpringAiAgentModel implements AgentModel {
 
     private final ChatClient chatClient;
+    private final ToolCallRecorder recorder;
 
-    public SpringAiAgentModel(ChatClient chatClient) {
+    /** 回调缓存：AgentService 持有固定的 tools 数组，按其身份缓存，避免每轮反射重建 */
+    private volatile Object[] cachedTools;
+    private volatile ToolCallback[] cachedCallbacks;
+
+    public SpringAiAgentModel(ChatClient chatClient, ToolCallRecorder recorder) {
         this.chatClient = chatClient;
+        this.recorder = recorder;
+    }
+
+    /**
+     * 把工具对象转换为<b>包装后的</b>回调。
+     *
+     * <p>🔴 Spike 事实：{@code ChatClient.tools(Object...)} <b>不接受</b> {@link ToolCallback}
+     * （会尝试扫描 {@code @Tool} 并失败），必须使用 {@code .toolCallbacks(...)}。
+     */
+    private ToolCallback[] callbacks(Object[] tools) {
+        ToolCallback[] local = cachedCallbacks;
+        if (local != null && cachedTools == tools) {
+            return local;
+        }
+        if (tools == null || tools.length == 0) {
+            return new ToolCallback[0];
+        }
+        ToolCallback[] built = MethodToolCallbackProvider.builder()
+                .toolObjects(tools)
+                .build()
+                .getToolCallbacks();
+
+        ToolCallback[] wrapped = new ToolCallback[built.length];
+        for (int i = 0; i < built.length; i++) {
+            wrapped[i] = new TimedToolCallback(built[i], recorder);
+        }
+        cachedTools = tools;
+        cachedCallbacks = wrapped;
+        return wrapped;
     }
 
     /**
@@ -41,7 +77,7 @@ public class SpringAiAgentModel implements AgentModel {
         return chatClient.prompt()
                 .system(systemPrompt)
                 .user(userMessage)
-                .tools(tools)   // Object[] 在此展开为可变参数
+                .toolCallbacks(callbacks(tools))   // ⚠️ 必须用 toolCallbacks，不能用 tools
                 .toolContext(toolContext)
                 .call()
                 .content();

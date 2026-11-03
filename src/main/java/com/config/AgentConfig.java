@@ -14,6 +14,7 @@ import com.agent.MessageTools;
 import com.agent.SafetyResources;
 import com.agent.SafetyRules;
 import com.agent.SpringAiAgentModel;
+import com.agent.ToolCallRecorder;
 import com.agent.TrendTools;
 import com.agent.WrongQuestionTools;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,9 +48,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AgentConfig {
 
+    /**
+     * Tool 调用观测（Observability 小批）：只记录工具名/耗时/成功失败，
+     * 不记录入参、返回内容、异常信息与用户标识。
+     */
     @Bean
-    public AgentModel agentModel(ChatModel chatModel) {
-        return new SpringAiAgentModel(ChatClient.builder(chatModel).build());
+    public ToolCallRecorder toolCallRecorder() {
+        return new ToolCallRecorder();
+    }
+
+    @Bean
+    public AgentModel agentModel(ChatModel chatModel, ToolCallRecorder toolCallRecorder) {
+        return new SpringAiAgentModel(ChatClient.builder(chatModel).build(), toolCallRecorder);
     }
 
     @Bean
