@@ -130,7 +130,11 @@ public class AgentService {
             }
         }
 
-        String modelAnswer = agentModel.answer(systemPrompt, userMessage, tools, context);
+        // 债 1：模型自由文本在返回前做号码遮蔽（唯一遮蔽点，卡片/语料不经过）。
+        // Prompt 约束无法完全阻止模型生成未经验证的号码（R3 实测），因此最终输出
+        // 必须由服务端确定性兜底；mask(null) 透传，下方原有 null 处理逻辑保持不变。
+        String modelAnswer = PhoneMaskingPolicy.mask(
+                agentModel.answer(systemPrompt, userMessage, tools, context));
 
         SafetyRules.SafetyDecision decision = safetyRules.evaluate(message);
         SafetyNotice safety = new SafetyNotice(decision.triggered(), safetyResources.status());

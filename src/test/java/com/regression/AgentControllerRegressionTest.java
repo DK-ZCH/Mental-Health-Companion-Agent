@@ -4,6 +4,7 @@ import com.agent.AgentIdentity;
 import com.agent.AgentModel;
 import com.agent.AgentPrompts;
 import com.agent.AssessmentTools;
+import com.agent.PhoneMaskingPolicy;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -180,6 +181,25 @@ class AgentControllerRegressionTest {
         assertThat(fakeModel.invocationCount)
                 .as("正常路径：AgentModel.answer() 恰好调用 1 次")
                 .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("4a. 【债 1】模型自由文本含号码 → 最终 answer 服务端遮蔽 + 指引（不依赖 Prompt）")
+    void modelAnswerPhoneMasked() throws Exception {
+        fakeModel.reply = "可以拨打 400-161-9995 寻求帮助，也可联系 13812345678。";
+
+        MvcResult result = chat("{\"message\":\"帮我找个心理援助电话\"}", studentToken);
+        JsonNode body = body(result);
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+        assertThat(body.path("code").asInt()).isZero();
+        String answer = body.path("answer").asText();
+        assertThat(answer)
+                .as("模型生成的未经验证号码必须被服务端遮蔽（债 1 · 唯一遮蔽点在 AgentService）")
+                .doesNotContain("400-161-9995")
+                .doesNotContain("13812345678")
+                .contains(PhoneMaskingPolicy.MASK_TEXT)
+                .contains("寻求帮助");
     }
 
     @Test
