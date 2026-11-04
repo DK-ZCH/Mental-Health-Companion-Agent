@@ -122,11 +122,15 @@ public class AgentService {
         // · Gate 只决定「是否注入」，不决定 Tool 是否可用（Tool 循环照常）；
         // · SafetyRules 评估的是【用户原话】，与检索正交（S10：卡片与检索可同时成立）；
         // · 检索空 ⇒ 不注入任何标记段（S9：不是注入空段）。
-        String userMessage = message;
+        // ⑦b-2 方案 d：用户原文中的段标记字面量在【拼接前】转义（真段由服务端生成，不经转义）。
+        // Gate/Retriever 仍消费原始 message（E5：转义只影响最终发给模型的拼接文本）。
+        // 定位：仅消除两个标记字面量的伪造，不宣称解决所有 Prompt Injection。
+        String escapedMessage = KnowledgeMarkerEscaper.escape(message);
+        String userMessage = escapedMessage;
         if (ragGate.evaluate(message) == RagGate.Decision.ALLOW_RAG) {
             List<RagRetriever.RagSnippet> snippets = ragRetriever.retrieve(message);
             if (!snippets.isEmpty()) {
-                userMessage = buildKnowledgeContext(snippets) + "\n\n" + message;
+                userMessage = buildKnowledgeContext(snippets) + "\n\n" + escapedMessage;
             }
         }
 
