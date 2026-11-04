@@ -79,3 +79,14 @@ logging:
     # P0-AUTH-TOKEN-LOG：AuthTokenDao 含 token 字段（登录令牌）——DEBUG 参数行会以明文
     # 输出真实登录令牌（Q1 实锤），降为 warn 阻断会话劫持面（Q3 已验证有效）。
     com.dao.AuthTokenDao: warn
+    # P1 敏感 DAO 日志治理（2026-11-04）：以下 9 个 DAO 的写参数含用户内容/答案/凭据/PII，
+    # 降为 warn；公开语料/公告/字典/配置/试卷名/收藏 6 个维持 debug（保留调试能力，非全局关闭）。
+    com.dao.CounselorMessageDao: warn
+    com.dao.AssessmentAnswerDao: warn
+    com.dao.AssessmentWrongQuestionDao: warn
+    com.dao.AssessmentQuestionDao: warn
+    com.dao.AdminUserDao: warn
+    com.dao.CounselorDao: warn
+    com.dao.StudentDao: warn
+    com.dao.AssessmentRecordDao: warn
+    com.dao.CounselingAppointmentDao: warn
