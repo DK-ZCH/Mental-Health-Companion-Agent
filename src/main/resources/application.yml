@@ -76,3 +76,6 @@ logging:
     com.dao: debug
     com.dao.AgentConversationDao: warn
     com.dao.AgentMessageDao: warn
+    # P0-AUTH-TOKEN-LOG：AuthTokenDao 含 token 字段（登录令牌）——DEBUG 参数行会以明文
+    # 输出真实登录令牌（Q1 实锤），降为 warn 阻断会话劫持面（Q3 已验证有效）。
+    com.dao.AuthTokenDao: warn
