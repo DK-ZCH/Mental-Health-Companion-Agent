@@ -11,6 +11,9 @@ import com.agent.AssessmentTools;
 import com.agent.CounselorCatalogTools;
 import com.agent.FavoriteTools;
 import com.agent.MessageTools;
+import com.agent.KeywordKnowledgeRetriever;
+import com.agent.RagGate;
+import com.agent.RagRetriever;
 import com.agent.SafetyResources;
 import com.agent.SafetyRules;
 import com.agent.AgentChatMemoryRepository;
@@ -197,10 +200,29 @@ public class AgentConfig {
                 counselorService, labels);
     }
 
+    /**
+     * RAG 资格 Gate（Step ⑦ · 设计冻结 §二A）：确定性规则常量类，不用 LLM 判意图。
+     */
+    @Bean
+    public RagGate ragGate() {
+        return new RagGate();
+    }
+
+    /**
+     * 知识检索（Step ⑦ · D2 双阶段）：⑦a 关键词实现（零新依赖）。
+     * ⑦b 向量实现须先有 ⑦a 同义漏检证据，届时替换本 Bean 即可（接口已隔离）。
+     */
+    @Bean
+    public RagRetriever ragRetriever(JdbcTemplate jdbcTemplate) {
+        return new KeywordKnowledgeRetriever(jdbcTemplate);
+    }
+
     @Bean
     public AgentService agentService(AgentModel agentModel,
                                      SafetyRules safetyRules,
                                      SafetyResources safetyResources,
+                                     RagGate ragGate,
+                                     RagRetriever ragRetriever,
                                      AssessmentTools assessmentTools,
                                      AppointmentTools appointmentTools,
                                      MessageTools messageTools,
@@ -209,7 +231,7 @@ public class AgentConfig {
                                      TrendTools trendTools,
                                      FavoriteTools favoriteTools,
                                      AppointmentBookingTools appointmentBookingTools) {
-        return new AgentService(agentModel, safetyRules, safetyResources,
+        return new AgentService(agentModel, safetyRules, safetyResources, ragGate, ragRetriever,
                 assessmentTools, appointmentTools, messageTools, wrongQuestionTools, counselorCatalogTools,
                 trendTools, favoriteTools, appointmentBookingTools);
     }
