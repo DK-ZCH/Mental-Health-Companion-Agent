@@ -49,6 +49,14 @@ public class AgentService {
     static final int KNOWLEDGE_CONTEXT_LIMIT = 4000;
 
     /**
+     * Step 23：服务端主动聚合 UserContext（{@code @Component}，<b>不是 Agent Tool</b>）。
+     *
+     * <p>🔴 本依赖是<b>固定构造参数</b>，绝不能放进下方 {@code Object... tools}：
+     * 后者会作为 Tool 暴露给 LLM，使上下文的有无取决于模型是否调用。
+     */
+    private final UserContextAssembler userContextAssembler;
+
+    /**
      * 本轮可用的全部 Tool 对象（Phase 4 / Round 1 起为多个）。
      *
      * <p>刻意用 {@code Object[]} 而非具体类型：Tool 数量会随批次增长，
@@ -58,17 +66,23 @@ public class AgentService {
     private final Object[] tools;
 
     public AgentService(AgentModel agentModel, SafetyRules safetyRules, SafetyResources safetyResources,
-                        RagGate ragGate, RagRetriever ragRetriever, Object... tools) {
+                        RagGate ragGate, RagRetriever ragRetriever,
+                        UserContextAssembler userContextAssembler, Object... tools) {
         if (safetyRules == null || safetyResources == null || ragGate == null || ragRetriever == null) {
             // fail-closed：缺安全/RAG 组件时【不允许】退化成「没有兜底」的 Agent ——
             // 那会让「忘记装配」变成静默的安全降级。
             throw new IllegalArgumentException("safetyRules / safetyResources / ragGate / ragRetriever 不得为空");
+        }
+        if (userContextAssembler == null) {
+            // Step 23：UserContext 由服务端主动构建；缺失时不允许静默降级为「没有上下文」。
+            throw new IllegalArgumentException("userContextAssembler 不得为空");
         }
         this.agentModel = agentModel;
         this.safetyRules = safetyRules;
         this.safetyResources = safetyResources;
         this.ragGate = ragGate;
         this.ragRetriever = ragRetriever;
+        this.userContextAssembler = userContextAssembler;
         this.tools = tools == null ? new Object[0] : tools.clone();
     }
 
@@ -126,13 +140,20 @@ public class AgentService {
         // Gate/Retriever 仍消费原始 message（E5：转义只影响最终发给模型的拼接文本）。
         // 定位：仅消除两个标记字面量的伪造，不宣称解决所有 Prompt Injection。
         String escapedMessage = KnowledgeMarkerEscaper.escape(message);
-        String userMessage = escapedMessage;
+        String knowledgeSegment = "";
         if (ragGate.evaluate(message) == RagGate.Decision.ALLOW_RAG) {
             List<RagRetriever.RagSnippet> snippets = ragRetriever.retrieve(message);
             if (!snippets.isEmpty()) {
-                userMessage = buildKnowledgeContext(snippets) + "\n\n" + escapedMessage;
+                knowledgeSegment = buildKnowledgeContext(snippets) + "\n\n";
             }
         }
+
+        // Step 23：服务端主动聚合的 USER_CONTEXT 段（与 RAG 段并列、各自闭合）。
+        // 二者都不拼进 System；用户原文永远在最后一段。空数据 => 不注入（与 ⑦a S9 同口径）。
+        String userContextSegment = userContextAssembler.buildSegment(identity);
+        String userMessage = knowledgeSegment
+                + (userContextSegment.isEmpty() ? "" : userContextSegment + "\n\n")
+                + escapedMessage;
 
         // 债 1：模型自由文本在返回前做号码遮蔽（唯一遮蔽点，卡片/语料不经过）。
         // Prompt 约束无法完全阻止模型生成未经验证的号码（R3 实测），因此最终输出

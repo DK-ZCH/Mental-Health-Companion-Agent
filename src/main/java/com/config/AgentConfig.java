@@ -20,6 +20,7 @@ import com.agent.AgentChatMemoryRepository;
 import com.agent.SpringAiAgentModel;
 import com.agent.ToolCallRecorder;
 import com.agent.TrendTools;
+import com.agent.UserContextAssembler;
 import com.agent.WrongQuestionTools;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.service.AssessmentPaperService;
@@ -230,8 +231,12 @@ public class AgentConfig {
                                      CounselorCatalogTools counselorCatalogTools,
                                      TrendTools trendTools,
                                      FavoriteTools favoriteTools,
-                                     AppointmentBookingTools appointmentBookingTools) {
+                                     AppointmentBookingTools appointmentBookingTools,
+                                     UserContextAssembler userContextAssembler) {
+        // Step 23：userContextAssembler 是【固定参数】，不是 Tool ——
+        // 绝不能落到后面的 Object... tools（那会把聚合器暴露给 LLM）。
         return new AgentService(agentModel, safetyRules, safetyResources, ragGate, ragRetriever,
+                userContextAssembler,
                 assessmentTools, appointmentTools, messageTools, wrongQuestionTools, counselorCatalogTools,
                 trendTools, favoriteTools, appointmentBookingTools);
     }

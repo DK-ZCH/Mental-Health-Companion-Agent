@@ -67,6 +67,21 @@ class AssessmentToolsTest {
     }
 
     @Test
+    @DisplayName("1b. 【Step 23 定点修正】内联身份校验的真实抛点也抛专用子类型")
+    void identityDenialUsesDedicatedSubtype() {
+        // 覆盖 AssessmentTools 内联校验的两条路径（缺上下文 / 域不符）
+        assertThatThrownBy(() -> tools.getMyAssessmentRecords(null))
+                .isInstanceOf(AgentIdentityDeniedException.class)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("identity");
+        assertThatThrownBy(() -> tools.getMyAssessmentRecords(
+                new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, STUDENT_A1_ID,
+                        AgentIdentity.CTX_USER_TABLE, "counselor"))))
+                .isInstanceOf(AgentIdentityDeniedException.class)
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     @DisplayName("2. ToolContext 中缺少 userId → 抛异常")
     void missingUserId_throws() {
         assertThatThrownBy(() -> tools.getMyAssessmentRecords(new ToolContext(Map.of())))

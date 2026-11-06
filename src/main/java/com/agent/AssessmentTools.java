@@ -121,7 +121,7 @@ public class AssessmentTools {
             // ⚠️ 日志只记录上下文形态，不记录其内容（可能含身份字段）。
             logger.error("[AGENT][SEC] 身份上下文非法（{}），终止本次 Agent 调用",
                     toolContext == null ? "toolContext=null" : "missing-or-invalid-identity");
-            throw new IllegalStateException(ERR_IDENTITY_CONTEXT_INVALID);
+            throw new AgentIdentityDeniedException(ERR_IDENTITY_CONTEXT_INVALID);
         }
 
         // ② 身份域校验（Step 12 核心）：userId 合法【不代表】可查。
@@ -132,7 +132,7 @@ public class AssessmentTools {
         if (!ALLOWED_TABLE.equals(identity.userTable())) {
             logger.error("[AGENT][SEC] 身份域不符（该工具仅允许 {}，实际 {}），终止本次 Agent 调用",
                     ALLOWED_TABLE, identity.userTable());
-            throw new IllegalStateException(ERR_IDENTITY_DOMAIN_DENIED);
+            throw new AgentIdentityDeniedException(ERR_IDENTITY_DOMAIN_DENIED);
         }
 
         int userId = identity.userId();

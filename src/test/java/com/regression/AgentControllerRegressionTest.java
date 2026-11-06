@@ -162,7 +162,14 @@ class AgentControllerRegressionTest {
         assertThat(fakeModel.invocationCount)
                 .as("边界值 1000 字符应正常进入模型层，且仅 1 次")
                 .isEqualTo(1);
-        assertThat(fakeModel.lastUserMessage).hasSize(MAX_MESSAGE_LENGTH);
+        // Step 23 起 userMessage = [RAG 段] + [USER_CONTEXT 段] + 用户原文，
+        // 故不能再断言整串长度为 1000；改断言「用户原文逐字完整、且位于最后一段」，
+        // 强度不变（原文仍必须恰好 1000 字符、不被截断或改写）。
+        String delivered = fakeModel.lastUserMessage;
+        assertThat(delivered).endsWith(boundary);
+        assertThat(delivered.substring(delivered.length() - MAX_MESSAGE_LENGTH))
+                .as("边界值 1000 字符的用户原文必须逐字完整进入模型层")
+                .isEqualTo(boundary);
     }
 
     // ================== 正常路径 ==================

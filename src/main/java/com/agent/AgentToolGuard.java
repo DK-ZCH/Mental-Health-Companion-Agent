@@ -19,6 +19,10 @@ import org.springframework.ai.chat.model.ToolContext;
  * 绝不返回「空结果」或「denied 结果」——
  * 否则安全失败会被包装成 HTTP 200 + code=0，监控层看不到安全事件。
  *
+ * <p>Step 23 定点修正：抛出的是 {@link AgentIdentityDeniedException}
+ * （{@link IllegalStateException} 的子类），使调用方能明确识别身份拒绝；
+ * 父类契约、错误码字符串与校验条件均未改变。
+ *
  * <p>⚠️ 日志只记录<b>身份域</b>与<b>上下文形态</b>，<b>不记录 userId</b>。
  */
 public final class AgentToolGuard {
@@ -49,12 +53,12 @@ public final class AgentToolGuard {
         if (identity == null) {
             logger.error("[AGENT][SEC] 身份上下文非法（{}），终止本次 Agent 调用",
                     toolContext == null ? "toolContext=null" : "missing-or-invalid-identity");
-            throw new IllegalStateException(ERR_IDENTITY_CONTEXT_INVALID);
+            throw new AgentIdentityDeniedException(ERR_IDENTITY_CONTEXT_INVALID);
         }
         if (!ALLOWED_TABLE.equals(identity.userTable())) {
             logger.error("[AGENT][SEC] 身份域不符（该工具仅允许 {}，实际 {}），终止本次 Agent 调用",
                     ALLOWED_TABLE, identity.userTable());
-            throw new IllegalStateException(ERR_IDENTITY_DOMAIN_DENIED);
+            throw new AgentIdentityDeniedException(ERR_IDENTITY_DOMAIN_DENIED);
         }
         return identity;
     }

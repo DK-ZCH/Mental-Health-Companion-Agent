@@ -1,6 +1,7 @@
 package com.regression;
 
 import com.agent.AgentIdentity;
+import com.agent.AgentIdentityDeniedException;
 import com.agent.AppointmentTools;
 import com.agent.CounselorCatalogTools;
 import com.agent.FavoriteTools;
@@ -92,6 +93,29 @@ class Phase4ToolScopeTest {
                 new ToolContext(Map.of(AgentIdentity.CTX_USER_ID, 1,
                         AgentIdentity.CTX_USER_TABLE, "   ")),
                 "userTable 为空白");
+    }
+
+    @Test
+    @DisplayName("A3b. 【Step 23 定点修正】真实 Tool 身份拒绝路径抛专用子类型（父类契约不变）")
+    void identityDenialUsesDedicatedSubtype() {
+        ToolContext denied = context(1, "counselor");
+        ToolContext missing = new ToolContext(Map.of());
+
+        // AgentToolGuard.requireStudent 的真实抛点：域不符 + 上下文非法
+        assertThatThrownBy(() -> messageTools.getMyMessages(denied))
+                .isInstanceOf(AgentIdentityDeniedException.class)
+                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> appointmentTools.getMyAppointments(missing))
+                .isInstanceOf(AgentIdentityDeniedException.class)
+                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> wrongQuestionTools.getMyWrongQuestionSummary(denied))
+                .isInstanceOf(AgentIdentityDeniedException.class);
+        assertThatThrownBy(() -> counselorCatalogTools.listAvailableCounselors(denied))
+                .isInstanceOf(AgentIdentityDeniedException.class);
+        assertThatThrownBy(() -> trendTools.getMyAssessmentTrend(denied))
+                .isInstanceOf(AgentIdentityDeniedException.class);
+        assertThatThrownBy(() -> favoriteTools.getMyFavorites(denied))
+                .isInstanceOf(AgentIdentityDeniedException.class);
     }
 
     @Test
