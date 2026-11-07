@@ -13,18 +13,26 @@
  *
  * 【计算规则】全部集中在下方纯函数中，不下沉到 api 层（api 只取数+字段投影）。
  */
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { listAssessmentRecords, type AssessmentRecord } from '@/api/assessment'
 import { listMyAppointments, type AppointmentItem } from '@/api/appointment'
 import { listMyMessages, type MessageItem } from '@/api/message'
 import { listKnowledge, type KnowledgeArticle } from '@/api/content'
 import {
   askAgent,
+  submitPlanAction,
   listConversations,
   getConversationMessages,
   deleteConversation,
   type AgentConversationItem,
-} from '@/api/agent'
+  type PlanState,
+  } from '@/api/agent'
+import {
+  remainingSeconds,
+  planStateOnTick,
+  planStateOnFailure,
+  canConfirm,
+} from '@/utils/planState'
 import SectionCard from '@/components/dashboard/SectionCard.vue'
 import StatCard from '@/components/dashboard/StatCard.vue'
 import EmptyBlock from '@/components/dashboard/EmptyBlock.vue'
@@ -345,6 +353,60 @@ const conversationsLoading = ref(false)
 const currentConversationId = ref<number | null>(null)
 const historyLoading = ref(false)
 
+// ==================== Step 25：辅助计划（P-4 冻结） ====================
+/** 服务端确定性给出的计划状态；null = 尚未发起过计划 */
+const planState = ref<PlanState | null>(null)
+/** 最近一份建议草案正文（展示用；真正状态以 planState 为准） */
+const planDraftText = ref('')
+/** 草案剩余有效秒数（每秒递减；只影响 UI，不决定是否生效） */
+const planExpiresIn = ref(0)
+/** 服务端 TTL 对应的绝对到期时间戳；null = 无有效草稿 */
+const planExpiresAt = ref<number | null>(null)
+const planLoading = ref(false)
+
+let planTimer: ReturnType<typeof setInterval> | null = null
+
+/** 停止倒计时并清空有效期展示（不触碰服务端） */
+function stopPlanCountdown() {
+  if (planTimer != null) {
+    clearInterval(planTimer)
+    planTimer = null
+  }
+  planExpiresAt.value = null
+  planExpiresIn.value = 0
+}
+
+/** 按服务端返回的秒数启动真实倒计时；归零后隐藏确认按钮并提示过期 */
+function startPlanCountdown(seconds: number) {
+  stopPlanCountdown()
+  if (seconds <= 0) {
+    planState.value = planStateOnTick(planState.value, 0)
+    return
+  }
+  planExpiresAt.value = Date.now() + seconds * 1000
+  planExpiresIn.value = seconds
+  planTimer = setInterval(() => {
+    const remaining = remainingSeconds(planExpiresAt.value, Date.now())
+    planExpiresIn.value = remaining
+    planState.value = planStateOnTick(planState.value, remaining)
+    if (remaining <= 0) stopPlanCountdown()
+  }, 1000)
+}
+
+onUnmounted(() => stopPlanCountdown())
+
+/** 本地清理；会话切换时调用，并以旧会话 id best-effort 通知服务端放弃草稿 */
+function clearPlanState(discardOnServer: boolean) {
+  const previousConversationId = currentConversationId.value
+  stopPlanCountdown()
+  planState.value = null
+  planDraftText.value = ''
+  if (discardOnServer && previousConversationId != null) {
+    // best-effort：失败不影响切换会话主流程；不带 message
+    void submitPlanAction('DISCARD', '', previousConversationId).catch(() => {})
+  }
+}
+
 async function loadConversations() {
   conversationsLoading.value = true
   try {
@@ -385,10 +447,66 @@ async function sendToAgent() {
   }
 }
 
+/**
+ * Step 25：三个显式动作。确认/放弃不经过输入框、不经过 askAgent，
+ * 完全由服务端 Java 状态机决定结果（P-2 冻结）。
+ */
+async function handlePlanAction(action: 'PREVIEW' | 'CONFIRM' | 'DISCARD') {
+  if (planLoading.value || aiLoading.value) return
+  const message = aiInput.value.trim()
+  if (action === 'PREVIEW') {
+    if (!message) return
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      aiError.value = `消息不能超过 ${MAX_MESSAGE_LENGTH} 字`
+      return
+    }
+  }
+
+  planLoading.value = true
+  aiError.value = ''
+  if (action === 'PREVIEW') {
+    agentMessages.value.push({ role: 'user', content: message })
+  }
+  try {
+    const result = await submitPlanAction(
+      action,
+      action === 'PREVIEW' ? message : '',
+      currentConversationId.value ?? undefined
+    )
+    // 状态唯一来源：服务端响应（不可由前端推断）
+    planState.value = result.plan.state
+    if (action === 'PREVIEW' && result.plan.state === 'DRAFT') {
+      currentConversationId.value = result.conversationId ?? currentConversationId.value
+      agentMessages.value.push({ role: 'assistant', content: result.answer })
+      planDraftText.value = result.answer
+      // 真实倒计时：归零后自动隐藏确认按钮；最终仍以服务端校验为准
+      startPlanCountdown(result.plan.expiresInSeconds)
+    } else {
+      agentMessages.value.push({ role: 'assistant', content: result.answer })
+      planDraftText.value = ''
+      stopPlanCountdown()
+    }
+    void loadConversations()
+  } catch {
+    // 🔴 审查修正：请求失败时服务端草稿状态未知，
+    // 清空本地可确认态与倒计时，避免「失效草案仍显示可确认」。
+    // 不擅自发 DISCARD（该请求可能已到达服务端），也不改服务端状态。
+    stopPlanCountdown()
+    planState.value = planStateOnFailure()
+    planDraftText.value = ''
+    aiError.value = MSG_AI_FAILED
+  } finally {
+    planLoading.value = false
+  }
+}
+
 async function openConversation(conv: AgentConversationItem) {
   if (historyLoading.value || conv.id === currentConversationId.value) return
   historyLoading.value = true
   aiError.value = ''
+  // 会话切换：旧会话草稿不可在新会话确认，先清理并通知服务端
+  if (planState.value === 'DRAFT') clearPlanState(true)
+  else clearPlanState(false)
   try {
     const items = await getConversationMessages(conv.id)
     agentMessages.value = items.map((m) => ({ role: m.role, content: m.content }))
@@ -401,6 +519,9 @@ async function openConversation(conv: AgentConversationItem) {
 }
 
 function startNewConversation() {
+  // 新会话：清本地状态 + best-effort DISCARD（服务端草稿绑定旧 conversationId）
+  if (planState.value === 'DRAFT') clearPlanState(true)
+  else clearPlanState(false)
   currentConversationId.value = null
   agentMessages.value = []
   aiError.value = ''
@@ -413,6 +534,8 @@ async function removeConversation(conv: AgentConversationItem) {
     await deleteConversation(conv.id)
     conversations.value = conversations.value.filter((c) => c.id !== conv.id)
     if (conv.id === currentConversationId.value) {
+      if (planState.value === 'DRAFT') clearPlanState(true)
+      else clearPlanState(false)
       currentConversationId.value = null
       agentMessages.value = []
     }
@@ -547,13 +670,49 @@ const renderedMessages = computed(() =>
           <el-button
             type="primary"
             :loading="aiLoading"
-            :disabled="!aiInput.trim()"
+            :disabled="!aiInput.trim() || planLoading"
             @click="sendToAgent"
             data-test="ai-send"
           >
             {{ aiLoading ? '正在查询…' : '发送' }}
           </el-button>
+          <el-button
+            :loading="planLoading"
+            :disabled="!aiInput.trim() || aiLoading"
+            @click="handlePlanAction('PREVIEW')"
+            data-test="plan-preview"
+          >
+            生成计划建议
+          </el-button>
+          <template v-if="canConfirm(planState, planExpiresIn)">
+            <el-button
+              type="success"
+              :disabled="planLoading || aiLoading"
+              @click="handlePlanAction('CONFIRM')"
+              data-test="plan-confirm"
+            >
+              确认
+            </el-button>
+            <el-button
+              :disabled="planLoading || aiLoading"
+              @click="handlePlanAction('DISCARD')"
+              data-test="plan-discard"
+            >
+              放弃
+            </el-button>
+          </template>
           <span class="ai-tip">由平台数据助手基于你自己的记录回答</span>
+        </div>
+        <!-- 计划状态由服务端确定性给出；确认前恒为「建议草案，未生效」 -->
+        <div v-if="planState" class="ai-plan-state" data-test="plan-state">
+          <span v-if="planState === 'DRAFT'">
+            建议草案，未生效<template v-if="planDraftText">（可查看上方建议内容）</template>
+            <template v-if="planExpiresIn > 0">（{{ planExpiresIn }} 秒内可确认）</template>
+          </span>
+          <span v-else-if="planState === 'CONFIRMED'">已确认（仅在当前会话内保留）</span>
+          <span v-else-if="planState === 'DISCARDED'">已放弃该建议草案</span>
+          <span v-else-if="planState === 'EXPIRED'">建议草案已过期，请重新生成</span>
+          <span v-else>当前没有可确认的建议草案</span>
         </div>
 
         <el-alert
@@ -701,10 +860,16 @@ const renderedMessages = computed(() =>
 .ai-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
 }
 .ai-tip {
   color: #909399;
+  font-size: 12px;
+}
+.ai-plan-state {
+  margin-top: 8px;
+  color: #606266;
   font-size: 12px;
 }
 .ai-answer {

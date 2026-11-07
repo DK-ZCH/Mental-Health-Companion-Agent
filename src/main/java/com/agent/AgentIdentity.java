@@ -72,6 +72,16 @@ public record AgentIdentity(int userId, String userTable) {
     public static final String CTX_SYSTEM_HINT = "systemHint";
 
     /**
+     * Step 25：{@code extraContext} 中承载「服务端当前日期」的键（C-1 冻结）。
+     *
+     * <p>仅由 Controller 在 {@code PREVIEW} 请求写入，客户端不可提供。
+     * {@link AgentService} 在拼接前<b>移除</b>该键（与 {@link #CTX_SYSTEM_HINT} 同构），
+     * 不让它无意义地进入 {@code ToolContext}；值为空 ⇒ 不拼接，
+     * {@code /agent/chat} 行为逐字不变。
+     */
+    public static final String CTX_PLANNING_DATE = "planningDate";
+
+    /**
      * 从 {@link ToolContext} 解析身份。
      *
      * <p><b>刻意返回 {@code null} 而不是抛异常</b>：本方法只做「解析」，

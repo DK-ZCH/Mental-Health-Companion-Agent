@@ -138,8 +138,17 @@ public class AgentService {
         // · 检索空 ⇒ 不注入任何标记段（S9：不是注入空段）。
         // ⑦b-2 方案 d：用户原文中的段标记字面量在【拼接前】转义（真段由服务端生成，不经转义）。
         // Gate/Retriever 仍消费原始 message（E5：转义只影响最终发给模型的拼接文本）。
-        // 定位：仅消除两个标记字面量的伪造，不宣称解决所有 Prompt Injection。
+        // 定位：仅消除标记字面量的伪造，不宣称解决所有 Prompt Injection。
         String escapedMessage = KnowledgeMarkerEscaper.escape(message);
+
+        // Step 25 / C-1：Planning 日期拼接开关。值仅由 Controller 在 PREVIEW 写入，
+        // 从 context 中移除（不进入 ToolContext）；为空 ⇒ 不拼接，/agent/chat 行为逐字不变。
+        Object planningDate = context.remove(AgentIdentity.CTX_PLANNING_DATE);
+        // 仅在 Planning 模式追加第三层转义；非 Planning 请求 userMessage 与改动前逐字一致。
+        // 独立纯函数，不改两个既有 Escaper 的常量与用例。
+        if (planningDate instanceof String && !((String) planningDate).isBlank()) {
+            escapedMessage = PlanningMarkerEscaper.escape(escapedMessage);
+        }
         String knowledgeSegment = "";
         if (ragGate.evaluate(message) == RagGate.Decision.ALLOW_RAG) {
             List<RagRetriever.RagSnippet> snippets = ragRetriever.retrieve(message);
@@ -151,8 +160,16 @@ public class AgentService {
         // Step 23：服务端主动聚合的 USER_CONTEXT 段（与 RAG 段并列、各自闭合）。
         // 二者都不拼进 System；用户原文永远在最后一段。空数据 => 不注入（与 ⑦a S9 同口径）。
         String userContextSegment = userContextAssembler.buildSegment(identity);
+
+        // Step 25 / C-3：PLANNING_CONTEXT 段置于 USER_CONTEXT 之后、用户原文之前，
+        // 三段各自闭合、都不进 System。仅 PREVIEW 注入；CONFIRM/DISCARD 不经过模型层。
+        String planningSegment = (planningDate instanceof String date && !date.isBlank())
+                ? PlanningTimeContext.segment(date) + "\n\n"
+                : "";
+
         String userMessage = knowledgeSegment
                 + (userContextSegment.isEmpty() ? "" : userContextSegment + "\n\n")
+                + planningSegment
                 + escapedMessage;
 
         // 债 1：模型自由文本在返回前做号码遮蔽（唯一遮蔽点，卡片/语料不经过）。

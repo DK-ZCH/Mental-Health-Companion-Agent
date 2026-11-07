@@ -22,6 +22,22 @@ export interface AgentChatResult {
   safety?: { triggered?: boolean; resourceStatus?: string }
 }
 
+/** Step 25：计划动作（P-4 冻结：显式按钮产生，不由模型判断自然语言） */
+export type PlanAction = 'PREVIEW' | 'CONFIRM' | 'DISCARD'
+
+/** Step 25：服务端确定性给出的互斥状态（P-6：模型不得自称生效） */
+export type PlanState = 'DRAFT' | 'CONFIRMED' | 'DISCARDED' | 'EXPIRED' | 'NO_DRAFT'
+
+export interface AgentPlanResult {
+  code: number
+  msg?: string
+  answer?: string
+  conversationId?: number
+  safety?: { triggered?: boolean; resourceStatus?: string }
+  /** 必须保留：前端确认交互的唯一状态来源 */
+  plan?: { state?: PlanState; expiresInSeconds?: number }
+}
+
 /** 会话列表项（仅本人会话） */
 export interface AgentConversationItem {
   id: number
@@ -54,6 +70,41 @@ export async function askAgent(
     throw new ApiError(body?.code ?? -1, body?.msg || `请求失败（code=${body?.code}）`)
   }
   return { answer: body.answer || '', conversationId: body.conversationId }
+}
+
+/**
+ * Step 25：计划建议草案 / 确认 / 放弃。
+ *
+ * ⚠️ 与常规 `{ code, data }` 不同：响应字段在顶层，不能用 unwrap()。
+ * `plan.state` 是状态唯一来源，必须保留（不可像既有 safety 那样丢弃）。
+ * CONFIRM / DISCARD 不需要 message。
+ */
+export async function submitPlanAction(
+  action: PlanAction,
+  message: string,
+  conversationId?: number
+): Promise<{ answer: string; conversationId?: number; plan: { state: PlanState; expiresInSeconds: number } }> {
+  const payload: { action: PlanAction; message?: string; conversationId?: number } = { action }
+  if (message) {
+    payload.message = message
+  }
+  if (conversationId != null) {
+    payload.conversationId = conversationId
+  }
+  const res = await http.post<AgentPlanResult>('/agent/plan', payload)
+  const body = res.data
+
+  if (!body || body.code !== 0) {
+    throw new ApiError(body?.code ?? -1, body?.msg || `请求失败（code=${body?.code}）`)
+  }
+  return {
+    answer: body.answer || '',
+    conversationId: body.conversationId,
+    plan: {
+      state: body.plan?.state ?? 'NO_DRAFT',
+      expiresInSeconds: body.plan?.expiresInSeconds ?? 0
+    }
+  }
 }
 
 /** 我的会话列表（按最近消息倒序；绝不包含他人会话） */

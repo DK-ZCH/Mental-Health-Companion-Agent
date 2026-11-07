@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 /**
  * Agent 对话接口（Phase 4 / Step 11）。
  *
@@ -59,16 +61,48 @@ public class AgentController {
      */
     static final String SESSION_PENDING_APPOINTMENT = "PENDING_APPOINTMENT_CONFIRMATION";
 
+    /**
+     * Step 25：{@code HttpSession} 中的单个计划草案键（P-1 冻结：会话内、不落库）。
+     * 与预约草稿键分开，避免两条状态链互相覆盖。
+     */
+    /** public：供集成回归注入「过期草稿」夹具；不改变运行时行为。 */
+    public static final String SESSION_PENDING_PLAN = "PENDING_PLAN_CONFIRMATION";
+
+    /**
+     * 当前会话内「已确认」标记（P-1 冻结：确认后 Session 标记为已确认）。
+     * 只存状态字面量，不落库、不存任何用户内容；会话结束即消失。
+     *
+     * <p>【2026-11-07 审查修正】曾一度以「无读取方」为由删除，
+     * 但 P-1 明确要求服务端 Session 标记，而响应状态与客户端 planState
+     * 都不能替代服务端会话状态。现按 P-1 恢复，并由集成回归断言写入。
+     */
+    /** public：供集成回归断言 P-1 的「确认后 Session 标记」；不改变运行时行为。 */
+    public static final String SESSION_CONFIRMED_PLAN = "CONFIRMED_PLAN_STATE";
+
+    /** 计划草案有效期（与预约草稿 TTL 一致：5 分钟）；过期后不承诺保留。 */
+    /** public：供集成回归计算过期夹具时间戳；不改变运行时行为。 */
+    public static final long PLAN_DRAFT_TTL_MILLIS = 300_000L;
+
+    /** 服务端固定文言（P-6：不让模型自称生效）。 */
+    private static final String MSG_PLAN_CONFIRMED = "已确认。该计划仅在当前会话内保留，不会自动创建任务或日程。";
+    private static final String MSG_PLAN_DISCARDED = "已放弃该建议草案。";
+    private static final String MSG_PLAN_NO_DRAFT = "当前没有可确认的建议草案，请重新生成。";
+    private static final String MSG_PLAN_EXPIRED = "建议草案已过期，请重新生成。";
+    private static final String MSG_PLAN_FAILED = "服务暂时不可用，请稍后再试";
+
     private final AgentService agentService;
     private final AgentConversationService agentConversationService;
     private final AgentMessageService agentMessageService;
+    private final SafetyResources safetyResources;
 
     public AgentController(AgentService agentService,
                            AgentConversationService agentConversationService,
-                           AgentMessageService agentMessageService) {
+                           AgentMessageService agentMessageService,
+                           SafetyResources safetyResources) {
         this.agentService = agentService;
         this.agentConversationService = agentConversationService;
         this.agentMessageService = agentMessageService;
+        this.safetyResources = safetyResources;
     }
 
     /**
@@ -192,5 +226,160 @@ public class AgentController {
         agentConversationService.deleteOwned(id, userId);
         logger.info("[AGENT][CONFIRM] 会话已删除 userId={}（不记录会话 id）", userId);
         return R.ok();
+    }
+
+    // ================== Step 25：辅助计划（P-1～P-6 冻结） ==================
+
+    /**
+     * {@code POST /agent/plan}：生成建议草案 / 确认 / 放弃。
+     *
+     * <p><b>不改 /agent/chat</b>：本端点独立，原有 message 必填校验与契约逐字保留。
+     *
+     * <p><b>P-2 核心</b>：{@code action} 只是意图声明，不是状态凭证。
+     * {@code CONFIRM} 必须经 C-2 五步校验（Session 草稿 / 身份二元归属 /
+     * 会话一致性与 requireOwned / 有效期 / 消费状态）才产生 {@code CONFIRMED}。
+     * 确认由 Java 确定性处理，模型无决定权；{@code CONFIRM}/{@code DISCARD}
+     * 完全不调用 {@link AgentModel}。
+     */
+    @PostMapping("/plan")
+    public R plan(@RequestBody(required = false) AgentPlanRequest request,
+                  HttpServletRequest httpRequest) {
+        PlanningAction action = request == null ? null : PlanningAction.parse(request.getAction());
+        if (action == null) {
+            throw new BadRequestException("action 必须是 PREVIEW / CONFIRM / DISCARD");
+        }
+
+        // 身份唯一来源：登录态（不在 try 内，保持既有 403 语义）
+        Integer userId = CurrentUserProvider.requireCurrentUserId(httpRequest);
+        String userTable = CurrentUserProvider.currentTableName(httpRequest);
+        if (!AgentIdentity.TABLE_STUDENT.equals(userTable)) {
+            logger.warn("[AGENT][SEC] 身份域不被允许（userTable={}），拒绝进入计划（不记录 userId）", userTable);
+            throw new ForbiddenException();
+        }
+        AgentIdentity identity = new AgentIdentity(userId, userTable);
+        HttpSession session = httpRequest.getSession(true);
+
+        return switch (action) {
+            case PREVIEW -> previewPlan(request, identity, session);
+            case CONFIRM -> resolvePlan(request, identity, session, PlanState.CONFIRMED);
+            case DISCARD -> resolvePlan(request, identity, session, PlanState.DISCARDED);
+        };
+    }
+
+    /** PREVIEW：生成建议草案；单草稿，新草案覆盖旧草案。 */
+    private R previewPlan(AgentPlanRequest request, AgentIdentity identity, HttpSession session) {
+        String message = request.getMessage();
+        if (message == null || message.isBlank()) {
+            throw new BadRequestException("message 不能为空");
+        }
+        if (message.length() > MAX_MESSAGE_LENGTH) {
+            throw new BadRequestException("message 长度不能超过 " + MAX_MESSAGE_LENGTH + " 个字符");
+        }
+
+        Long conversationId;
+        if (request.getConversationId() != null) {
+            conversationId = agentConversationService
+                    .requireOwned(request.getConversationId(), identity.userId()).getId();
+        } else {
+            conversationId = agentConversationService.create(identity.userId(), message);
+        }
+
+        Map<String, Object> extraContext = new java.util.HashMap<>();
+        extraContext.put(AgentIdentity.CTX_CONVERSATION_ID, conversationId);
+        // C-1：仅 PREVIEW 注入服务端当前日期；AgentService 拼接前会移除该键
+        extraContext.put(AgentIdentity.CTX_PLANNING_DATE, PlanningTimeContext.current());
+
+        long startMs = System.currentTimeMillis();
+        try {
+            AgentReply reply = agentService.chat(message, identity, extraContext);
+            String draftText = reply.answer() == null ? "" : reply.answer();
+
+            // P-1：仅存 HttpSession，不落库；新草案覆盖旧草案。
+            // 刻意不把模型生成的草案正文存入 Session（隐私最小化）；
+            // 草案正文已在本次响应的 answer 中交给前端，状态以 plan.state 为准。
+            session.setAttribute(SESSION_PENDING_PLAN,
+                    new PlanningDraft(identity.userId(), identity.userTable(),
+                            conversationId, System.currentTimeMillis()));
+
+            logger.info("[AGENT][PLAN] 草案已生成 state=DRAFT elapsed={}ms",
+                    System.currentTimeMillis() - startMs);
+            return R.ok()
+                    .put("answer", draftText)
+                    .put("safety", reply.safety())
+                    .put("conversationId", conversationId)
+                    .put("plan", Map.of("state", PlanState.DRAFT.name(),
+                            "expiresInSeconds", PLAN_DRAFT_TTL_MILLIS / 1000L));
+        } catch (Exception e) {
+            logger.error("[AGENT][PLAN] 草案生成失败 elapsed={}ms ex={}",
+                    System.currentTimeMillis() - startMs, e.getClass().getName(), e);
+            return R.error(MSG_PLAN_FAILED);
+        }
+    }
+
+    /**
+     * CONFIRM / DISCARD：纯 Java 状态机，不调用模型、不注入段、不新建会话。
+     *
+     * <p><b>异常路径语义（2026-11-06 审查修正）</b>：{@code requireOwned} 的真实契约是
+     * 抛 {@code ForbiddenException} → HTTP 403（既有 IDOR 契约，与 /agent/chat 的会话接口一致），
+     * 不是 {@code NO_DRAFT}。因此归属校验放在<b>触碰 Session 草稿之前</b>：
+     * 授权拒绝时草稿保持原状，不被误删、不被消费。
+     * 规格中「统一归入 NO_DRAFT」约束的是<b>草稿归属比对失败</b>（matches 失败、
+     * 账号切换、会话切换），与「conversationId 本身不属于当前用户」的请求级 403 是两种语义。
+     *
+     * <p><b>并发语义</b>：「取草稿 + 移除 Session 属性」只是编排清理，
+     * <b>不作为并发安全依据</b>。真正的原子保障是
+     * {@link PlanningDraft#tryConsume()} —— 同一草稿引用的两个并发请求
+     * 至多一个能取得消费权。
+     */
+    private R resolvePlan(AgentPlanRequest request, AgentIdentity identity, HttpSession session,
+                          PlanState successState) {
+        Long conversationId = request.getConversationId();
+        if (conversationId == null) {
+            return planResult(PlanState.NO_DRAFT, MSG_PLAN_NO_DRAFT);
+        }
+
+        // ③ 防存在性预言机：归属校验【先于】任何 Session 变更。
+        // 失败 ⇒ ForbiddenException → HTTP 403，草稿完全不动（不删除、不消费）。
+        agentConversationService.requireOwned(conversationId, identity.userId());
+
+        // ① 取草稿并从 Session 编排清理（不是并发安全依据，见方法注释）
+        Object raw = session.getAttribute(SESSION_PENDING_PLAN);
+        session.removeAttribute(SESSION_PENDING_PLAN);
+        PlanningDraft draft = raw instanceof PlanningDraft value ? value : null;
+
+        // ⑤ 原子消费：检查与状态变更一次完成，消除 isConsumed/consume 的竞态窗口
+        if (draft == null || !draft.tryConsume()) {
+            return planResult(PlanState.NO_DRAFT, MSG_PLAN_NO_DRAFT);
+        }
+
+        // ② 身份二元组 + 会话逐值比对（HttpSession 认证成功 ≠ 归属成功）
+        if (!draft.matches(identity.userId(), identity.userTable(), conversationId)) {
+            logger.warn("[AGENT][PLAN] 草稿归属校验失败，已消费（不记录身份标识）");
+            return planResult(PlanState.NO_DRAFT, MSG_PLAN_NO_DRAFT);
+        }
+        // ④ 有效期
+        if (draft.isExpired(System.currentTimeMillis(), PLAN_DRAFT_TTL_MILLIS)) {
+            return planResult(PlanState.EXPIRED, MSG_PLAN_EXPIRED);
+        }
+
+        // P-1：确认后在当前 Session 标记为已确认（只存状态字面量，不存用户内容）；
+        // 放弃则清除。响应 plan.state 与前端 planState 是另外两处表达，不互相替代。
+        if (successState == PlanState.CONFIRMED) {
+            session.setAttribute(SESSION_CONFIRMED_PLAN, PlanState.CONFIRMED.name());
+        } else {
+            session.removeAttribute(SESSION_CONFIRMED_PLAN);
+        }
+        String answer = successState == PlanState.CONFIRMED
+                ? MSG_PLAN_CONFIRMED : MSG_PLAN_DISCARDED;
+        logger.info("[AGENT][PLAN] state={}", successState);
+        return planResult(successState, answer);
+    }
+
+    /** 统一响应：plan.state 由服务端确定性给出，不暴露草稿凭证。 */
+    private R planResult(PlanState state, String answer) {
+        return R.ok()
+                .put("answer", answer)
+                .put("safety", new SafetyNotice(false, safetyResources.status()))
+                .put("plan", Map.of("state", state.name(), "expiresInSeconds", 0L));
     }
 }
